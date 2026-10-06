@@ -19,7 +19,7 @@ O foco desta sprint é estabelecer a base sólida sobre a qual as regras de neg�
 | Item do Checklist Oficial | Status | Implementação |
 | :--- | :---: | :--- |
 | **Repositório e dependências instaladas** | ✅ Concluído | `backend/package.json` configurado com Express, TypeScript, mysql2, cors, dotenv, zod, bcryptjs e ts-node-dev. |
-| **Criação do `.env` e conexão com o banco** | ✅ Concluído | `.env.example`, `.env` e módulo singleton `backend/src/config/database.ts` utilizando Pool de conexões MySQL com `mysql2/promise`. |
+| **Criação do `.env` e conexão com o banco** | ✅ Concluído | Arquivo `.env` e módulo singleton `backend/src/config/database.ts` utilizando Pool de conexões MySQL com `mysql2/promise`. |
 | **Criação das Interfaces/Types** | ✅ Concluído | Diretório `backend/src/types/` com tipagens estritas para `Usuario`, `Cliente`, `Produto`, `Venda` e `ItemVenda`. |
 | **Desenvolvimento dos Models** | ✅ Concluído | Diretório `backend/src/models/` com métodos de acesso a dados (`create`, `findById`, `findByEmail`, `findByCpf`, `findByCodigo`, `findAll`, `update`, `inactivate`, `cancel`). |
 
