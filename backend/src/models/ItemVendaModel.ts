@@ -1,6 +1,6 @@
 import { ResultSetHeader, RowDataPacket, PoolConnection } from 'mysql2/promise';
 import { db } from '../config/database';
-import { ItemVenda, ItemVendaComProduto } from '../types';
+import { IItemVenda, IItemVendaComProduto } from '../types';
 
 export class ItemVendaModel {
   /**
@@ -12,7 +12,7 @@ export class ItemVendaModel {
     quantidade: number,
     precoUnitario: number,
     conn?: PoolConnection
-  ): Promise<ItemVenda> {
+  ): Promise<IItemVenda> {
     const subtotal = Number((quantidade * precoUnitario).toFixed(2));
     const query = `
       INSERT INTO itens_venda (venda_id, produto_id, quantidade, preco_unitario, subtotal)
@@ -40,7 +40,7 @@ export class ItemVendaModel {
   /**
    * Busca todos os itens de uma venda específica, trazendo os dados do produto
    */
-  static async findByVendaId(vendaId: number, conn?: PoolConnection): Promise<ItemVendaComProduto[]> {
+  static async findByVendaId(vendaId: number, conn?: PoolConnection): Promise<IItemVendaComProduto[]> {
     const query = `
       SELECT iv.id, iv.venda_id, iv.produto_id, iv.quantidade, 
              iv.preco_unitario, iv.subtotal,

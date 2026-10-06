@@ -1,4 +1,4 @@
-export interface Produto {
+export interface IProduto {
   id: number;
   codigo: string;
   descricao: string;
@@ -9,17 +9,22 @@ export interface Produto {
   atualizado_em: Date;
 }
 
-export interface ProdutoCriacaoDTO {
+export interface IProdutoCriacaoDTO {
   codigo: string;
   descricao: string;
   categoria?: string | null;
   preco: number;
 }
 
-export interface ProdutoAtualizacaoDTO {
+export interface IProdutoAtualizacaoDTO {
   codigo?: string;
   descricao?: string;
   categoria?: string | null;
   preco?: number;
   ativo?: boolean;
 }
+
+// Aliases para compatibilidade
+export type Produto = IProduto;
+export type ProdutoCriacaoDTO = IProdutoCriacaoDTO;
+export type ProdutoAtualizacaoDTO = IProdutoAtualizacaoDTO;

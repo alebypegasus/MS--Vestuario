@@ -1,12 +1,12 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { db } from '../config/database';
-import { Cliente, ClienteCriacaoDTO, ClienteAtualizacaoDTO } from '../types';
+import { ICliente, IClienteCriacaoDTO, IClienteAtualizacaoDTO } from '../types';
 
 export class ClienteModel {
   /**
    * Cadastra um novo cliente
    */
-  static async create(dados: ClienteCriacaoDTO): Promise<Cliente> {
+  static async create(dados: IClienteCriacaoDTO): Promise<ICliente> {
     const query = `
       INSERT INTO clientes (nome, cpf, telefone, email)
       VALUES (?, ?, ?, ?)
@@ -29,7 +29,7 @@ export class ClienteModel {
   /**
    * Busca cliente por ID
    */
-  static async findById(id: number): Promise<Cliente | null> {
+  static async findById(id: number): Promise<ICliente | null> {
     const query = `
       SELECT id, nome, cpf, telefone, email, criado_em, atualizado_em
       FROM clientes
@@ -53,7 +53,7 @@ export class ClienteModel {
   /**
    * Busca cliente por CPF (utilizado para garantir unicidade - RN-01)
    */
-  static async findByCpf(cpf: string): Promise<Cliente | null> {
+  static async findByCpf(cpf: string): Promise<ICliente | null> {
     const query = `
       SELECT id, nome, cpf, telefone, email, criado_em, atualizado_em
       FROM clientes
@@ -77,7 +77,7 @@ export class ClienteModel {
   /**
    * Lista todos os clientes ou filtra por nome/CPF
    */
-  static async findAll(termo?: string): Promise<Cliente[]> {
+  static async findAll(termo?: string): Promise<ICliente[]> {
     let query = `
       SELECT id, nome, cpf, telefone, email, criado_em, atualizado_em
       FROM clientes
@@ -106,7 +106,7 @@ export class ClienteModel {
   /**
    * Atualiza dados de um cliente existente
    */
-  static async update(id: number, dados: ClienteAtualizacaoDTO): Promise<Cliente | null> {
+  static async update(id: number, dados: IClienteAtualizacaoDTO): Promise<ICliente | null> {
     const campos: string[] = [];
     const params: (string | null | number)[] = [];
 

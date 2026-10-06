@@ -1,12 +1,12 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { db } from '../config/database';
-import { Usuario, UsuarioCriacaoDTO, UsuarioRespostaDTO } from '../types';
+import { IUsuario, IUsuarioCriacaoDTO, IUsuarioRespostaDTO } from '../types';
 
 export class UsuarioModel {
   /**
    * Cria um novo usuário no banco de dados
    */
-  static async create(dados: UsuarioCriacaoDTO): Promise<Usuario> {
+  static async create(dados: IUsuarioCriacaoDTO): Promise<IUsuario> {
     const query = `
       INSERT INTO usuarios (nome, email, senha_hash, cargo)
       VALUES (?, ?, ?, ?)
@@ -29,7 +29,7 @@ export class UsuarioModel {
   /**
    * Busca um usuário pelo ID
    */
-  static async findById(id: number): Promise<Usuario | null> {
+  static async findById(id: number): Promise<IUsuario | null> {
     const query = `
       SELECT id, nome, email, senha_hash, cargo, ativo, criado_em, atualizado_em
       FROM usuarios
@@ -54,7 +54,7 @@ export class UsuarioModel {
   /**
    * Busca um usuário pelo e-mail (usado na autenticação e alçadas)
    */
-  static async findByEmail(email: string): Promise<Usuario | null> {
+  static async findByEmail(email: string): Promise<IUsuario | null> {
     const query = `
       SELECT id, nome, email, senha_hash, cargo, ativo, criado_em, atualizado_em
       FROM usuarios
@@ -79,7 +79,7 @@ export class UsuarioModel {
   /**
    * Retorna todos os usuários (sem expor a senha_hash)
    */
-  static async findAll(): Promise<UsuarioRespostaDTO[]> {
+  static async findAll(): Promise<IUsuarioRespostaDTO[]> {
     const query = `
       SELECT id, nome, email, cargo, ativo, criado_em, atualizado_em
       FROM usuarios

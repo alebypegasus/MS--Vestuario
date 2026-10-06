@@ -1,12 +1,12 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { db } from '../config/database';
-import { Produto, ProdutoCriacaoDTO, ProdutoAtualizacaoDTO } from '../types';
+import { IProduto, IProdutoCriacaoDTO, IProdutoAtualizacaoDTO } from '../types';
 
 export class ProdutoModel {
   /**
    * Cadastra um novo produto no catálogo
    */
-  static async create(dados: ProdutoCriacaoDTO): Promise<Produto> {
+  static async create(dados: IProdutoCriacaoDTO): Promise<IProduto> {
     const query = `
       INSERT INTO produtos (codigo, descricao, categoria, preco)
       VALUES (?, ?, ?, ?)
@@ -28,7 +28,7 @@ export class ProdutoModel {
   /**
    * Busca produto por ID
    */
-  static async findById(id: number): Promise<Produto | null> {
+  static async findById(id: number): Promise<IProduto | null> {
     const query = `
       SELECT id, codigo, descricao, categoria, preco, ativo, criado_em, atualizado_em
       FROM produtos
@@ -53,7 +53,7 @@ export class ProdutoModel {
   /**
    * Busca produto por código de barras ou SKU (busca instantânea no checkout do PDV)
    */
-  static async findByCodigo(codigo: string): Promise<Produto | null> {
+  static async findByCodigo(codigo: string): Promise<IProduto | null> {
     const query = `
       SELECT id, codigo, descricao, categoria, preco, ativo, criado_em, atualizado_em
       FROM produtos
@@ -78,7 +78,7 @@ export class ProdutoModel {
   /**
    * Lista todos os produtos (com opção de filtrar somente ativos para o PDV)
    */
-  static async findAll(somenteAtivos: boolean = true): Promise<Produto[]> {
+  static async findAll(somenteAtivos: boolean = true): Promise<IProduto[]> {
     let query = `
       SELECT id, codigo, descricao, categoria, preco, ativo, criado_em, atualizado_em
       FROM produtos
@@ -104,7 +104,7 @@ export class ProdutoModel {
   /**
    * Atualiza dados e preço do produto no catálogo
    */
-  static async update(id: number, dados: ProdutoAtualizacaoDTO): Promise<Produto | null> {
+  static async update(id: number, dados: IProdutoAtualizacaoDTO): Promise<IProduto | null> {
     const campos: string[] = [];
     const params: (string | number | boolean | null)[] = [];
 

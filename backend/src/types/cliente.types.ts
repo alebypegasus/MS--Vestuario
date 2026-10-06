@@ -1,4 +1,4 @@
-export interface Cliente {
+export interface ICliente {
   id: number;
   nome: string;
   cpf: string;
@@ -8,15 +8,20 @@ export interface Cliente {
   atualizado_em: Date;
 }
 
-export interface ClienteCriacaoDTO {
+export interface IClienteCriacaoDTO {
   nome: string;
   cpf: string;
   telefone?: string | null;
   email?: string | null;
 }
 
-export interface ClienteAtualizacaoDTO {
+export interface IClienteAtualizacaoDTO {
   nome?: string;
   telefone?: string | null;
   email?: string | null;
 }
+
+// Aliases para compatibilidade
+export type Cliente = ICliente;
+export type ClienteCriacaoDTO = IClienteCriacaoDTO;
+export type ClienteAtualizacaoDTO = IClienteAtualizacaoDTO;

@@ -20,7 +20,7 @@ O foco desta sprint é estabelecer a base sólida sobre a qual as regras de neg�
 | :--- | :---: | :--- |
 | **Repositório e dependências instaladas** | ✅ Concluído | `backend/package.json` configurado com Express, TypeScript, mysql2, cors, dotenv, zod, bcryptjs e ts-node-dev. |
 | **Criação do `.env` e conexão com o banco** | ✅ Concluído | Arquivo `.env` e módulo singleton `backend/src/config/database.ts` utilizando Pool de conexões MySQL com `mysql2/promise`. |
-| **Criação das Interfaces/Types** | ✅ Concluído | Diretório `backend/src/types/` com tipagens estritas para `Usuario`, `Cliente`, `Produto`, `Venda` e `ItemVenda`. |
+| **Criação das Interfaces/Types** | ✅ Concluído | Diretório `backend/src/types/` com interfaces padronizadas com prefixo `I` (`IUsuario`, `ICliente`, `IProduto`, `IVenda` e `IItemVenda`). |
 | **Desenvolvimento dos Models** | ✅ Concluído | Diretório `backend/src/models/` com métodos de acesso a dados (`create`, `findById`, `findByEmail`, `findByCpf`, `findByCodigo`, `findAll`, `update`, `inactivate`, `cancel`). |
 
 ---
@@ -60,36 +60,36 @@ Implementada em `backend/src/config/database.ts`:
 ## 5. Mapeamento dos Models e Operações Implementadas
 
 ### 5.1. `UsuarioModel`
-* `create(dados: UsuarioCriacaoDTO): Promise<Usuario>`: Insere usuário com senha criptografada (`bcrypt`).
-* `findById(id: number): Promise<Usuario | null>`: Recupera usuário por identificador primário.
-* `findByEmail(email: string): Promise<Usuario | null>`: Utilizado no login e nas alçadas gerenciais.
-* `findAll(): Promise<UsuarioRespostaDTO[]>`: Lista usuários com omissão de hash de senha.
+* `create(dados: IUsuarioCriacaoDTO): Promise<IUsuario>`: Insere usuário com senha criptografada (`bcrypt`).
+* `findById(id: number): Promise<IUsuario | null>`: Recupera usuário por identificador primário.
+* `findByEmail(email: string): Promise<IUsuario | null>`: Utilizado no login e nas alçadas gerenciais.
+* `findAll(): Promise<IUsuarioRespostaDTO[]>`: Lista usuários com omissão de hash de senha.
 
 ### 5.2. `ClienteModel`
-* `create(dados: ClienteCriacaoDTO): Promise<Cliente>`: Cadastra cliente no balcão.
-* `findById(id: number): Promise<Cliente | null>`: Busca por ID.
-* `findByCpf(cpf: string): Promise<Cliente | null>`: Suporta a validação de CPF único (**RN-01**).
-* `findAll(termo?: string): Promise<Cliente[]>`: Lista clientes com busca incremental por nome ou CPF.
-* `update(id: number, dados: ClienteAtualizacaoDTO): Promise<Cliente | null>`: Atualização cadastral.
+* `create(dados: IClienteCriacaoDTO): Promise<ICliente>`: Cadastra cliente no balcão.
+* `findById(id: number): Promise<ICliente | null>`: Busca por ID.
+* `findByCpf(cpf: string): Promise<ICliente | null>`: Suporta a validação de CPF único (**RN-01**).
+* `findAll(termo?: string): Promise<ICliente[]>`: Lista clientes com busca incremental por nome ou CPF.
+* `update(id: number, dados: IClienteAtualizacaoDTO): Promise<ICliente | null>`: Atualização cadastral.
 
 ### 5.3. `ProdutoModel`
-* `create(dados: ProdutoCriacaoDTO): Promise<Produto>`: Adiciona peça ao catálogo.
-* `findById(id: number): Promise<Produto | null>`: Busca por ID.
-* `findByCodigo(codigo: string): Promise<Produto | null>`: Busca instantânea por código de barras/SKU no checkout.
-* `findAll(somenteAtivos?: boolean): Promise<Produto[]>`: Consulta do catálogo do PDV.
-* `update(id: number, dados: ProdutoAtualizacaoDTO): Promise<Produto | null>`: Atualização de preço e descrição.
+* `create(dados: IProdutoCriacaoDTO): Promise<IProduto>`: Adiciona peça ao catálogo.
+* `findById(id: number): Promise<IProduto | null>`: Busca por ID.
+* `findByCodigo(codigo: string): Promise<IProduto | null>`: Busca instantânea por código de barras/SKU no checkout.
+* `findAll(somenteAtivos?: boolean): Promise<IProduto[]>`: Consulta do catálogo do PDV.
+* `update(id: number, dados: IProdutoAtualizacaoDTO): Promise<IProduto | null>`: Atualização de preço e descrição.
 * `inactivate(id: number): Promise<boolean>`: Inativação lógica (**RN-08** - Soft Delete).
 
 ### 5.4. `ItemVendaModel`
-* `create(vendaId, produtoId, qtd, precoUnitario, conn)`: Grava o item congelando o preço no ato (**RN-04** - Snapshot Financeiro).
-* `findByVendaId(vendaId: number)`: Lista as linhas do cupom fiscal trazendo os dados da peça associada.
+* `create(vendaId, produtoId, qtd, precoUnitario, conn): Promise<IItemVenda>`: Grava o item congelando o preço no ato (**RN-04** - Snapshot Financeiro).
+* `findByVendaId(vendaId: number): Promise<IItemVendaComProduto[]>`: Lista as linhas do cupom fiscal trazendo os dados da peça associada.
 
 ### 5.5. `VendaModel`
-* `create(dados: VendaCriacaoDTO): Promise<VendaCompleta>`: 
+* `create(dados: IVendaCriacaoDTO): Promise<IVendaCompleta>`: 
   * Executa a gravação da venda e de todos os seus itens sob **Transação Atômica ACID** (`conn.beginTransaction()`, `conn.commit()`, `conn.rollback()`).
   * Garante que nenhuma venda fique sem itens e que nenhum item fique sem cupom.
-* `findById(id: number): Promise<VendaCompleta | null>`: Consulta completa com dados de cliente, operador, gerente e itens.
-* `findAll(): Promise<VendaCompleta[]>`: Histórico geral de vendas para relatórios e fechamento de caixa.
+* `findById(id: number): Promise<IVendaCompleta | null>`: Consulta completa com dados de cliente, operador, gerente e itens.
+* `findAll(): Promise<IVendaCompleta[]>`: Histórico geral de vendas para relatórios e fechamento de caixa.
 * `cancel(id: number, gerenteAprovadorId: number, motivo: string): Promise<boolean>`: Cancelamento oficial da transação (**RN-03** e **RN-05**).
 
 ---

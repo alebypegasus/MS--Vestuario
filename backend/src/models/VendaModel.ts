@@ -1,6 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 import { db } from '../config/database';
-import { Venda, VendaCriacaoDTO, VendaCompleta } from '../types';
+import { IVendaCriacaoDTO, IVendaCompleta } from '../types';
 import { ProdutoModel } from './ProdutoModel';
 import { ItemVendaModel } from './ItemVendaModel';
 
@@ -13,7 +13,7 @@ export class VendaModel {
    * 4. Grava linhas em `itens_venda`
    * 5. Efetua commit
    */
-  static async create(dados: VendaCriacaoDTO): Promise<VendaCompleta> {
+  static async create(dados: IVendaCriacaoDTO): Promise<IVendaCompleta> {
     const conn = await db.getConnection();
     try {
       await conn.beginTransaction();
@@ -51,7 +51,7 @@ export class VendaModel {
       }
       const valorTotal = Number((subtotal - desconto).toFixed(2));
 
-      // 1. Inserir Cabeçalho da Venda
+      // 1. Inserir Cabeçalho da Venda (1 Usuário : N Vendas)
       const queryVenda = `
         INSERT INTO vendas (
           usuario_id, cliente_id, gerente_aprovador_id,
@@ -99,7 +99,7 @@ export class VendaModel {
   /**
    * Busca uma venda por ID trazendo dados do operador, cliente e itens
    */
-  static async findById(id: number): Promise<VendaCompleta | null> {
+  static async findById(id: number): Promise<IVendaCompleta | null> {
     const query = `
       SELECT v.id, v.usuario_id, v.cliente_id, v.gerente_aprovador_id,
              v.subtotal, v.desconto, v.valor_total, v.forma_pagamento,
@@ -144,7 +144,7 @@ export class VendaModel {
   /**
    * Lista todas as vendas registradas
    */
-  static async findAll(): Promise<VendaCompleta[]> {
+  static async findAll(): Promise<IVendaCompleta[]> {
     const query = `
       SELECT v.id, v.usuario_id, v.cliente_id, v.gerente_aprovador_id,
              v.subtotal, v.desconto, v.valor_total, v.forma_pagamento,
@@ -161,7 +161,7 @@ export class VendaModel {
     `;
     const [rows] = await db.execute<RowDataPacket[]>(query);
     
-    const vendas: VendaCompleta[] = [];
+    const vendas: IVendaCompleta[] = [];
     for (const row of rows) {
       const itens = await ItemVendaModel.findByVendaId(row.id);
       vendas.push({
