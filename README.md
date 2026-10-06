@@ -66,10 +66,10 @@ O banco de dados relacional foi modelado na **3ª Forma Normal (3FN)** e impleme
 ### 🖼️ Diagrama Entidade-Relacionamento
 
 <div align="center">
-  <img src="database/der-apresentacao.png" alt="Diagrama Entidade-Relacionamento MS² Vestuário" width="90%"/>
+  <img src="documentação/s01/der-apresentacao.png" alt="Diagrama Entidade-Relacionamento MS² Vestuário" width="90%"/>
 </div>
 
-> Para detalhes das colunas, tipos e constraints, consulte o [Documento Técnico de Modelagem e DER](documentação/s01/02-modelagem-e-der.md) ou a versão vetorial [der-diagrama.svg](database/der-diagrama.svg).
+> Para detalhes das colunas, tipos e constraints, consulte o [Documento Técnico de Modelagem e DER](documentação/s01/02-modelagem-e-der.md) ou a versão vetorial [der-diagrama.svg](documentação/s01/der-diagrama.svg).
 
 ### Entidades do Sistema:
 
