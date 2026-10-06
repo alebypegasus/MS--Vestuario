@@ -1,0 +1,37 @@
+{
+  "name": "ms2-vestuario-backend",
+  "version": "1.0.0",
+  "description": "Backend da API RESTful para o Sistema de Gestão e PDV - MS² Vestuário",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only --clear src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test:db": "ts-node-dev --transpile-only src/config/test-connection.ts"
+  },
+  "keywords": [
+    "pdv",
+    "ms2-vestuario",
+    "express",
+    "typescript",
+    "mysql"
+  ],
+  "author": "Equipe MS² Vestuário",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.3"
+  }
+}

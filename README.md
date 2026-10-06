@@ -147,8 +147,8 @@ MS² Vestuario/
 | Sprint | Foco da Entrega              |  Status   | Entregáveis                                                           |
 | :----: | :--------------------------- | :-------: | :-------------------------------------------------------------------- |
 | **01** | **Planejamento e Modelagem** | Concluído | Documento de Requisitos, Regras de Negócio, DER e DDL MySQL.          |
-| **02** | **Backend (Fundamentos)**    |  Próximo  | Setup Node.js/TS, conexão com banco, Types e Repositories/Models.     |
-| **03** | **Backend (Lógica e API)**   | Planejado | Controllers, Services, alçadas de desconto/cancelamento e rotas REST. |
+| **02** | **Backend (Fundamentos)**    | Concluído | Setup Node.js/TS, conexão MySQL, Types e Models/Repositories.          |
+| **03** | **Backend (Lógica e API)**   |  Próximo  | Controllers, Services, alçadas de desconto/cancelamento e rotas REST. |
 | **04** | **Frontend (Interface)**     | Planejado | Telas em React/Vite: Login, PDV Caixa, Produtos e Clientes.           |
 | **05** | **Integração e Homologação** | Planejado | Conexão API via Fetch/Axios, testes E2E e correção de bugs.           |
 | **06** | **Defesa Técnica Final**     | Planejado | Slides de Pitch, Apresentação para Banca e Live Demo.                 |
@@ -207,7 +207,8 @@ O script de sementes (`seeds.sql`) já fornece usuários operacionais com senhas
 
 ## 🎓 9. Informações Acadêmicas
 
-- **Instituição / Unidade Curricular:** Desenvolvimento de Sistemas
+- **Instituição:** Firjan - Senai
+- **Unidade Curricular:** Desenvolvimento de Sistemas
 - **Cliente Fictício:** MS² Vestuário
 - **Objetivo:** Simulação de engenharia de software aplicada a um cenário real de varejo.
 - **Formato de Avaliação:** Pitch Técnico em Slides (15 minutos) + Demonstração Prática ao Vivo (Live Demo).
