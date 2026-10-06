@@ -1,0 +1,730 @@
+{
+  "id": "c1000000-0000-4000-8000-000000000001",
+  "name": "MS² Vestuário - API RESTful (PDV & Gestão)",
+  "items": [
+    {
+      "id": "ca53e16f-d864-4d6d-bce3-00f206ee93ca",
+      "name": "01. Autenticação e Sessão",
+      "type": "folder",
+      "children": [
+        {
+          "id": "14bf9789-4f1f-4974-880c-9eed511ef380",
+          "name": "Login - Operador de Caixa (200 OK)",
+          "type": "request",
+          "request": {
+            "id": "14bf9789-4f1f-4974-880c-9eed511ef380",
+            "name": "Login - Operador de Caixa (200 OK)",
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "headers": [
+              {
+                "id": "3c22a44c-cee6-4ec9-96db-7dd9db313f57",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"caixa123\"\n}"
+          }
+        },
+        {
+          "id": "06d2ac8c-f2e7-483a-9924-600d44baf1d8",
+          "name": "Login - Gerente (200 OK)",
+          "type": "request",
+          "request": {
+            "id": "06d2ac8c-f2e7-483a-9924-600d44baf1d8",
+            "name": "Login - Gerente (200 OK)",
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "headers": [
+              {
+                "id": "72e96a80-bc5d-4ac9-bed2-385b9019de15",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"email\": \"gerente@ms2.com.br\",\n  \"senha\": \"admin123\"\n}"
+          }
+        },
+        {
+          "id": "899dfe2a-989b-4022-bafc-a2377dc8bff6",
+          "name": "Login - Senha Incorreta (Cenário Negativo 401)",
+          "type": "request",
+          "request": {
+            "id": "899dfe2a-989b-4022-bafc-a2377dc8bff6",
+            "name": "Login - Senha Incorreta (Cenário Negativo 401)",
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "headers": [
+              {
+                "id": "85d35863-d1da-49fe-93ed-c0dfad8db5d5",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"senha_errada\"\n}"
+          }
+        },
+        {
+          "id": "8877de31-c866-411d-b6d7-df97617a43fe",
+          "name": "Verificar Dados da Sessão (/auth/me)",
+          "type": "request",
+          "request": {
+            "id": "8877de31-c866-411d-b6d7-df97617a43fe",
+            "name": "Verificar Dados da Sessão (/auth/me)",
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "headers": [
+              {
+                "id": "3eb413a2-145f-4925-a26f-ccf3a561976d",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "786a34a5-2203-475d-910e-2a65d368f3df",
+          "name": "Healthcheck do Servidor",
+          "type": "request",
+          "request": {
+            "id": "786a34a5-2203-475d-910e-2a65d368f3df",
+            "name": "Healthcheck do Servidor",
+            "method": "GET",
+            "url": "http://localhost:3001/api/health",
+            "headers": [],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        }
+      ]
+    },
+    {
+      "id": "759d8ad0-85c7-4af4-a7f7-074de0dec1a9",
+      "name": "02. Catálogo de Produtos",
+      "type": "folder",
+      "children": [
+        {
+          "id": "89c36db3-1cba-48fe-83f0-648048d8670d",
+          "name": "Listar Todos os Produtos Ativos",
+          "type": "request",
+          "request": {
+            "id": "89c36db3-1cba-48fe-83f0-648048d8670d",
+            "name": "Listar Todos os Produtos Ativos",
+            "method": "GET",
+            "url": "{{base_url}}/produtos",
+            "headers": [
+              {
+                "id": "e6d8b12a-415f-47cd-9b89-f9e6a19d3ca7",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "457364fe-a390-4600-805a-58af1b85d0b1",
+          "name": "Buscar Produto por ID (Ex: 1)",
+          "type": "request",
+          "request": {
+            "id": "457364fe-a390-4600-805a-58af1b85d0b1",
+            "name": "Buscar Produto por ID (Ex: 1)",
+            "method": "GET",
+            "url": "{{base_url}}/produtos/1",
+            "headers": [
+              {
+                "id": "44d08681-5971-4aec-a039-2ce8970dc5c2",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "695a5358-798c-462c-b879-5513ec70c789",
+          "name": "Buscar Produto por Código de Barras (Ex: 101)",
+          "type": "request",
+          "request": {
+            "id": "695a5358-798c-462c-b879-5513ec70c789",
+            "name": "Buscar Produto por Código de Barras (Ex: 101)",
+            "method": "GET",
+            "url": "{{base_url}}/produtos/codigo/101",
+            "headers": [
+              {
+                "id": "fd73ffca-4022-44ed-9a76-dc0883782b1e",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "ba1bf1b0-53c5-4a55-9965-48c24394a8c9",
+          "name": "Cadastrar Novo Produto (Exclusivo Gerente - 201)",
+          "type": "request",
+          "request": {
+            "id": "ba1bf1b0-53c5-4a55-9965-48c24394a8c9",
+            "name": "Cadastrar Novo Produto (Exclusivo Gerente - 201)",
+            "method": "POST",
+            "url": "{{base_url}}/produtos",
+            "headers": [
+              {
+                "id": "d27f9e46-73fa-4f4c-a42a-ea4bd50ddaf4",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "75cae144-df33-4e3e-845d-eb92e125ff94",
+                "key": "Authorization",
+                "value": "Bearer {{token_gerente}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"codigo\": \"201\",\n  \"descricao\": \"Moletom Streetwear com Capuz Preto G\",\n  \"categoria\": \"Vestuário\",\n  \"preco\": 199.9,\n  \"ativo\": true\n}"
+          }
+        },
+        {
+          "id": "a1dcbb1c-1324-4731-94f9-681f4f6cb377",
+          "name": "Tentativa de Cadastro por Caixa (Cenário Negativo 403)",
+          "type": "request",
+          "request": {
+            "id": "a1dcbb1c-1324-4731-94f9-681f4f6cb377",
+            "name": "Tentativa de Cadastro por Caixa (Cenário Negativo 403)",
+            "method": "POST",
+            "url": "{{base_url}}/produtos",
+            "headers": [
+              {
+                "id": "62299d10-b4bf-4adc-b15b-8a3806aaa758",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "81e2ed18-309c-4202-b9fe-b8dc80963463",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"codigo\": \"202\",\n  \"descricao\": \"Tentativa Bloqueada\",\n  \"categoria\": \"Vestuário\",\n  \"preco\": 99.9\n}"
+          }
+        },
+        {
+          "id": "28cd8063-87a0-419d-91c6-c03f92d3cdf2",
+          "name": "Atualizar Produto / Preço (Exclusivo Gerente - 200)",
+          "type": "request",
+          "request": {
+            "id": "28cd8063-87a0-419d-91c6-c03f92d3cdf2",
+            "name": "Atualizar Produto / Preço (Exclusivo Gerente - 200)",
+            "method": "PUT",
+            "url": "{{base_url}}/produtos/1",
+            "headers": [
+              {
+                "id": "c0188af4-88f8-41a0-a9d8-702fc6be6f73",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "a0123a08-cece-44f7-8393-e7e3e162d334",
+                "key": "Authorization",
+                "value": "Bearer {{token_gerente}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"descricao\": \"Camiseta Básica Algodão Premium Preta P\",\n  \"preco\": 54.9\n}"
+          }
+        },
+        {
+          "id": "0239e1d9-f938-442f-b9b8-00055fd485d1",
+          "name": "Inativar Produto (Soft Delete / Gerente - 200)",
+          "type": "request",
+          "request": {
+            "id": "0239e1d9-f938-442f-b9b8-00055fd485d1",
+            "name": "Inativar Produto (Soft Delete / Gerente - 200)",
+            "method": "PATCH",
+            "url": "{{base_url}}/produtos/8/status",
+            "headers": [
+              {
+                "id": "48d2758f-bbee-4893-a04c-de076a006b54",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "e4e5c09c-0f2b-4fe4-a1f0-6d194ca77742",
+                "key": "Authorization",
+                "value": "Bearer {{token_gerente}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"ativo\": false\n}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7c65e3c6-7f95-451a-8903-23c89a145435",
+      "name": "03. Base de Clientes (RN-01)",
+      "type": "folder",
+      "children": [
+        {
+          "id": "cee0d037-6c25-4208-bb51-afc764748da7",
+          "name": "Listar Todos os Clientes",
+          "type": "request",
+          "request": {
+            "id": "cee0d037-6c25-4208-bb51-afc764748da7",
+            "name": "Listar Todos os Clientes",
+            "method": "GET",
+            "url": "{{base_url}}/clientes",
+            "headers": [
+              {
+                "id": "54ad1c65-e484-41b8-a3b9-795b65d12d8f",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "34077f67-e2e0-4b1b-b93f-67735f79ebcb",
+          "name": "Filtrar Clientes por Nome ou CPF (?busca=Mariana)",
+          "type": "request",
+          "request": {
+            "id": "34077f67-e2e0-4b1b-b93f-67735f79ebcb",
+            "name": "Filtrar Clientes por Nome ou CPF (?busca=Mariana)",
+            "method": "GET",
+            "url": "{{base_url}}/clientes",
+            "headers": [
+              {
+                "id": "2282649f-87b7-44a4-bbcc-e78611df5213",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [
+              {
+                "id": "b846cab9-8052-43d9-99ce-5190cc411c43",
+                "key": "busca",
+                "value": "Mariana",
+                "enabled": true
+              }
+            ],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "28bdc331-e155-450e-bf97-afc27706e4b9",
+          "name": "Buscar Cliente por ID (Ex: 1)",
+          "type": "request",
+          "request": {
+            "id": "28bdc331-e155-450e-bf97-afc27706e4b9",
+            "name": "Buscar Cliente por ID (Ex: 1)",
+            "method": "GET",
+            "url": "{{base_url}}/clientes/1",
+            "headers": [
+              {
+                "id": "7bca85a4-c79b-4e06-8f33-a11d28561d97",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "c4ee30f4-044c-4f34-8c2c-442a9e218c78",
+          "name": "Buscar Cliente por CPF (529.982.247-25)",
+          "type": "request",
+          "request": {
+            "id": "c4ee30f4-044c-4f34-8c2c-442a9e218c78",
+            "name": "Buscar Cliente por CPF (529.982.247-25)",
+            "method": "GET",
+            "url": "{{base_url}}/clientes/cpf/529.982.247-25",
+            "headers": [
+              {
+                "id": "47e7c5b8-1c74-4d2f-93ee-bd5f9dcf6486",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "94878f67-f9ee-4609-9205-412cced6a0a6",
+          "name": "Cadastrar Novo Cliente (RN-01 - Módulo 11 Válido - 201)",
+          "type": "request",
+          "request": {
+            "id": "94878f67-f9ee-4609-9205-412cced6a0a6",
+            "name": "Cadastrar Novo Cliente (RN-01 - Módulo 11 Válido - 201)",
+            "method": "POST",
+            "url": "{{base_url}}/clientes",
+            "headers": [
+              {
+                "id": "45ce7bcc-e728-4447-9632-58a71b4ee6fc",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "179772d4-0676-4e3b-aa1c-934c05affd67",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Beatriz Almeida\",\n  \"cpf\": \"064.514.702-87\",\n  \"telefone\": \"(21) 99999-8888\",\n  \"email\": \"beatriz.almeida@email.com\"\n}"
+          }
+        },
+        {
+          "id": "45e7462c-d041-4a19-8053-5c94409e9f44",
+          "name": "Bloqueio CPF Duplicado (RN-01 - Conflito 409)",
+          "type": "request",
+          "request": {
+            "id": "45e7462c-d041-4a19-8053-5c94409e9f44",
+            "name": "Bloqueio CPF Duplicado (RN-01 - Conflito 409)",
+            "method": "POST",
+            "url": "{{base_url}}/clientes",
+            "headers": [
+              {
+                "id": "aa34e8ae-b788-4002-a1b0-4d6fd4d342f1",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "bf6b4837-7dce-4512-a86a-3ce56dd1cad4",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Mariana Tentativa Duplicada\",\n  \"cpf\": \"529.982.247-25\",\n  \"telefone\": \"(21) 98888-0000\"\n}"
+          }
+        },
+        {
+          "id": "cfacc973-f1ba-46f1-a6c8-6ce27aacf204",
+          "name": "Bloqueio CPF Inválido no Módulo 11 (Cenário Negativo 400)",
+          "type": "request",
+          "request": {
+            "id": "cfacc973-f1ba-46f1-a6c8-6ce27aacf204",
+            "name": "Bloqueio CPF Inválido no Módulo 11 (Cenário Negativo 400)",
+            "method": "POST",
+            "url": "{{base_url}}/clientes",
+            "headers": [
+              {
+                "id": "48019fcd-3fa3-4c0d-89e0-c12806d00263",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "a98a0cdf-7941-440f-a365-012eef9063a8",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Cliente CPF Inválido\",\n  \"cpf\": \"123.456.789-00\",\n  \"telefone\": \"(21) 97777-1111\"\n}"
+          }
+        },
+        {
+          "id": "2f09a66e-9fe7-4489-bf46-f9694e2c4746",
+          "name": "Atualizar Dados de Cliente (ID 1)",
+          "type": "request",
+          "request": {
+            "id": "2f09a66e-9fe7-4489-bf46-f9694e2c4746",
+            "name": "Atualizar Dados de Cliente (ID 1)",
+            "method": "PUT",
+            "url": "{{base_url}}/clientes/1",
+            "headers": [
+              {
+                "id": "268d521e-2c53-454f-ad8f-9356ff3658dd",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "8fae12f0-1871-4475-adfc-f5918765f1a0",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Mariana Souza Santos\",\n  \"telefone\": \"(21) 98888-9999\",\n  \"email\": \"mariana.santos@email.com\"\n}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "167335ab-bd0c-4b2b-a91e-ab2df87fd1b3",
+      "name": "04. Frente de Caixa e PDV (RN-02, RN-04)",
+      "type": "folder",
+      "children": [
+        {
+          "id": "6a5997e9-34cf-4843-9b7b-44001f38752b",
+          "name": "Venda com Desconto Normal <= 10% (Permitido Caixa - 201)",
+          "type": "request",
+          "request": {
+            "id": "6a5997e9-34cf-4843-9b7b-44001f38752b",
+            "name": "Venda com Desconto Normal <= 10% (Permitido Caixa - 201)",
+            "method": "POST",
+            "url": "{{base_url}}/vendas",
+            "headers": [
+              {
+                "id": "144db854-1d06-46f4-8dfb-6ffaa43e044b",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "2d99c66a-cc95-43fc-a081-b6261c4fbde6",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"cliente_id\": 1,\n  \"forma_pagamento\": \"PIX\",\n  \"desconto\": 4,\n  \"itens\": [\n    {\n      \"produto_id\": 1,\n      \"quantidade\": 1\n    }\n  ]\n}"
+          }
+        },
+        {
+          "id": "4cdad5fa-5616-437a-b6ea-18060cff361e",
+          "name": "Bloqueio Desconto > 10% sem Gerente (RN-02 - Proibido 403)",
+          "type": "request",
+          "request": {
+            "id": "4cdad5fa-5616-437a-b6ea-18060cff361e",
+            "name": "Bloqueio Desconto > 10% sem Gerente (RN-02 - Proibido 403)",
+            "method": "POST",
+            "url": "{{base_url}}/vendas",
+            "headers": [
+              {
+                "id": "392d752b-9d2f-451f-8733-4234a889a70b",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "e95b5007-3a23-484b-9393-8df8babb203f",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"cliente_id\": 1,\n  \"forma_pagamento\": \"DINHEIRO\",\n  \"desconto\": 20,\n  \"itens\": [\n    {\n      \"produto_id\": 1,\n      \"quantidade\": 1\n    }\n  ]\n}"
+          }
+        },
+        {
+          "id": "9fb48a01-1df8-4a8b-9766-9f8ab9467ed7",
+          "name": "Venda com Desconto Alto COM Aprovação de Gerente (RN-02 - 201)",
+          "type": "request",
+          "request": {
+            "id": "9fb48a01-1df8-4a8b-9766-9f8ab9467ed7",
+            "name": "Venda com Desconto Alto COM Aprovação de Gerente (RN-02 - 201)",
+            "method": "POST",
+            "url": "{{base_url}}/vendas",
+            "headers": [
+              {
+                "id": "13462941-c0da-4a15-be38-5397ac193a09",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "ee12517c-c4f4-4f16-b81f-02b4ed57e747",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"cliente_id\": 1,\n  \"forma_pagamento\": \"CARTAO_CREDITO\",\n  \"desconto\": 20,\n  \"itens\": [\n    {\n      \"produto_id\": 1,\n      \"quantidade\": 1\n    }\n  ],\n  \"gerente_aprovador\": {\n    \"email\": \"gerente@ms2.com.br\",\n    \"senha\": \"admin123\"\n  }\n}"
+          }
+        },
+        {
+          "id": "ea008c0c-3e84-49dc-bb5d-db0ef633bd01",
+          "name": "Venda Consumidor Final (Sem identificação de cliente - RN-06)",
+          "type": "request",
+          "request": {
+            "id": "ea008c0c-3e84-49dc-bb5d-db0ef633bd01",
+            "name": "Venda Consumidor Final (Sem identificação de cliente - RN-06)",
+            "method": "POST",
+            "url": "{{base_url}}/vendas",
+            "headers": [
+              {
+                "id": "77542fed-cd05-441f-9522-61766fbf305d",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "d5d6b1bd-8850-4aaa-aebb-2531974fd75b",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"forma_pagamento\": \"DINHEIRO\",\n  \"desconto\": 0,\n  \"itens\": [\n    {\n      \"produto_id\": 6,\n      \"quantidade\": 2\n    }\n  ]\n}"
+          }
+        },
+        {
+          "id": "f44a137a-79a4-4da6-a8b4-a4a5c3206d43",
+          "name": "Listar Histórico Geral de Vendas",
+          "type": "request",
+          "request": {
+            "id": "f44a137a-79a4-4da6-a8b4-a4a5c3206d43",
+            "name": "Listar Histórico Geral de Vendas",
+            "method": "GET",
+            "url": "{{base_url}}/vendas",
+            "headers": [
+              {
+                "id": "9948d543-0aa5-4622-9a0b-028af1fad5f2",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "6f4a0e86-88b9-4fda-baed-7854818367da",
+          "name": "Consultar Venda com Itens e Snapshot de Preço (ID 1)",
+          "type": "request",
+          "request": {
+            "id": "6f4a0e86-88b9-4fda-baed-7854818367da",
+            "name": "Consultar Venda com Itens e Snapshot de Preço (ID 1)",
+            "method": "GET",
+            "url": "{{base_url}}/vendas/1",
+            "headers": [
+              {
+                "id": "86bcbb58-5e73-4314-9c40-c6f2a6401040",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3af8edb5-a636-473b-a776-d25cf4218a31",
+      "name": "05. Cancelamento e Auditoria (RN-03)",
+      "type": "folder",
+      "children": [
+        {
+          "id": "30627579-9273-4fd8-bf90-ac1ad4ea02b8",
+          "name": "Bloqueio Cancelamento Caixa sem Gerente (RN-03 - Proibido 403)",
+          "type": "request",
+          "request": {
+            "id": "30627579-9273-4fd8-bf90-ac1ad4ea02b8",
+            "name": "Bloqueio Cancelamento Caixa sem Gerente (RN-03 - Proibido 403)",
+            "method": "PATCH",
+            "url": "{{base_url}}/vendas/1/cancelar",
+            "headers": [
+              {
+                "id": "6a1b935d-dbdc-47fa-ba2b-57a0e24e034c",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "eb8db9bc-4569-45c1-b176-c3cc2e6de12e",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"motivo\": \"Cliente desistiu da compra no balcão\"\n}"
+          }
+        },
+        {
+          "id": "97dcad96-06f8-42b5-bcc1-d7fbc6d24905",
+          "name": "Cancelamento COM Aprovação Gerencial (RN-03 - Sucesso 200)",
+          "type": "request",
+          "request": {
+            "id": "97dcad96-06f8-42b5-bcc1-d7fbc6d24905",
+            "name": "Cancelamento COM Aprovação Gerencial (RN-03 - Sucesso 200)",
+            "method": "PATCH",
+            "url": "{{base_url}}/vendas/1/cancelar",
+            "headers": [
+              {
+                "id": "c07ee774-e34e-4da2-906e-1a7d5dfe8a50",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "efbde8fd-a102-4658-afb2-0ff59aafbb85",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"motivo\": \"Devolução de produto autorizada com estorno\",\n  \"gerente_aprovador\": {\n    \"email\": \"gerente@ms2.com.br\",\n    \"senha\": \"admin123\"\n  }\n}"
+          }
+        }
+      ]
+    }
+  ]
+}

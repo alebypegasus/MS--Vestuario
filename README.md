@@ -148,8 +148,8 @@ MS² Vestuario/
 | :----: | :--------------------------- | :-------: | :-------------------------------------------------------------------- |
 | **01** | **Planejamento e Modelagem** | Concluído | Documento de Requisitos, Regras de Negócio, DER e DDL MySQL.          |
 | **02** | **Backend (Fundamentos)**    | Concluído | Setup Node.js/TS, conexão MySQL, Types e Models/Repositories.          |
-| **03** | **Backend (Lógica e API)**   |  Próximo  | Controllers, Services, alçadas de desconto/cancelamento e rotas REST. |
-| **04** | **Frontend (Interface)**     | Planejado | Telas em React/Vite: Login, PDV Caixa, Produtos e Clientes.           |
+| **03** | **Backend (Lógica e API)**   | Concluído | Controllers, Services, alçadas de desconto/cancelamento e rotas REST. |
+| **04** | **Frontend (Interface)**     |  Próximo  | Telas em React/Vite: Login, PDV Caixa, Produtos e Clientes.           |
 | **05** | **Integração e Homologação** | Planejado | Conexão API via Fetch/Axios, testes E2E e correção de bugs.           |
 | **06** | **Defesa Técnica Final**     | Planejado | Slides de Pitch, Apresentação para Banca e Live Demo.                 |
 

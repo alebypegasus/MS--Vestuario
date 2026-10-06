@@ -1,19 +1,21 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { db } from '../config/database';
 import { ICliente, IClienteCriacaoDTO, IClienteAtualizacaoDTO } from '../types';
+import { formatarCPF, limparCPF } from '../utils/cpf-validator';
 
 export class ClienteModel {
   /**
-   * Cadastra um novo cliente
+   * Cadastra um novo cliente com CPF formatado no padrão nacional
    */
   static async create(dados: IClienteCriacaoDTO): Promise<ICliente> {
+    const cpfFormatado = formatarCPF(dados.cpf);
     const query = `
       INSERT INTO clientes (nome, cpf, telefone, email)
       VALUES (?, ?, ?, ?)
     `;
     const [result] = await db.execute<ResultSetHeader>(query, [
       dados.nome,
-      dados.cpf,
+      cpfFormatado,
       dados.telefone || null,
       dados.email || null
     ]);
@@ -52,14 +54,18 @@ export class ClienteModel {
 
   /**
    * Busca cliente por CPF (utilizado para garantir unicidade - RN-01)
+   * Suporta busca tanto com máscara (000.000.000-00) quanto limpo (00000000000)
    */
   static async findByCpf(cpf: string): Promise<ICliente | null> {
+    const limpo = limparCPF(cpf);
+    const formatado = formatarCPF(cpf);
+
     const query = `
       SELECT id, nome, cpf, telefone, email, criado_em, atualizado_em
       FROM clientes
-      WHERE cpf = ?
+      WHERE cpf = ? OR cpf = ?
     `;
-    const [rows] = await db.execute<RowDataPacket[]>(query, [cpf]);
+    const [rows] = await db.execute<RowDataPacket[]>(query, [limpo, formatado]);
     if (rows.length === 0) return null;
 
     const row = rows[0];
@@ -85,8 +91,9 @@ export class ClienteModel {
     const params: string[] = [];
 
     if (termo) {
-      query += ` WHERE nome LIKE ? OR cpf LIKE ?`;
-      params.push(`%${termo}%`, `%${termo}%`);
+      const termoLimpo = limparCPF(termo);
+      query += ` WHERE nome LIKE ? OR cpf LIKE ? OR cpf LIKE ?`;
+      params.push(`%${termo}%`, `%${termo}%`, `%${termoLimpo}%`);
     }
 
     query += ` ORDER BY nome ASC`;

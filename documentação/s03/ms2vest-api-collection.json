@@ -1,0 +1,123 @@
+{
+  "clientName": "Thunder Client / Postman / Insomnia",
+  "collectionName": "MS² Vestuário - API RESTful",
+  "collectionId": "ms2-vestuario-sprint-3",
+  "dateExported": "2026-10-06",
+  "version": "1.0",
+  "folders": [
+    {
+      "name": "1. Autenticação",
+      "id": "f_auth"
+    },
+    {
+      "name": "2. Clientes (RN-01)",
+      "id": "f_clientes"
+    },
+    {
+      "name": "3. Catálogo de Produtos",
+      "id": "f_produtos"
+    },
+    {
+      "name": "4. Vendas e Checkout PDV (RN-02, RN-03, RN-04)",
+      "id": "f_vendas"
+    }
+  ],
+  "requests": [
+    {
+      "name": "Login - Operador de Caixa",
+      "method": "POST",
+      "url": "http://localhost:3001/api/auth/login",
+      "folderId": "f_auth",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"caixa123\"\n}"
+      }
+    },
+    {
+      "name": "Login - Gerente",
+      "method": "POST",
+      "url": "http://localhost:3001/api/auth/login",
+      "folderId": "f_auth",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"gerente@ms2.com.br\",\n  \"senha\": \"admin123\"\n}"
+      }
+    },
+    {
+      "name": "Listar Produtos Ativos",
+      "method": "GET",
+      "url": "http://localhost:3001/api/produtos",
+      "folderId": "f_produtos",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{TOKEN_CAIXA}}" }
+      ]
+    },
+    {
+      "name": "Listar Clientes (Busca)",
+      "method": "GET",
+      "url": "http://localhost:3001/api/clientes?busca=Mariana",
+      "folderId": "f_clientes",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{TOKEN_CAIXA}}" }
+      ]
+    },
+    {
+      "name": "Cadastrar Novo Cliente (RN-01)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/clientes",
+      "folderId": "f_clientes",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{TOKEN_CAIXA}}" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"nome\": \"Beatriz Almeida\",\n  \"cpf\": \"064.514.702-87\",\n  \"telefone\": \"(21) 99999-8888\",\n  \"email\": \"beatriz.almeida@email.com\"\n}"
+      }
+    },
+    {
+      "name": "Registrar Venda com Desconto Normal <= 10% (RN-02)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/vendas",
+      "folderId": "f_vendas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{TOKEN_CAIXA}}" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"cliente_id\": 1,\n  \"forma_pagamento\": \"PIX\",\n  \"desconto\": 4.0,\n  \"itens\": [\n    {\n      \"produto_id\": 1,\n      \"quantidade\": 1\n    }\n  ]\n}"
+      }
+    },
+    {
+      "name": "Registrar Venda com Desconto Alto COM Aprovação de Gerente (RN-02)",
+      "method": "POST",
+      "url": "http://localhost:3001/api/vendas",
+      "folderId": "f_vendas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{TOKEN_CAIXA}}" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"cliente_id\": 1,\n  \"forma_pagamento\": \"CARTAO_CREDITO\",\n  \"desconto\": 15.0,\n  \"itens\": [\n    {\n      \"produto_id\": 1,\n      \"quantidade\": 1\n    }\n  ],\n  \"gerente_aprovador\": {\n    \"email\": \"gerente@ms2.com.br\",\n    \"senha\": \"admin123\"\n  }\n}"
+      }
+    },
+    {
+      "name": "Cancelar Venda com Aprovação de Gerente (RN-03)",
+      "method": "PATCH",
+      "url": "http://localhost:3001/api/vendas/1/cancelar",
+      "folderId": "f_vendas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{TOKEN_CAIXA}}" }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"motivo\": \"Devolução de produto autorizada\",\n  \"gerente_aprovador\": {\n    \"email\": \"gerente@ms2.com.br\",\n    \"senha\": \"admin123\"\n  }\n}"
+      }
+    }
+  ]
+}

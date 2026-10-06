@@ -7,17 +7,17 @@
 USE `ms2vest.db`;
 
 -- 1. USUÁRIOS DE DEMONSTRAÇÃO (Bcrypt - custo 10)
--- 'admin123' -> $2b$10$yQrgu0aUje4wqsdTrIklHOIftuRavan2piHprQ0mMmS15KXcTOx8a
--- 'caixa123' -> $2b$10$0y4MCkVV6.2wSMvBdTxN2OZ4qvEBO8uDNfrfPtahknQHGP6uv8R4.
+-- 'admin123' -> $2a$10$3CEqRzPdLXO63817ZI8ovuZqFjekHbSBYlhw85LDzIiUkl2B1zvSu
+-- 'caixa123' -> $2a$10$b.tDzp0Gqi83HY9dZyn.SOQvRkctLdwbiw7NzZ9qcqmZX/3s8vo/a
 
 INSERT INTO usuarios (id, nome, email, senha_hash, cargo, ativo) VALUES
-(1, 'Carlos Mendes (Gerente)', 'gerente@ms2.com.br', '$2b$10$yQrgu0aUje4wqsdTrIklHOIftuRavan2piHprQ0mMmS15KXcTOx8a', 'GERENTE', TRUE),
-(2, 'Ana Silva (Caixa)', 'caixa@ms2.com.br', '$2b$10$0y4MCkVV6.2wSMvBdTxN2OZ4qvEBO8uDNfrfPtahknQHGP6uv8R4.', 'CAIXA', TRUE);
+(1, 'Carlos Mendes (Gerente)', 'gerente@ms2.com.br', '$2a$10$3CEqRzPdLXO63817ZI8ovuZqFjekHbSBYlhw85LDzIiUkl2B1zvSu', 'GERENTE', TRUE),
+(2, 'Ana Silva (Caixa)', 'caixa@ms2.com.br', '$2a$10$b.tDzp0Gqi83HY9dZyn.SOQvRkctLdwbiw7NzZ9qcqmZX/3s8vo/a', 'CAIXA', TRUE);
 
--- 2. CLIENTES DE DEMONSTRAÇÃO (RN-01 Unicidade de CPF)
+-- 2. CLIENTES DE DEMONSTRAÇÃO (RN-01 Unicidade de CPF válido no Módulo 11)
 INSERT INTO clientes (id, nome, cpf, telefone, email) VALUES
-(1, 'Mariana Souza', '111.222.333-44', '(21) 98888-1001', 'mariana.souza@email.com'),
-(2, 'Lucas Pereira', '555.666.777-88', '(21) 97777-2002', 'lucas.pereira@email.com');
+(1, 'Mariana Souza', '529.982.247-25', '(21) 98888-1001', 'mariana.souza@email.com'),
+(2, 'Lucas Pereira', '475.707.249-09', '(21) 97777-2002', 'lucas.pereira@email.com');
 
 -- 3. CATÁLOGO DE PRODUTOS DA MS² VESTUÁRIO
 INSERT INTO produtos (id, codigo, descricao, categoria, preco, ativo) VALUES
