@@ -6,13 +6,14 @@
 
 USE `ms2vest.db`;
 
--- 1. USUÁRIOS DE DEMONSTRAÇÃO (Bcrypt - custo 10)
+-- 1. USUÁRIOS E FUNCIONÁRIOS DO SISTEMA (Bcrypt - custo 10)
 -- 'admin123' -> $2a$10$3CEqRzPdLXO63817ZI8ovuZqFjekHbSBYlhw85LDzIiUkl2B1zvSu
 -- 'caixa123' -> $2a$10$b.tDzp0Gqi83HY9dZyn.SOQvRkctLdwbiw7NzZ9qcqmZX/3s8vo/a
 
 INSERT INTO usuarios (id, nome, email, senha_hash, cargo, ativo) VALUES
 (1, 'Carlos Mendes (Gerente)', 'gerente@ms2.com.br', '$2a$10$3CEqRzPdLXO63817ZI8ovuZqFjekHbSBYlhw85LDzIiUkl2B1zvSu', 'GERENTE', TRUE),
-(2, 'Ana Silva (Caixa)', 'caixa@ms2.com.br', '$2a$10$b.tDzp0Gqi83HY9dZyn.SOQvRkctLdwbiw7NzZ9qcqmZX/3s8vo/a', 'CAIXA', TRUE);
+(2, 'Ana Silva (Caixa)', 'caixa@ms2.com.br', '$2a$10$b.tDzp0Gqi83HY9dZyn.SOQvRkctLdwbiw7NzZ9qcqmZX/3s8vo/a', 'CAIXA', TRUE),
+(3, 'Administrador Geral (Admin)', 'admin@ms2.com.br', '$2a$10$3CEqRzPdLXO63817ZI8ovuZqFjekHbSBYlhw85LDzIiUkl2B1zvSu', 'ADMIN', TRUE);
 
 -- 2. CLIENTES DE DEMONSTRAÇÃO (RN-01 Unicidade de CPF válido no Módulo 11)
 INSERT INTO clientes (id, nome, cpf, telefone, email) VALUES

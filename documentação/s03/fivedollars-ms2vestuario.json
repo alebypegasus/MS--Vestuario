@@ -3,22 +3,22 @@
   "name": "MS² Vestuário - API RESTful (PDV & Gestão)",
   "items": [
     {
-      "id": "62c84a22-de52-494f-aaac-35d731ce4d19",
+      "id": "5725b593-279c-4ed3-93a4-b40044009262",
       "name": "01. Autenticação e Sessão",
       "type": "folder",
       "children": [
         {
-          "id": "7389d0ad-06c0-46bd-b624-76a3bc393591",
-          "name": "Login - Operador de Caixa (200 OK)",
+          "id": "691ccdd7-672d-45c6-9282-382e2c10f43c",
+          "name": "Login - Administrador (ADMIN) (200 OK)",
           "type": "request",
           "request": {
-            "id": "7389d0ad-06c0-46bd-b624-76a3bc393591",
-            "name": "Login - Operador de Caixa (200 OK)",
+            "id": "691ccdd7-672d-45c6-9282-382e2c10f43c",
+            "name": "Login - Administrador (ADMIN) (200 OK)",
             "method": "POST",
             "url": "{{base_url}}/auth/login",
             "headers": [
               {
-                "id": "a05bbfa7-8d71-4f9f-8338-24f44f097e9e",
+                "id": "cdc894ba-0169-4477-b01c-2fc93752437e",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
@@ -26,21 +26,21 @@
             ],
             "queryParams": [],
             "bodyType": "json",
-            "body": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"caixa123\"\n}"
+            "body": "{\n  \"email\": \"admin@ms2.com.br\",\n  \"senha\": \"admin123\"\n}"
           }
         },
         {
-          "id": "61a2d15e-9ec3-4846-a59b-c0281b69937c",
-          "name": "Login - Gerente (200 OK)",
+          "id": "b9cb3f20-4af5-4874-b446-27223b5f2927",
+          "name": "Login - Gerente (GERENTE) (200 OK)",
           "type": "request",
           "request": {
-            "id": "61a2d15e-9ec3-4846-a59b-c0281b69937c",
-            "name": "Login - Gerente (200 OK)",
+            "id": "b9cb3f20-4af5-4874-b446-27223b5f2927",
+            "name": "Login - Gerente (GERENTE) (200 OK)",
             "method": "POST",
             "url": "{{base_url}}/auth/login",
             "headers": [
               {
-                "id": "96c996e0-0b64-4f5f-b5dc-3ec71e593a63",
+                "id": "096e88e8-c66e-43ed-b72d-aafd0f69f408",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
@@ -52,17 +52,39 @@
           }
         },
         {
-          "id": "0436188b-a8c4-4405-af86-dada90bf40e5",
+          "id": "6f6402a5-0f7e-4bdd-9e8d-7729471414ac",
+          "name": "Login - Operador de Caixa (CAIXA) (200 OK)",
+          "type": "request",
+          "request": {
+            "id": "6f6402a5-0f7e-4bdd-9e8d-7729471414ac",
+            "name": "Login - Operador de Caixa (CAIXA) (200 OK)",
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "headers": [
+              {
+                "id": "33fa71e0-4f19-4843-81f9-273c63d44a14",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"caixa123\"\n}"
+          }
+        },
+        {
+          "id": "58a7359a-d30d-4288-8b32-6aeda4105ffc",
           "name": "Login - Senha Incorreta (Cenário Negativo 401)",
           "type": "request",
           "request": {
-            "id": "0436188b-a8c4-4405-af86-dada90bf40e5",
+            "id": "58a7359a-d30d-4288-8b32-6aeda4105ffc",
             "name": "Login - Senha Incorreta (Cenário Negativo 401)",
             "method": "POST",
             "url": "{{base_url}}/auth/login",
             "headers": [
               {
-                "id": "a72ac293-2dc8-4406-b9fe-26f1431f9050",
+                "id": "9f590393-dde5-43f8-8041-101b7cbeb629",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
@@ -74,19 +96,19 @@
           }
         },
         {
-          "id": "e2b4e9fc-1ce3-4f16-ab52-4dd7fca95ddf",
+          "id": "f721b7bf-b93d-4897-9f6c-8e7764008f3f",
           "name": "Verificar Dados da Sessão (/auth/me)",
           "type": "request",
           "request": {
-            "id": "e2b4e9fc-1ce3-4f16-ab52-4dd7fca95ddf",
+            "id": "f721b7bf-b93d-4897-9f6c-8e7764008f3f",
             "name": "Verificar Dados da Sessão (/auth/me)",
             "method": "GET",
             "url": "{{base_url}}/auth/me",
             "headers": [
               {
-                "id": "86341e8d-2165-4d6e-999a-048468bfea48",
+                "id": "cb10269d-101f-42bb-817f-a7d25e728ed0",
                 "key": "Authorization",
-                "value": "Bearer {{token_caixa}}",
+                "value": "Bearer {{token_admin}}",
                 "enabled": true
               }
             ],
@@ -95,11 +117,11 @@
           }
         },
         {
-          "id": "ad5bc4ac-9eb8-4d1c-821b-a73406be326a",
+          "id": "d21d1d04-fcb6-42cf-9f31-6c55b0991cea",
           "name": "Healthcheck do Servidor",
           "type": "request",
           "request": {
-            "id": "ad5bc4ac-9eb8-4d1c-821b-a73406be326a",
+            "id": "d21d1d04-fcb6-42cf-9f31-6c55b0991cea",
             "name": "Healthcheck do Servidor",
             "method": "GET",
             "url": "http://localhost:3001/api/health",
@@ -111,22 +133,22 @@
       ]
     },
     {
-      "id": "b46903e3-3c47-48df-b803-ffc34f7ab674",
+      "id": "fd84cc3f-2621-45a0-be5a-13c88b07e480",
       "name": "02. Catálogo de Produtos",
       "type": "folder",
       "children": [
         {
-          "id": "5b5af628-4f70-4399-a2a2-11971b337a1c",
+          "id": "2efa8ae1-6b0d-42af-bb2e-d1c122d2c3cc",
           "name": "Listar Todos os Produtos Ativos",
           "type": "request",
           "request": {
-            "id": "5b5af628-4f70-4399-a2a2-11971b337a1c",
+            "id": "2efa8ae1-6b0d-42af-bb2e-d1c122d2c3cc",
             "name": "Listar Todos os Produtos Ativos",
             "method": "GET",
             "url": "{{base_url}}/produtos",
             "headers": [
               {
-                "id": "0baa312c-3e1c-4994-8c2d-3065839b2acf",
+                "id": "cda52766-45b3-45f7-ab73-8375e98599f2",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -137,17 +159,17 @@
           }
         },
         {
-          "id": "4e2671bc-b78e-43e3-ba5f-62a90f0d8a0e",
+          "id": "95ebe18c-62d3-4a47-8880-ee062cd976aa",
           "name": "Buscar Produto por ID (Ex: 1)",
           "type": "request",
           "request": {
-            "id": "4e2671bc-b78e-43e3-ba5f-62a90f0d8a0e",
+            "id": "95ebe18c-62d3-4a47-8880-ee062cd976aa",
             "name": "Buscar Produto por ID (Ex: 1)",
             "method": "GET",
             "url": "{{base_url}}/produtos/1",
             "headers": [
               {
-                "id": "4bb105cc-f82c-4574-bdbb-1665c15557d3",
+                "id": "227bd3c8-4f05-4ef4-8e49-81a043967f6e",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -158,17 +180,17 @@
           }
         },
         {
-          "id": "0cbecdc7-c7ef-4233-a3ee-e1f8c6c49846",
+          "id": "b044d076-5b30-4847-8f01-9f3d0168c5a6",
           "name": "Buscar Produto por Código de Barras (Ex: 101)",
           "type": "request",
           "request": {
-            "id": "0cbecdc7-c7ef-4233-a3ee-e1f8c6c49846",
+            "id": "b044d076-5b30-4847-8f01-9f3d0168c5a6",
             "name": "Buscar Produto por Código de Barras (Ex: 101)",
             "method": "GET",
             "url": "{{base_url}}/produtos/codigo/101",
             "headers": [
               {
-                "id": "e09629de-2938-4f8f-8825-227d7cbf6c18",
+                "id": "676431d9-efad-4327-86ab-fdfe158ac811",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -179,23 +201,23 @@
           }
         },
         {
-          "id": "d9cc1c52-32df-43f2-9dcf-10ab0193e186",
-          "name": "Cadastrar Novo Produto (Exclusivo Gerente - 201)",
+          "id": "f3b9f536-77ab-418e-912f-aadfad254e57",
+          "name": "Cadastrar Novo Produto (ADMIN / GERENTE - 201)",
           "type": "request",
           "request": {
-            "id": "d9cc1c52-32df-43f2-9dcf-10ab0193e186",
-            "name": "Cadastrar Novo Produto (Exclusivo Gerente - 201)",
+            "id": "f3b9f536-77ab-418e-912f-aadfad254e57",
+            "name": "Cadastrar Novo Produto (ADMIN / GERENTE - 201)",
             "method": "POST",
             "url": "{{base_url}}/produtos",
             "headers": [
               {
-                "id": "b5708cdc-37bd-4fcf-b7f4-984a1e4b0534",
+                "id": "53487e40-f814-4ccc-a952-c8063402d1e8",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "ec51dccd-324e-4b63-9940-088b6bfa3c75",
+                "id": "2fd8e638-4ea9-4abc-80a5-0ed125db3462",
                 "key": "Authorization",
                 "value": "Bearer {{token_gerente}}",
                 "enabled": true
@@ -207,23 +229,23 @@
           }
         },
         {
-          "id": "24c2a3c6-703f-4e39-887e-21b7a16a978b",
+          "id": "f752d094-8bb4-4f5d-8c40-7e30e0102bc0",
           "name": "Tentativa de Cadastro por Caixa (Cenário Negativo 403)",
           "type": "request",
           "request": {
-            "id": "24c2a3c6-703f-4e39-887e-21b7a16a978b",
+            "id": "f752d094-8bb4-4f5d-8c40-7e30e0102bc0",
             "name": "Tentativa de Cadastro por Caixa (Cenário Negativo 403)",
             "method": "POST",
             "url": "{{base_url}}/produtos",
             "headers": [
               {
-                "id": "920e079e-baaf-4914-99f2-81665c16ab14",
+                "id": "ac5426c8-8bca-4162-8b27-d798dec98155",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "aa872516-b363-4169-b266-d4be52022630",
+                "id": "6d4b9a76-e798-47a0-915f-7defc6ba883e",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -235,23 +257,23 @@
           }
         },
         {
-          "id": "21723f60-019e-4126-9d6c-97b2e57114b9",
-          "name": "Atualizar Produto / Preço (Exclusivo Gerente - 200)",
+          "id": "0127b61a-b472-49fd-92bd-6dc98264b4be",
+          "name": "Atualizar Produto / Preço (ADMIN / GERENTE - 200)",
           "type": "request",
           "request": {
-            "id": "21723f60-019e-4126-9d6c-97b2e57114b9",
-            "name": "Atualizar Produto / Preço (Exclusivo Gerente - 200)",
+            "id": "0127b61a-b472-49fd-92bd-6dc98264b4be",
+            "name": "Atualizar Produto / Preço (ADMIN / GERENTE - 200)",
             "method": "PUT",
             "url": "{{base_url}}/produtos/1",
             "headers": [
               {
-                "id": "16971e64-869f-4188-b131-43923722a731",
+                "id": "17689b5a-8f76-4c3a-a4b7-c85b2475d189",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "646dba8e-ef30-40e4-930b-27c4674beea7",
+                "id": "038ebbb0-7165-4174-8893-c821fb811877",
                 "key": "Authorization",
                 "value": "Bearer {{token_gerente}}",
                 "enabled": true
@@ -263,23 +285,23 @@
           }
         },
         {
-          "id": "af71871a-4b3d-49a0-a8c4-9515f1ab934b",
-          "name": "Inativar Produto (Soft Delete / Gerente - 200)",
+          "id": "1c65e9c8-21cd-467e-b241-0b0d5dda5747",
+          "name": "Inativar Produto (Soft Delete / ADMIN ou GERENTE - 200)",
           "type": "request",
           "request": {
-            "id": "af71871a-4b3d-49a0-a8c4-9515f1ab934b",
-            "name": "Inativar Produto (Soft Delete / Gerente - 200)",
+            "id": "1c65e9c8-21cd-467e-b241-0b0d5dda5747",
+            "name": "Inativar Produto (Soft Delete / ADMIN ou GERENTE - 200)",
             "method": "PATCH",
             "url": "{{base_url}}/produtos/8/status",
             "headers": [
               {
-                "id": "4c6391af-c7b8-4fde-9503-915aaecbd2b5",
+                "id": "e80f5e0c-a750-4320-95df-fe16734e9979",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "1bd98060-e0c9-4e90-be7f-638c196ac8ee",
+                "id": "0b7f4f6c-f236-4b0d-a757-0954592131af",
                 "key": "Authorization",
                 "value": "Bearer {{token_gerente}}",
                 "enabled": true
@@ -293,22 +315,22 @@
       ]
     },
     {
-      "id": "66e7f08e-4b4c-43c0-81f6-dc2db12871a8",
-      "name": "03. Base de Clientes (RN-01)",
+      "id": "cf3038d7-878f-4f98-b3ad-fa6509501ef8",
+      "name": "03. Base de Clientes (Tabela: clientes / RN-01)",
       "type": "folder",
       "children": [
         {
-          "id": "c505ac8d-63ae-4958-af49-471ed1538cff",
+          "id": "e13eaceb-568a-40e2-8692-dd9530cad2d4",
           "name": "Listar Todos os Clientes",
           "type": "request",
           "request": {
-            "id": "c505ac8d-63ae-4958-af49-471ed1538cff",
+            "id": "e13eaceb-568a-40e2-8692-dd9530cad2d4",
             "name": "Listar Todos os Clientes",
             "method": "GET",
             "url": "{{base_url}}/clientes",
             "headers": [
               {
-                "id": "8da796e0-081a-4349-b70a-56d967c9bd00",
+                "id": "5121b2d7-13da-43f9-b94c-a6f55595bba2",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -319,17 +341,17 @@
           }
         },
         {
-          "id": "e62cb617-e67c-490e-b92c-a2ba4741c298",
+          "id": "b39c7785-26a2-4bdf-8443-936bee45acfc",
           "name": "Filtrar Clientes por Nome ou CPF (?busca=Mariana)",
           "type": "request",
           "request": {
-            "id": "e62cb617-e67c-490e-b92c-a2ba4741c298",
+            "id": "b39c7785-26a2-4bdf-8443-936bee45acfc",
             "name": "Filtrar Clientes por Nome ou CPF (?busca=Mariana)",
             "method": "GET",
             "url": "{{base_url}}/clientes",
             "headers": [
               {
-                "id": "ae2f1411-6503-4e7e-bbce-3119b246f6f0",
+                "id": "c18976b6-5546-4e77-af4a-3065593bdf38",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -337,7 +359,7 @@
             ],
             "queryParams": [
               {
-                "id": "ba2e108f-c5ac-4b32-9d42-955a48713295",
+                "id": "69440817-a868-4f98-a569-861d39c1f85d",
                 "key": "busca",
                 "value": "Mariana",
                 "enabled": true
@@ -347,17 +369,17 @@
           }
         },
         {
-          "id": "6c94298e-868a-4844-ba74-698b868b8548",
+          "id": "0271178b-86d7-4745-970a-f0d832d14f84",
           "name": "Buscar Cliente por ID (Ex: 1)",
           "type": "request",
           "request": {
-            "id": "6c94298e-868a-4844-ba74-698b868b8548",
+            "id": "0271178b-86d7-4745-970a-f0d832d14f84",
             "name": "Buscar Cliente por ID (Ex: 1)",
             "method": "GET",
             "url": "{{base_url}}/clientes/1",
             "headers": [
               {
-                "id": "0f4976d5-8f5d-4b33-ba2a-8442af6040a7",
+                "id": "116e192a-d108-403e-a680-ca711dad295b",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -368,17 +390,17 @@
           }
         },
         {
-          "id": "57bfc282-be67-4f46-aa40-3545ca2f55df",
+          "id": "8240379e-c717-4021-980d-08f045859aef",
           "name": "Buscar Cliente por CPF (529.982.247-25)",
           "type": "request",
           "request": {
-            "id": "57bfc282-be67-4f46-aa40-3545ca2f55df",
+            "id": "8240379e-c717-4021-980d-08f045859aef",
             "name": "Buscar Cliente por CPF (529.982.247-25)",
             "method": "GET",
             "url": "{{base_url}}/clientes/cpf/529.982.247-25",
             "headers": [
               {
-                "id": "aaa7519c-9e43-40b2-a6b5-1e721fcd2500",
+                "id": "d5b7dd0c-a2d9-423c-92de-13fe1f10214d",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -389,23 +411,23 @@
           }
         },
         {
-          "id": "3ea041cf-71b3-4688-9417-525ba6db5c6d",
+          "id": "96938470-553c-4133-9672-49d5f47decd9",
           "name": "Cadastrar Novo Cliente (RN-01 - Módulo 11 Válido - 201)",
           "type": "request",
           "request": {
-            "id": "3ea041cf-71b3-4688-9417-525ba6db5c6d",
+            "id": "96938470-553c-4133-9672-49d5f47decd9",
             "name": "Cadastrar Novo Cliente (RN-01 - Módulo 11 Válido - 201)",
             "method": "POST",
             "url": "{{base_url}}/clientes",
             "headers": [
               {
-                "id": "aed2fd08-e9d3-4e32-b301-8ade37d9416f",
+                "id": "1f963cf8-592b-461b-a3f5-65ccda94b5a9",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "58275689-b670-41a6-9f4a-ccb44ecdc850",
+                "id": "7731a59a-ee5c-4c06-83b5-e433393ce4c6",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -417,23 +439,23 @@
           }
         },
         {
-          "id": "1d7c62b0-882d-4614-951a-5808fc67a3db",
+          "id": "6fc0c2ab-d05d-4d36-9dc1-3d8d63e20cdb",
           "name": "Bloqueio CPF Duplicado (RN-01 - Conflito 409)",
           "type": "request",
           "request": {
-            "id": "1d7c62b0-882d-4614-951a-5808fc67a3db",
+            "id": "6fc0c2ab-d05d-4d36-9dc1-3d8d63e20cdb",
             "name": "Bloqueio CPF Duplicado (RN-01 - Conflito 409)",
             "method": "POST",
             "url": "{{base_url}}/clientes",
             "headers": [
               {
-                "id": "f57fed4e-52bf-42de-8ab5-7f970c5bb1c2",
+                "id": "519b9867-a5a0-49f6-a9a8-6e20cb722508",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "2d35e40c-d036-4f05-a46f-f5ba64292a0a",
+                "id": "ec557d9c-ed2d-4433-9e83-535e9cdb34cd",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -445,23 +467,23 @@
           }
         },
         {
-          "id": "8b706632-8a54-4422-8821-6fe8eaa0fcdd",
+          "id": "58e2becc-5d9a-487c-9916-229cfea8b85f",
           "name": "Bloqueio CPF Inválido no Módulo 11 (Cenário Negativo 400)",
           "type": "request",
           "request": {
-            "id": "8b706632-8a54-4422-8821-6fe8eaa0fcdd",
+            "id": "58e2becc-5d9a-487c-9916-229cfea8b85f",
             "name": "Bloqueio CPF Inválido no Módulo 11 (Cenário Negativo 400)",
             "method": "POST",
             "url": "{{base_url}}/clientes",
             "headers": [
               {
-                "id": "27d34d0c-17ab-48ce-8c74-7ee649d9f713",
+                "id": "4d9824b0-a362-4770-806c-ec9b8533877d",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "1a22ffe2-79df-4d9f-bccf-c799e9a91344",
+                "id": "5e80d6f4-4cb2-4066-81c5-bf6036407f57",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -473,23 +495,23 @@
           }
         },
         {
-          "id": "72efa9e6-f807-471d-bed3-16521d48c075",
+          "id": "d1b20ea8-1fb8-4715-aeb4-42a23f837db6",
           "name": "Atualizar Dados de Cliente (ID 1)",
           "type": "request",
           "request": {
-            "id": "72efa9e6-f807-471d-bed3-16521d48c075",
+            "id": "d1b20ea8-1fb8-4715-aeb4-42a23f837db6",
             "name": "Atualizar Dados de Cliente (ID 1)",
             "method": "PUT",
             "url": "{{base_url}}/clientes/1",
             "headers": [
               {
-                "id": "aa197a67-ecfc-4427-8fc2-450388085b17",
+                "id": "76501ad6-4d00-46f0-bebc-62a2879c09d3",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "e7448b95-5690-4f87-ae49-719456cf8392",
+                "id": "45734c9d-9929-4a23-a076-4ecf5b81dc06",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -503,28 +525,28 @@
       ]
     },
     {
-      "id": "0929332f-bc51-4988-9eb4-807f0d441d55",
+      "id": "85ac8249-2ccc-4b7b-934d-df653c701909",
       "name": "04. Frente de Caixa e PDV (RN-02, RN-04)",
       "type": "folder",
       "children": [
         {
-          "id": "553aa72b-ab50-4447-82fc-56c725dc3fe5",
+          "id": "674e6fa1-095a-439f-9e50-dcf9b4d7c106",
           "name": "Venda com Desconto Normal <= 10% (Permitido Caixa - 201)",
           "type": "request",
           "request": {
-            "id": "553aa72b-ab50-4447-82fc-56c725dc3fe5",
+            "id": "674e6fa1-095a-439f-9e50-dcf9b4d7c106",
             "name": "Venda com Desconto Normal <= 10% (Permitido Caixa - 201)",
             "method": "POST",
             "url": "{{base_url}}/vendas",
             "headers": [
               {
-                "id": "93cfb900-cda2-4a5d-b94b-dfb89b3d3244",
+                "id": "ba87c7ba-5b42-474d-abcb-a65dce1ab960",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "ebc3e25d-0f72-4aec-ad5b-0833a2f5c916",
+                "id": "6755687b-ae78-4c09-836d-4e739abf5bac",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -536,23 +558,23 @@
           }
         },
         {
-          "id": "82f7a241-d7d5-4d54-9ada-c64183d3e3b6",
+          "id": "7e2985da-c814-4ef4-bbfe-9d63168a63e8",
           "name": "Bloqueio Desconto > 10% sem Gerente (RN-02 - Proibido 403)",
           "type": "request",
           "request": {
-            "id": "82f7a241-d7d5-4d54-9ada-c64183d3e3b6",
+            "id": "7e2985da-c814-4ef4-bbfe-9d63168a63e8",
             "name": "Bloqueio Desconto > 10% sem Gerente (RN-02 - Proibido 403)",
             "method": "POST",
             "url": "{{base_url}}/vendas",
             "headers": [
               {
-                "id": "95af7ad7-b7b5-42d6-ba80-9e08a9fb10fc",
+                "id": "435c1681-2adf-4636-a733-ba6894d93a46",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "1db3e908-06f6-4abd-b528-9f75131a57b3",
+                "id": "3ed3a470-5295-42d3-abde-eb72e78ed727",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -564,23 +586,23 @@
           }
         },
         {
-          "id": "abb82f4e-0e06-4b8e-96db-e162019f6c9b",
+          "id": "d79c51b0-ce1f-40e2-8f8e-5de7c8e14cd6",
           "name": "Venda com Desconto Alto COM Aprovação de Gerente (RN-02 - 201)",
           "type": "request",
           "request": {
-            "id": "abb82f4e-0e06-4b8e-96db-e162019f6c9b",
+            "id": "d79c51b0-ce1f-40e2-8f8e-5de7c8e14cd6",
             "name": "Venda com Desconto Alto COM Aprovação de Gerente (RN-02 - 201)",
             "method": "POST",
             "url": "{{base_url}}/vendas",
             "headers": [
               {
-                "id": "64778da8-05bf-4f63-83a2-914ef5f9c396",
+                "id": "b8a4bd21-65dc-49d9-8048-57fec106a638",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "52c271f1-cad0-4bdd-a90f-c3c3bdf72f64",
+                "id": "05868aee-74d6-4030-acdc-1bd1110f5297",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -592,23 +614,23 @@
           }
         },
         {
-          "id": "3bd33edf-e844-4145-8287-5d363ab85ab9",
+          "id": "1317b19d-b3d3-470e-a74a-0d3cfac7c519",
           "name": "Venda Consumidor Final (Sem identificação de cliente - RN-06)",
           "type": "request",
           "request": {
-            "id": "3bd33edf-e844-4145-8287-5d363ab85ab9",
+            "id": "1317b19d-b3d3-470e-a74a-0d3cfac7c519",
             "name": "Venda Consumidor Final (Sem identificação de cliente - RN-06)",
             "method": "POST",
             "url": "{{base_url}}/vendas",
             "headers": [
               {
-                "id": "4f31afee-c3c1-4fce-8374-96411e6d8044",
+                "id": "d43913da-70bf-405e-bc45-db8f7579a1f6",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "eee173a0-107e-42ee-9775-d17a741f4518",
+                "id": "f06b5682-e7bd-4fb8-9867-11618ccce93a",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -620,17 +642,17 @@
           }
         },
         {
-          "id": "1510349d-4222-4407-ac81-908b49267c78",
+          "id": "6377e00a-59f0-4791-bc38-4e87954a9bfa",
           "name": "Listar Histórico Geral de Vendas",
           "type": "request",
           "request": {
-            "id": "1510349d-4222-4407-ac81-908b49267c78",
+            "id": "6377e00a-59f0-4791-bc38-4e87954a9bfa",
             "name": "Listar Histórico Geral de Vendas",
             "method": "GET",
             "url": "{{base_url}}/vendas",
             "headers": [
               {
-                "id": "c6428b7d-fe30-43ff-bd4d-b3beead21ad9",
+                "id": "a1e0dcfd-7539-42f1-8829-02da32ca81a6",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -641,17 +663,17 @@
           }
         },
         {
-          "id": "d0fb3aea-f763-4fea-b6ed-7d761462850b",
+          "id": "b16f74cc-0201-4bc7-840e-6df3bb8460f4",
           "name": "Consultar Venda com Itens e Snapshot de Preço (ID 1)",
           "type": "request",
           "request": {
-            "id": "d0fb3aea-f763-4fea-b6ed-7d761462850b",
+            "id": "b16f74cc-0201-4bc7-840e-6df3bb8460f4",
             "name": "Consultar Venda com Itens e Snapshot de Preço (ID 1)",
             "method": "GET",
             "url": "{{base_url}}/vendas/1",
             "headers": [
               {
-                "id": "7cf893eb-303b-4afb-93be-26a47993d9dc",
+                "id": "181d6f6a-68f8-4493-a9e3-3c1c31393627",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -664,28 +686,28 @@
       ]
     },
     {
-      "id": "837dbb21-af7e-4a88-b35c-70ff217bc223",
+      "id": "8c551d09-a5b0-4d16-ba0d-9370277a9d12",
       "name": "05. Cancelamento e Auditoria (RN-03)",
       "type": "folder",
       "children": [
         {
-          "id": "76596b44-7039-425f-b6ce-348b4fd7a34d",
+          "id": "07a5374c-165f-4ac2-b02f-26f79d89b8e5",
           "name": "Bloqueio Cancelamento Caixa sem Gerente (RN-03 - Proibido 403)",
           "type": "request",
           "request": {
-            "id": "76596b44-7039-425f-b6ce-348b4fd7a34d",
+            "id": "07a5374c-165f-4ac2-b02f-26f79d89b8e5",
             "name": "Bloqueio Cancelamento Caixa sem Gerente (RN-03 - Proibido 403)",
             "method": "PATCH",
             "url": "{{base_url}}/vendas/1/cancelar",
             "headers": [
               {
-                "id": "e00b8443-1283-4506-8775-3ab487bdccd4",
+                "id": "3679e8de-3366-42d8-8bdf-04c2321bf837",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "fa56a268-9c32-4cde-a1f8-dadac48ecf29",
+                "id": "4f18af83-5f32-4400-bd3a-31e601cf10f0",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -697,23 +719,23 @@
           }
         },
         {
-          "id": "6823797c-d831-4e68-a52c-70450832c195",
+          "id": "49a71043-c8c1-4833-88cb-f6381fdf324d",
           "name": "Cancelamento COM Aprovação Gerencial (RN-03 - Sucesso 200)",
           "type": "request",
           "request": {
-            "id": "6823797c-d831-4e68-a52c-70450832c195",
+            "id": "49a71043-c8c1-4833-88cb-f6381fdf324d",
             "name": "Cancelamento COM Aprovação Gerencial (RN-03 - Sucesso 200)",
             "method": "PATCH",
             "url": "{{base_url}}/vendas/1/cancelar",
             "headers": [
               {
-                "id": "53ee9858-cbb9-422b-8ee6-95c84899f446",
+                "id": "f921bc24-9eaa-4ca0-9d01-3ad5ffbd6851",
                 "key": "Content-Type",
                 "value": "application/json",
                 "enabled": true
               },
               {
-                "id": "3895d723-a688-4051-a175-aff9e6a5f032",
+                "id": "3ea5793b-0e5b-46ea-89bf-3a043dd8e4d3",
                 "key": "Authorization",
                 "value": "Bearer {{token_caixa}}",
                 "enabled": true
@@ -722,6 +744,195 @@
             "queryParams": [],
             "bodyType": "json",
             "body": "{\n  \"motivo\": \"Devolução de produto autorizada com estorno\",\n  \"gerente_aprovador\": {\n    \"email\": \"gerente@ms2.com.br\",\n    \"senha\": \"admin123\"\n  }\n}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ce095585-55b6-4aac-b4e5-dc0021d21cda",
+      "name": "06. Gestão de Funcionários / Usuários (Roles: ADMIN, GERENTE, CAIXA)",
+      "type": "folder",
+      "children": [
+        {
+          "id": "1acd26c4-2bda-432a-a4ab-a42c72d028db",
+          "name": "Listar Todos os Funcionários do Sistema",
+          "type": "request",
+          "request": {
+            "id": "1acd26c4-2bda-432a-a4ab-a42c72d028db",
+            "name": "Listar Todos os Funcionários do Sistema",
+            "method": "GET",
+            "url": "{{base_url}}/usuarios",
+            "headers": [
+              {
+                "id": "be6efc4c-962d-4cb3-9154-5b6a5faaeef1",
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "ff11e3bf-0559-4cf5-9d80-c6282b0cdabb",
+          "name": "Buscar Funcionário por ID (Ex: 1)",
+          "type": "request",
+          "request": {
+            "id": "ff11e3bf-0559-4cf5-9d80-c6282b0cdabb",
+            "name": "Buscar Funcionário por ID (Ex: 1)",
+            "method": "GET",
+            "url": "{{base_url}}/usuarios/1",
+            "headers": [
+              {
+                "id": "d1554184-d953-4c69-b2e2-f048b244ea8f",
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "none"
+          }
+        },
+        {
+          "id": "90dcc0ce-4e03-4409-9b7b-05b25faafcd3",
+          "name": "Cadastrar Novo Funcionário (Role: CAIXA / Exclusivo ADMIN - 201)",
+          "type": "request",
+          "request": {
+            "id": "90dcc0ce-4e03-4409-9b7b-05b25faafcd3",
+            "name": "Cadastrar Novo Funcionário (Role: CAIXA / Exclusivo ADMIN - 201)",
+            "method": "POST",
+            "url": "{{base_url}}/usuarios",
+            "headers": [
+              {
+                "id": "89e0d087-a9e2-4801-961a-dc46932c0c9b",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "d253e355-728b-476b-bc58-223a995d8147",
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Marcos Oliveira (Novo Caixa)\",\n  \"email\": \"marcos.caixa@ms2.com.br\",\n  \"senha\": \"senha123\",\n  \"cargo\": \"CAIXA\"\n}"
+          }
+        },
+        {
+          "id": "806d5a48-81e4-42b6-8d2b-2dbf8fbda5bf",
+          "name": "Cadastrar Novo Gerente (Role: GERENTE / Exclusivo ADMIN - 201)",
+          "type": "request",
+          "request": {
+            "id": "806d5a48-81e4-42b6-8d2b-2dbf8fbda5bf",
+            "name": "Cadastrar Novo Gerente (Role: GERENTE / Exclusivo ADMIN - 201)",
+            "method": "POST",
+            "url": "{{base_url}}/usuarios",
+            "headers": [
+              {
+                "id": "54c9e5de-6502-4135-887c-90bb998545c1",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "d60e03e2-ef0c-40ae-ae59-b2c8bb8d46af",
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Juliana Ferreira (Subgerente)\",\n  \"email\": \"juliana.gerente@ms2.com.br\",\n  \"senha\": \"senha123\",\n  \"cargo\": \"GERENTE\"\n}"
+          }
+        },
+        {
+          "id": "015a893c-f93c-4ac3-a86a-6e9c25bc353a",
+          "name": "Bloqueio Cadastro de Usuário por Caixa (Cenário Negativo 403)",
+          "type": "request",
+          "request": {
+            "id": "015a893c-f93c-4ac3-a86a-6e9c25bc353a",
+            "name": "Bloqueio Cadastro de Usuário por Caixa (Cenário Negativo 403)",
+            "method": "POST",
+            "url": "{{base_url}}/usuarios",
+            "headers": [
+              {
+                "id": "43a63cba-11fd-475b-b6db-b2cf4ce2197f",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "2e477f2d-1e0e-4c82-97f4-d8623eb7382e",
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Tentativa Bloqueada\",\n  \"email\": \"bloqueado@ms2.com.br\",\n  \"senha\": \"senha123\",\n  \"cargo\": \"CAIXA\"\n}"
+          }
+        },
+        {
+          "id": "d0c85366-63e3-49d2-b1ba-535c5b81bc8c",
+          "name": "Atualizar Cargo / Nome do Usuário (Exclusivo ADMIN - 200)",
+          "type": "request",
+          "request": {
+            "id": "d0c85366-63e3-49d2-b1ba-535c5b81bc8c",
+            "name": "Atualizar Cargo / Nome do Usuário (Exclusivo ADMIN - 200)",
+            "method": "PUT",
+            "url": "{{base_url}}/usuarios/2",
+            "headers": [
+              {
+                "id": "b05922bc-0979-46f2-8d82-01fe8aac27c0",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "65b2bddd-01b3-4ebd-90df-d62ffc2ce762",
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"nome\": \"Ana Silva Santos (Caixa Líder)\",\n  \"cargo\": \"CAIXA\"\n}"
+          }
+        },
+        {
+          "id": "2b75680b-669e-4658-9a7f-8f1df1384e42",
+          "name": "Desativar / Ativar Funcionário (Status - 200)",
+          "type": "request",
+          "request": {
+            "id": "2b75680b-669e-4658-9a7f-8f1df1384e42",
+            "name": "Desativar / Ativar Funcionário (Status - 200)",
+            "method": "PATCH",
+            "url": "{{base_url}}/usuarios/2/status",
+            "headers": [
+              {
+                "id": "3b004206-8c3c-4ea9-8af3-cf2408c93d34",
+                "key": "Content-Type",
+                "value": "application/json",
+                "enabled": true
+              },
+              {
+                "id": "ef47b218-1248-4350-a599-0a778b43dd84",
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}",
+                "enabled": true
+              }
+            ],
+            "queryParams": [],
+            "bodyType": "json",
+            "body": "{\n  \"ativo\": true\n}"
           }
         }
       ]

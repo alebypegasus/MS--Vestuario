@@ -3,14 +3,16 @@
   "name": "local",
   "variables": {
     "base_url": "http://localhost:3001/api",
-    "token_caixa": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwibm9tZSI6IkFuYSBTaWx2YSAoQ2FpeGEpIiwiZW1haWwiOiJjYWl4YUBtczIuY29tLmJyIiwiY2FyZ28iOiJDQUlYQSIsImlhdCI6MTc5MTM5MDY3OCwiZXhwIjoxNzkzOTgyNjc4fQ.Ow-rOBPLlEzRnv-jRPqGyU3LL8D2vlBggswBsE5B-IA",
-    "token_gerente": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6IkNhcmxvcyBNZW5kZXMgKEdlcmVudGUpIiwiZW1haWwiOiJnZXJlbnRlQG1zMi5jb20uYnIiLCJjYXJnbyI6IkdFUkVOVEUiLCJpYXQiOjE3OTEzOTA2NzgsImV4cCI6MTc5Mzk4MjY3OH0.MUF1ZDqCPdOC-4dSzLEM6KCEao_k7gI8bRarlsSktW8",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwibm9tZSI6IkFuYSBTaWx2YSAoQ2FpeGEpIiwiZW1haWwiOiJjYWl4YUBtczIuY29tLmJyIiwiY2FyZ28iOiJDQUlYQSIsImlhdCI6MTc5MTM5MDY3OCwiZXhwIjoxNzkzOTgyNjc4fQ.Ow-rOBPLlEzRnv-jRPqGyU3LL8D2vlBggswBsE5B-IA"
+    "token_admin": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywibm9tZSI6IkFkbWluaXN0cmFkb3IgR2VyYWwgKEFkbWluKSIsImVtYWlsIjoiYWRtaW5AbXMyLmNvbS5iciIsImNhcmdvIjoiQURNSU4iLCJpYXQiOjE3OTEzOTY4NDgsImV4cCI6MTc5Mzk4ODg0OH0.dmVUs2dfYMNUEDNrpMBQpMmAlkw-rarhe6lwljBWDBk",
+    "token_gerente": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6IkNhcmxvcyBNZW5kZXMgKEdlcmVudGUpIiwiZW1haWwiOiJnZXJlbnRlQG1zMi5jb20uYnIiLCJjYXJnbyI6IkdFUkVOVEUiLCJpYXQiOjE3OTEzOTY4NDgsImV4cCI6MTc5Mzk4ODg0OH0.lVfyWMtmiOgpw0f6DnRLy33HutQeOWgGTHgT3vQMy2c",
+    "token_caixa": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwibm9tZSI6IkFuYSBTaWx2YSAoQ2FpeGEpIiwiZW1haWwiOiJjYWl4YUBtczIuY29tLmJyIiwiY2FyZ28iOiJDQUlYQSIsImlhdCI6MTc5MTM5Njg0OCwiZXhwIjoxNzkzOTg4ODQ4fQ.-1z20j7a5RshRyU5kLgVXmt2N3fJFlMXh2aWndbItN8",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywibm9tZSI6IkFkbWluaXN0cmFkb3IgR2VyYWwgKEFkbWluKSIsImVtYWlsIjoiYWRtaW5AbXMyLmNvbS5iciIsImNhcmdvIjoiQURNSU4iLCJpYXQiOjE3OTEzOTY4NDgsImV4cCI6MTc5Mzk4ODg0OH0.dmVUs2dfYMNUEDNrpMBQpMmAlkw-rarhe6lwljBWDBk"
   },
   "variableOrder": [
     "base_url",
-    "token_caixa",
+    "token_admin",
     "token_gerente",
+    "token_caixa",
     "token"
   ],
   "color": "#2563eb"

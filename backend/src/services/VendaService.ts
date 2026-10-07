@@ -56,8 +56,8 @@ export class VendaService {
 
       // Se o desconto ultrapassar os 10%
       if (percentualDesconto > this.LIMITE_DESCONTO_CAIXA_PERCENTUAL) {
-        if (operadorCargo === 'GERENTE') {
-          // O próprio operador já é Gerente, auto-aprova a alçada
+        if (operadorCargo === 'GERENTE' || operadorCargo === 'ADMIN') {
+          // O próprio operador já é Gerente ou Admin, auto-aprova a alçada
           gerenteAprovadorId = operadorId;
         } else {
           // Operador é Caixa: Exige autorização gerencial no modal
@@ -108,8 +108,8 @@ export class VendaService {
 
     let gerenteId: number;
 
-    // Se o usuário logado for Gerente, ele próprio aprova o cancelamento
-    if (usuarioLogadoCargo === 'GERENTE') {
+    // Se o usuário logado for Gerente ou Admin, ele próprio aprova o cancelamento
+    if (usuarioLogadoCargo === 'GERENTE' || usuarioLogadoCargo === 'ADMIN') {
       gerenteId = usuarioLogadoId;
     } else {
       // Se for Caixa, deve fornecer credenciais do Gerente no modal de autorização (RN-03)

@@ -54,7 +54,7 @@ erDiagram
         string nome "VARCHAR(120) NOT NULL"
         string email "VARCHAR(120) UNIQUE NOT NULL"
         string senha_hash "VARCHAR(255) NOT NULL"
-        string cargo "ENUM('CAIXA', 'GERENTE')"
+        string cargo "ENUM('ADMIN', 'GERENTE', 'CAIXA')"
         boolean ativo "BOOLEAN DEFAULT TRUE"
         datetime criado_em "DATETIME"
         datetime atualizado_em "DATETIME"
@@ -117,7 +117,7 @@ erDiagram
 | `nome` | VARCHAR(120) | Não | | Nome completo do funcionário. |
 | `email` | VARCHAR(120) | Não | UNIQUE | E-mail corporativo para autenticação. |
 | `senha_hash` | VARCHAR(255) | Não | | Hash da senha gerado com bcrypt (salt mínimo 10). |
-| `cargo` | ENUM('CAIXA','GERENTE') | Não | | Alçada operacional do usuário. Padrão: `'CAIXA'`. |
+| `cargo` | ENUM('ADMIN','GERENTE','CAIXA') | Não | | Alçada operacional do usuário (ADMIN, GERENTE ou CAIXA). Padrão: `'CAIXA'`. |
 | `ativo` | BOOLEAN | Não | | Usuário ativo no sistema (Padrão: `TRUE`). |
 | `criado_em` | DATETIME | Não | | Data e hora de criação (`CURRENT_TIMESTAMP`). |
 | `atualizado_em`| DATETIME | Não | | Atualização automática (`ON UPDATE CURRENT_TIMESTAMP`). |

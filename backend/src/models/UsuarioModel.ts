@@ -96,4 +96,49 @@ export class UsuarioModel {
       atualizado_em: row.atualizado_em
     }));
   }
+
+  /**
+   * Atualiza dados de um usuário existente
+   */
+  static async update(id: number, dados: Partial<{ nome: string; email: string; senha_hash: string; cargo: string }>): Promise<IUsuarioRespostaDTO | null> {
+    const campos: string[] = [];
+    const params: (string | number)[] = [];
+
+    if (dados.nome !== undefined) {
+      campos.push('nome = ?');
+      params.push(dados.nome);
+    }
+    if (dados.email !== undefined) {
+      campos.push('email = ?');
+      params.push(dados.email);
+    }
+    if (dados.senha_hash !== undefined) {
+      campos.push('senha_hash = ?');
+      params.push(dados.senha_hash);
+    }
+    if (dados.cargo !== undefined) {
+      campos.push('cargo = ?');
+      params.push(dados.cargo);
+    }
+
+    if (campos.length > 0) {
+      const query = `UPDATE usuarios SET ${campos.join(', ')} WHERE id = ?`;
+      params.push(id);
+      await db.execute(query, params);
+    }
+
+    const usuario = await this.findById(id);
+    if (!usuario) return null;
+    const { senha_hash, ...semSenha } = usuario;
+    return semSenha;
+  }
+
+  /**
+   * Ativa ou desativa um usuário
+   */
+  static async updateStatus(id: number, ativo: boolean): Promise<boolean> {
+    const query = `UPDATE usuarios SET ativo = ? WHERE id = ?`;
+    const [result] = await db.execute<ResultSetHeader>(query, [ativo, id]);
+    return result.affectedRows > 0;
+  }
 }

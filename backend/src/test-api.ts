@@ -181,7 +181,7 @@ async function runTests() {
     console.log(' -> Sucesso! Bloqueio 403 Forbidden acionado corretamente:', cancelamentoBarrado.data.erro);
 
     // 10. CANCELAMENTO COM APROVAÇÃO GERENCIAL (CENÁRIO POSITIVO - RN-03)
-    console.log('\n[10/10] Testando Cancelamento COM Aprovação Gerencial (RN-03)...');
+    console.log('\n[10/14] Testando Cancelamento COM Aprovação Gerencial (RN-03)...');
     const cancelamentoAprovado = await request(
       'PATCH',
       `/api/vendas/${vendaNormal.data.id}/cancelar`,
@@ -197,9 +197,59 @@ async function runTests() {
     assertStatus(cancelamentoAprovado.status, 200, 'Cancelamento Aprovado com Gerente');
     console.log(` -> Sucesso! Venda nº ${vendaNormal.data.id} cancelada com sucesso. Status atual: ${cancelamentoAprovado.data.venda.status}`);
 
-    console.log(`\n======================================================`);
-    console.log(`🎉 TODOS OS 10 TESTES DA SPRINT 3 PASSARAM COM SUCESSO!`);
-    console.log(`======================================================\n`);
+    // 11. LOGIN DO ADMINISTRADOR (ROLE ADMIN)
+    console.log('\n[11/14] Testando Login do Administrador Geral (Role: ADMIN)...');
+    const loginAdmin = await request('POST', '/api/auth/login', {
+      email: 'admin@ms2.com.br',
+      senha: 'admin123'
+    });
+    assertStatus(loginAdmin.status, 200, 'Login Admin');
+    const tokenAdmin = loginAdmin.data.token;
+    console.log(` -> Sucesso! Token de Admin emitido: [OK] (Cargo: ${loginAdmin.data.usuario.cargo})`);
+
+    // 12. LISTAR USUÁRIOS/FUNCIONÁRIOS (TABELA SEPARADA: usuarios)
+    console.log('\n[12/14] Testando Listagem de Funcionários/Usuários (GET /api/usuarios)...');
+    const listaUsuarios = await request('GET', '/api/usuarios', undefined, tokenAdmin);
+    assertStatus(listaUsuarios.status, 200, 'Listar Usuários');
+    console.log(` -> Sucesso! ${listaUsuarios.data.length} usuários/funcionários retornados na tabela 'usuarios'.`);
+
+    // 13. BLOQUEIO DE GESTÃO DE USUÁRIOS POR CAIXA (CENÁRIO NEGATIVO 403)
+    console.log('\n[13/14] Testando Bloqueio de Gestão de Usuários por Caixa (403 Forbidden)...');
+    const tentativaCriarUsuarioCaixa = await request(
+      'POST',
+      '/api/usuarios',
+      {
+        nome: 'Usuario Invalido',
+        email: 'invalido@ms2.com.br',
+        senha: 'senha123',
+        cargo: 'CAIXA'
+      },
+      tokenCaixa
+    );
+    assertStatus(tentativaCriarUsuarioCaixa.status, 403, 'Bloqueio Gestão Usuário por Caixa');
+    console.log(' -> Sucesso! Bloqueio 403 Forbidden acionado corretamente:', tentativaCriarUsuarioCaixa.data.erro);
+
+    // 14. CADASTRO DE NOVO FUNCIONÁRIO POR ADMIN (ROLE CAIXA)
+    console.log('\n[14/14] Testando Cadastro de Novo Funcionário pelo Administrador (POST /api/usuarios)...');
+    await db.execute("DELETE FROM usuarios WHERE email = 'marcos.caixa.teste@ms2.com.br'");
+    const novoFuncionario = await request(
+      'POST',
+      '/api/usuarios',
+      {
+        nome: 'Marcos Oliveira (Novo Caixa)',
+        email: 'marcos.caixa.teste@ms2.com.br',
+        senha: 'senha123',
+        cargo: 'CAIXA'
+      },
+      tokenAdmin
+    );
+    assertStatus(novoFuncionario.status, 201, 'Cadastro Novo Funcionário');
+    console.log(` -> Sucesso! Novo funcionário ID ${novoFuncionario.data.id} cadastrado com cargo '${novoFuncionario.data.cargo}'.`);
+
+    console.log(`\n========================================================================`);
+    console.log(`🎉 TODOS OS 14 TESTES PASSARAM COM SUCESSO!`);
+    console.log(`🔒 TABELAS 'clientes' E 'usuarios' ESTÃO TOTALMENTE SEPARADAS E HOMOLOGADAS!`);
+    console.log(`========================================================================\n`);
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;

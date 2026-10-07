@@ -73,7 +73,7 @@ O banco de dados relacional foi modelado na **3ª Forma Normal (3FN)** e impleme
 
 ### Entidades do Sistema:
 
-- **`usuarios`**: Gestão de operadores (`CAIXA`) e supervisores (`GERENTE`) com senhas em hash bcrypt;
+- **`usuarios`**: Gestão de funcionários e operadores internos (`ADMIN`, `GERENTE` e `CAIXA`) com senhas em hash bcrypt;
 - **`clientes`**: Base de compradores com restrição `UNIQUE` em `cpf`;
 - **`produtos`**: Peças e acessórios com controle de preço e inativação lógica (`ativo`);
 - **`vendas`**: Registro mestre do cupom (operador, cliente, gerente autorizador, forma de pagamento e totais);
@@ -187,10 +187,11 @@ _(Ou abra os arquivos `database/schema.sql` e `database/seeds.sql` no seu DBeave
 
 O script de sementes (`seeds.sql`) já fornece usuários operacionais com senhas criptografadas em bcrypt:
 
-| Perfil      | E-mail               | Senha Padrão | Alçada Operacional                                           |
-| :---------- | :------------------- | :----------- | :----------------------------------------------------------- |
-| **Gerente** | `gerente@ms2.com.br` | `admin123`   | Acesso irrestrito; aprova cancelamentos e descontos > 10%.   |
-| **Caixa**   | `caixa@ms2.com.br`   | `caixa123`   | Operação do PDV, cadastro de clientes e desconto de até 10%. |
+| Perfil            | E-mail               | Senha Padrão | Alçada Operacional                                                    |
+| :---------------- | :------------------- | :----------- | :-------------------------------------------------------------------- |
+| **Administrador** | `admin@ms2.com.br`   | `admin123`   | Acesso total; gestão de usuários/funcionários, produtos e auditoria.  |
+| **Gerente**       | `gerente@ms2.com.br` | `admin123`   | Gestão de catálogo comercial; aprova cancelamentos e descontos > 10%.|
+| **Caixa**         | `caixa@ms2.com.br`   | `caixa123`   | Operação do PDV, cadastro de clientes e desconto de até 10%.          |
 
 ---
 

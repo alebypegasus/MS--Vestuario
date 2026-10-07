@@ -1,4 +1,4 @@
-export type CargoUsuario = 'CAIXA' | 'GERENTE';
+export type CargoUsuario = 'ADMIN' | 'GERENTE' | 'CAIXA';
 
 export interface IUsuario {
   id: number;
@@ -18,9 +18,17 @@ export interface IUsuarioCriacaoDTO {
   cargo: CargoUsuario;
 }
 
+export interface IUsuarioAtualizacaoDTO {
+  nome?: string;
+  email?: string;
+  senha_hash?: string;
+  cargo?: CargoUsuario;
+}
+
 export type IUsuarioRespostaDTO = Omit<IUsuario, 'senha_hash'>;
 
 // Aliases para compatibilidade
 export type Usuario = IUsuario;
 export type UsuarioCriacaoDTO = IUsuarioCriacaoDTO;
+export type UsuarioAtualizacaoDTO = IUsuarioAtualizacaoDTO;
 export type UsuarioRespostaDTO = IUsuarioRespostaDTO;

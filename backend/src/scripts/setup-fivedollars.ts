@@ -9,12 +9,12 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'ms2_vestuario_secret_token_chave_super_segura_2026';
 
 // 1. Gerar tokens JWT válidos de 30 dias para testes contínuos
-const tokenCaixa = jwt.sign(
+const tokenAdmin = jwt.sign(
   {
-    id: 2,
-    nome: 'Ana Silva (Caixa)',
-    email: 'caixa@ms2.com.br',
-    cargo: 'CAIXA'
+    id: 3,
+    nome: 'Administrador Geral (Admin)',
+    email: 'admin@ms2.com.br',
+    cargo: 'ADMIN'
   },
   JWT_SECRET,
   { expiresIn: '30d' }
@@ -26,6 +26,17 @@ const tokenGerente = jwt.sign(
     nome: 'Carlos Mendes (Gerente)',
     email: 'gerente@ms2.com.br',
     cargo: 'GERENTE'
+  },
+  JWT_SECRET,
+  { expiresIn: '30d' }
+);
+
+const tokenCaixa = jwt.sign(
+  {
+    id: 2,
+    nome: 'Ana Silva (Caixa)',
+    email: 'caixa@ms2.com.br',
+    cargo: 'CAIXA'
   },
   JWT_SECRET,
   { expiresIn: '30d' }
@@ -69,29 +80,41 @@ function createRequestItem(
 }
 
 // 2. Montar estrutura completa de pastas e requisições
+
+// PASTA 01: AUTENTICAÇÃO
 const folderAuth = {
   id: crypto.randomUUID(),
   name: '01. Autenticação e Sessão',
   type: 'folder',
   children: [
     createRequestItem(
-      'Login - Operador de Caixa (200 OK)',
+      'Login - Administrador (ADMIN) (200 OK)',
       'POST',
       '{{base_url}}/auth/login',
       [{ key: 'Content-Type', value: 'application/json' }],
       {
-        email: 'caixa@ms2.com.br',
-        senha: 'caixa123'
+        email: 'admin@ms2.com.br',
+        senha: 'admin123'
       }
     ),
     createRequestItem(
-      'Login - Gerente (200 OK)',
+      'Login - Gerente (GERENTE) (200 OK)',
       'POST',
       '{{base_url}}/auth/login',
       [{ key: 'Content-Type', value: 'application/json' }],
       {
         email: 'gerente@ms2.com.br',
         senha: 'admin123'
+      }
+    ),
+    createRequestItem(
+      'Login - Operador de Caixa (CAIXA) (200 OK)',
+      'POST',
+      '{{base_url}}/auth/login',
+      [{ key: 'Content-Type', value: 'application/json' }],
+      {
+        email: 'caixa@ms2.com.br',
+        senha: 'caixa123'
       }
     ),
     createRequestItem(
@@ -109,7 +132,7 @@ const folderAuth = {
       'GET',
       '{{base_url}}/auth/me',
       [
-        { key: 'Authorization', value: 'Bearer {{token_caixa}}' }
+        { key: 'Authorization', value: 'Bearer {{token_admin}}' }
       ]
     ),
     createRequestItem(
@@ -121,6 +144,7 @@ const folderAuth = {
   ]
 };
 
+// PASTA 02: PRODUTOS
 const folderProdutos = {
   id: crypto.randomUUID(),
   name: '02. Catálogo de Produtos',
@@ -145,7 +169,7 @@ const folderProdutos = {
       [{ key: 'Authorization', value: 'Bearer {{token_caixa}}' }]
     ),
     createRequestItem(
-      'Cadastrar Novo Produto (Exclusivo Gerente - 201)',
+      'Cadastrar Novo Produto (ADMIN / GERENTE - 201)',
       'POST',
       '{{base_url}}/produtos',
       [
@@ -176,7 +200,7 @@ const folderProdutos = {
       }
     ),
     createRequestItem(
-      'Atualizar Produto / Preço (Exclusivo Gerente - 200)',
+      'Atualizar Produto / Preço (ADMIN / GERENTE - 200)',
       'PUT',
       '{{base_url}}/produtos/1',
       [
@@ -189,7 +213,7 @@ const folderProdutos = {
       }
     ),
     createRequestItem(
-      'Inativar Produto (Soft Delete / Gerente - 200)',
+      'Inativar Produto (Soft Delete / ADMIN ou GERENTE - 200)',
       'PATCH',
       '{{base_url}}/produtos/8/status',
       [
@@ -203,9 +227,10 @@ const folderProdutos = {
   ]
 };
 
+// PASTA 03: CLIENTES (TABELA SEPARADA: clientes)
 const folderClientes = {
   id: crypto.randomUUID(),
-  name: '03. Base de Clientes (RN-01)',
+  name: '03. Base de Clientes (Tabela: clientes / RN-01)',
   type: 'folder',
   children: [
     createRequestItem(
@@ -294,6 +319,7 @@ const folderClientes = {
   ]
 };
 
+// PASTA 04: VENDAS (PDV)
 const folderVendas = {
   id: crypto.randomUUID(),
   name: '04. Frente de Caixa e PDV (RN-02, RN-04)',
@@ -397,6 +423,7 @@ const folderVendas = {
   ]
 };
 
+// PASTA 05: CANCELAMENTO DE VENDA
 const folderCancelamento = {
   id: crypto.randomUUID(),
   name: '05. Cancelamento e Auditoria (RN-03)',
@@ -433,6 +460,97 @@ const folderCancelamento = {
   ]
 };
 
+// PASTA 06: GESTÃO DE USUÁRIOS E FUNCIONÁRIOS (TABELA SEPARADA: usuarios / ROLES: ADMIN, GERENTE, CAIXA)
+const folderUsuarios = {
+  id: crypto.randomUUID(),
+  name: '06. Gestão de Funcionários / Usuários (Roles: ADMIN, GERENTE, CAIXA)',
+  type: 'folder',
+  children: [
+    createRequestItem(
+      'Listar Todos os Funcionários do Sistema',
+      'GET',
+      '{{base_url}}/usuarios',
+      [{ key: 'Authorization', value: 'Bearer {{token_admin}}' }]
+    ),
+    createRequestItem(
+      'Buscar Funcionário por ID (Ex: 1)',
+      'GET',
+      '{{base_url}}/usuarios/1',
+      [{ key: 'Authorization', value: 'Bearer {{token_admin}}' }]
+    ),
+    createRequestItem(
+      'Cadastrar Novo Funcionário (Role: CAIXA / Exclusivo ADMIN - 201)',
+      'POST',
+      '{{base_url}}/usuarios',
+      [
+        { key: 'Content-Type', value: 'application/json' },
+        { key: 'Authorization', value: 'Bearer {{token_admin}}' }
+      ],
+      {
+        nome: 'Marcos Oliveira (Novo Caixa)',
+        email: 'marcos.caixa@ms2.com.br',
+        senha: 'senha123',
+        cargo: 'CAIXA'
+      }
+    ),
+    createRequestItem(
+      'Cadastrar Novo Gerente (Role: GERENTE / Exclusivo ADMIN - 201)',
+      'POST',
+      '{{base_url}}/usuarios',
+      [
+        { key: 'Content-Type', value: 'application/json' },
+        { key: 'Authorization', value: 'Bearer {{token_admin}}' }
+      ],
+      {
+        nome: 'Juliana Ferreira (Subgerente)',
+        email: 'juliana.gerente@ms2.com.br',
+        senha: 'senha123',
+        cargo: 'GERENTE'
+      }
+    ),
+    createRequestItem(
+      'Bloqueio Cadastro de Usuário por Caixa (Cenário Negativo 403)',
+      'POST',
+      '{{base_url}}/usuarios',
+      [
+        { key: 'Content-Type', value: 'application/json' },
+        { key: 'Authorization', value: 'Bearer {{token_caixa}}' }
+      ],
+      {
+        nome: 'Tentativa Bloqueada',
+        email: 'bloqueado@ms2.com.br',
+        senha: 'senha123',
+        cargo: 'CAIXA'
+      }
+    ),
+    createRequestItem(
+      'Atualizar Cargo / Nome do Usuário (Exclusivo ADMIN - 200)',
+      'PUT',
+      '{{base_url}}/usuarios/2',
+      [
+        { key: 'Content-Type', value: 'application/json' },
+        { key: 'Authorization', value: 'Bearer {{token_admin}}' }
+      ],
+      {
+        nome: 'Ana Silva Santos (Caixa Líder)',
+        cargo: 'CAIXA'
+      }
+    ),
+    createRequestItem(
+      'Desativar / Ativar Funcionário (Status - 200)',
+      'PATCH',
+      '{{base_url}}/usuarios/2/status',
+      [
+        { key: 'Content-Type', value: 'application/json' },
+        { key: 'Authorization', value: 'Bearer {{token_admin}}' }
+      ],
+      {
+        ativo: true
+      }
+    )
+  ]
+};
+
 const ms2Collection = {
   id: 'c1000000-0000-4000-8000-000000000001',
   name: 'MS² Vestuário - API RESTful (PDV & Gestão)',
@@ -441,7 +559,8 @@ const ms2Collection = {
     folderProdutos,
     folderClientes,
     folderVendas,
-    folderCancelamento
+    folderCancelamento,
+    folderUsuarios
   ]
 };
 
@@ -451,11 +570,12 @@ const environmentLocal = {
   name: 'local',
   variables: {
     base_url: 'http://localhost:3001/api',
-    token_caixa: tokenCaixa,
+    token_admin: tokenAdmin,
     token_gerente: tokenGerente,
-    token: tokenCaixa
+    token_caixa: tokenCaixa,
+    token: tokenAdmin
   },
-  variableOrder: ['base_url', 'token_caixa', 'token_gerente', 'token'],
+  variableOrder: ['base_url', 'token_admin', 'token_gerente', 'token_caixa', 'token'],
   color: '#2563eb'
 };
 
@@ -523,7 +643,8 @@ async function main() {
       folderProdutos,
       folderClientes,
       folderVendas,
-      folderCancelamento
+      folderCancelamento,
+      folderUsuarios
     ].map(folder => ({
       name: folder.name,
       item: folder.children.map(ch => ({
@@ -552,8 +673,9 @@ async function main() {
   fs.writeFileSync(exportPostmanPath, JSON.stringify(postmanCollection, null, 2), 'utf-8');
   console.log(`✅ Coleção Postman v2.1 gerada: ${exportPostmanPath}`);
 
+  const totalReqs = ms2Collection.items.reduce((acc, f) => acc + f.children.length, 0);
   console.log('\n======================================================');
-  console.log('🎉 28 ROTAS CONFIGURADAS COM SUCESSO NO FIVEDOLLARS!');
+  console.log(`🎉 ${totalReqs} ROTAS CONFIGURADAS COM SUCESSO NO FIVEDOLLARS!`);
   console.log('======================================================\n');
 }
 

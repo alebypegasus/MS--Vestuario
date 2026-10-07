@@ -61,8 +61,8 @@ export class AuthService {
       throw new AppError('Gerente inativo no sistema', 403);
     }
 
-    if (gerente.cargo !== 'GERENTE') {
-      throw new AppError('O usuário informado não possui alçada de GERENTE', 403);
+    if (gerente.cargo !== 'GERENTE' && gerente.cargo !== 'ADMIN') {
+      throw new AppError('O usuário informado não possui alçada de GERENTE ou ADMIN', 403);
     }
 
     const senhaCorreta = await bcrypt.compare(senha, gerente.senha_hash);

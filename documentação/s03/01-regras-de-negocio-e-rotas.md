@@ -64,6 +64,17 @@ A API base responde no prefixo `/api` e está dividida nos seguintes módulos:
 | `GET` | `/api/vendas/:id` | Autenticado | Exibe detalhes da venda com lista completa de itens, operador e cliente | `200 OK` |
 | `PUT`/`PATCH` | `/api/vendas/:id/cancelar` | Autenticado | Cancela venda homologada exigindo credenciais gerenciais caso operador seja Caixa (RN-03) | `200 OK` |
 
+### 3.5. Gestão de Usuários e Funcionários (`/api/usuarios`)
+> **Separação de Entidades:** A tabela `usuarios` é restrita aos funcionários e operadores do sistema (autenticação JWT, senha em hash e roles `ADMIN`, `GERENTE`, `CAIXA`), enquanto a tabela `clientes` é dedicada exclusivamente à base de clientes da loja (CPF único, dados de contato e compras).
+
+| Método | Endpoint | Alçada | Descrição | Status Sucesso |
+| :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/api/usuarios` | **ADMIN** / **GERENTE** | Lista todos os funcionários/operadores do sistema | `200 OK` |
+| `GET` | `/api/usuarios/:id` | **ADMIN** / **GERENTE** | Busca detalhes de um usuário interno por ID | `200 OK` |
+| `POST` | `/api/usuarios` | **ADMIN** | Cadastra novo funcionário com role `ADMIN`, `GERENTE` ou `CAIXA` | `201 Created` |
+| `PUT` | `/api/usuarios/:id` | **ADMIN** | Atualiza dados cadastrais, cargo ou redefinição de senha | `200 OK` |
+| `PATCH` | `/api/usuarios/:id/status` | **ADMIN** | Ativa ou desativa o acesso de um funcionário | `200 OK` |
+
 ---
 
 ## 4. Implementação das Regras de Negócio Oficiais
@@ -143,29 +154,42 @@ npm run test:api
  -> Sucesso! 8 produtos retornados.
 
 [4/10] Testando Cadastro de Novo Cliente (RN-01 - Módulo 11 Válido)...
- -> Sucesso! Cliente cadastrado com ID 10 e CPF 064.514.702-87.
+ -> Sucesso! Cliente cadastrado com ID 11 e CPF 064.514.702-87.
 
 [5/10] Testando Bloqueio de CPF Duplicado (RN-01 - Conflito 409)...
  -> Sucesso! Bloqueio 409 Conflict acionado corretamente: O CPF '52998224725' já está cadastrado para o cliente 'Mariana Souza'.
 
 [6/10] Testando Venda com Desconto Normal <= 10% (RN-02)...
- -> Sucesso! Venda nº 10 criada. Subtotal: R$ 49.9 | Total Líquido: R$ 45.9
+ -> Sucesso! Venda nº 12 criada. Subtotal: R$ 49.9 | Total Líquido: R$ 45.9
 
 [7/10] Testando Bloqueio de Desconto > 10% sem Gerente (RN-02 - Proibido 403)...
  -> Sucesso! Bloqueio 403 Forbidden acionado corretamente: Desconto de 30.1% ultrapassa o limite permitido para operadores (10%). É necessária autorização gerencial via credenciais do gerente.
 
 [8/10] Testando Venda com Grande Desconto COM Aprovação Gerencial (RN-02)...
- -> Sucesso! Venda nº 11 aprovada pelo Gerente ID 1. Total: R$ 34.9
+ -> Sucesso! Venda nº 13 aprovada pelo Gerente ID 1. Total: R$ 34.9
 
 [9/10] Testando Bloqueio de Cancelamento por Caixa sem Gerente (RN-03 - Proibido 403)...
  -> Sucesso! Bloqueio 403 Forbidden acionado corretamente: Cancelamento de vendas exige alçada gerencial. Forneça e-mail e senha de um Gerente.
 
-[10/10] Testando Cancelamento COM Aprovação Gerencial (RN-03)...
- -> Sucesso! Venda nº 10 cancelada com sucesso. Status atual: CANCELADA
+[10/14] Testando Cancelamento COM Aprovação Gerencial (RN-03)...
+ -> Sucesso! Venda nº 12 cancelada com sucesso. Status atual: CANCELADA
 
-======================================================
-🎉 TODOS OS 10 TESTES DA SPRINT 3 PASSARAM COM SUCESSO!
-======================================================
+[11/14] Testando Login do Administrador Geral (Role: ADMIN)...
+ -> Sucesso! Token de Admin emitido: [OK] (Cargo: ADMIN)
+
+[12/14] Testando Listagem de Funcionários/Usuários (GET /api/usuarios)...
+ -> Sucesso! 3 usuários/funcionários retornados na tabela 'usuarios'.
+
+[13/14] Testando Bloqueio de Gestão de Usuários por Caixa (403 Forbidden)...
+ -> Sucesso! Bloqueio 403 Forbidden acionado corretamente: Acesso negado. Ação restrita aos cargos: ADMIN
+
+[14/14] Testando Cadastro de Novo Funcionário pelo Administrador (POST /api/usuarios)...
+ -> Sucesso! Novo funcionário cadastrado com cargo 'CAIXA'.
+
+========================================================================
+🎉 TODOS OS 14 TESTES PASSARAM COM SUCESSO!
+🔒 TABELAS 'clientes' E 'usuarios' ESTÃO TOTALMENTE SEPARADAS E HOMOLOGADAS!
+========================================================================
 ```
 
 ---

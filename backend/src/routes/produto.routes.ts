@@ -15,24 +15,30 @@ router.get('/', ProdutoController.listar);
 router.get('/codigo/:codigo', ProdutoController.buscarPorCodigo);
 router.get('/:id', ProdutoController.buscarPorId);
 
-// Operações restritas a GERENTE (alçadas administrativas)
+// Operações restritas a ADMIN e GERENTE (alçadas administrativas)
 router.post(
   '/',
-  autorizarCargos('GERENTE'),
+  autorizarCargos('ADMIN', 'GERENTE'),
   validarBody(produtoCriacaoSchema),
   ProdutoController.criar
 );
 
 router.put(
   '/:id',
-  autorizarCargos('GERENTE'),
+  autorizarCargos('ADMIN', 'GERENTE'),
   validarBody(produtoAtualizacaoSchema),
   ProdutoController.atualizar
 );
 
+router.patch(
+  '/:id/status',
+  autorizarCargos('ADMIN', 'GERENTE'),
+  ProdutoController.inativar
+);
+
 router.delete(
   '/:id',
-  autorizarCargos('GERENTE'),
+  autorizarCargos('ADMIN', 'GERENTE'),
   ProdutoController.inativar
 );
 

@@ -10,7 +10,7 @@
       "name": "01. Autenticação e Sessão",
       "item": [
         {
-          "name": "Login - Operador de Caixa (200 OK)",
+          "name": "Login - Administrador (ADMIN) (200 OK)",
           "request": {
             "method": "POST",
             "header": [
@@ -21,7 +21,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"caixa123\"\n}",
+              "raw": "{\n  \"email\": \"admin@ms2.com.br\",\n  \"senha\": \"admin123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -42,7 +42,7 @@
           }
         },
         {
-          "name": "Login - Gerente (200 OK)",
+          "name": "Login - Gerente (GERENTE) (200 OK)",
           "request": {
             "method": "POST",
             "header": [
@@ -54,6 +54,38 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"gerente@ms2.com.br\",\n  \"senha\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login - Operador de Caixa (CAIXA) (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"caixa@ms2.com.br\",\n  \"senha\": \"caixa123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -112,7 +144,7 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token_caixa}}"
+                "value": "Bearer {{token_admin}}"
               }
             ],
             "url": {
@@ -220,7 +252,7 @@
           }
         },
         {
-          "name": "Cadastrar Novo Produto (Exclusivo Gerente - 201)",
+          "name": "Cadastrar Novo Produto (ADMIN / GERENTE - 201)",
           "request": {
             "method": "POST",
             "header": [
@@ -290,7 +322,7 @@
           }
         },
         {
-          "name": "Atualizar Produto / Preço (Exclusivo Gerente - 200)",
+          "name": "Atualizar Produto / Preço (ADMIN / GERENTE - 200)",
           "request": {
             "method": "PUT",
             "header": [
@@ -326,7 +358,7 @@
           }
         },
         {
-          "name": "Inativar Produto (Soft Delete / Gerente - 200)",
+          "name": "Inativar Produto (Soft Delete / ADMIN ou GERENTE - 200)",
           "request": {
             "method": "PATCH",
             "header": [
@@ -365,7 +397,7 @@
       ]
     },
     {
-      "name": "03. Base de Clientes (RN-01)",
+      "name": "03. Base de Clientes (Tabela: clientes / RN-01)",
       "item": [
         {
           "name": "Listar Todos os Clientes",
@@ -864,6 +896,234 @@
                 "vendas",
                 "1",
                 "cancelar"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Gestão de Funcionários / Usuários (Roles: ADMIN, GERENTE, CAIXA)",
+      "item": [
+        {
+          "name": "Listar Todos os Funcionários do Sistema",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Funcionário por ID (Ex: 1)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cadastrar Novo Funcionário (Role: CAIXA / Exclusivo ADMIN - 201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Marcos Oliveira (Novo Caixa)\",\n  \"email\": \"marcos.caixa@ms2.com.br\",\n  \"senha\": \"senha123\",\n  \"cargo\": \"CAIXA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cadastrar Novo Gerente (Role: GERENTE / Exclusivo ADMIN - 201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Juliana Ferreira (Subgerente)\",\n  \"email\": \"juliana.gerente@ms2.com.br\",\n  \"senha\": \"senha123\",\n  \"cargo\": \"GERENTE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bloqueio Cadastro de Usuário por Caixa (Cenário Negativo 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_caixa}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Tentativa Bloqueada\",\n  \"email\": \"bloqueado@ms2.com.br\",\n  \"senha\": \"senha123\",\n  \"cargo\": \"CAIXA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Cargo / Nome do Usuário (Exclusivo ADMIN - 200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Ana Silva Santos (Caixa Líder)\",\n  \"cargo\": \"CAIXA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios",
+                "2"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Desativar / Ativar Funcionário (Status - 200)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ativo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios/2/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "{{base_url}}",
+                "usuarios",
+                "2",
+                "status"
               ]
             }
           }

@@ -23,18 +23,18 @@ DROP TABLE IF EXISTS usuarios;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- --------------------------------------------------------------------
--- 1. TABELA DE USUÁRIOS (Operadores de Caixa e Gerentes)
+-- 1. TABELA DE USUÁRIOS E FUNCIONÁRIOS (Roles: ADMIN, GERENTE, CAIXA)
 -- --------------------------------------------------------------------
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(120) NOT NULL,
     email VARCHAR(120) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
-    cargo ENUM('CAIXA', 'GERENTE') NOT NULL DEFAULT 'CAIXA' COMMENT 'Define a alçada operacional',
+    cargo ENUM('ADMIN', 'GERENTE', 'CAIXA') NOT NULL DEFAULT 'CAIXA' COMMENT 'Define a alçada operacional (ADMIN, GERENTE ou CAIXA)',
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Credenciais e perfis de acesso';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Credenciais e perfis de acesso dos funcionários do sistema';
 
 -- --------------------------------------------------------------------
 -- 2. TABELA DE CLIENTES (Base de Fidelização com CPF Único)
