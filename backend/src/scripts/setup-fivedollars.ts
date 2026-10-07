@@ -8,7 +8,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ms2_vestuario_secret_token_chave_super_segura_2026';
 
-// 1. Gerar tokens JWT válidos de 8 horas para testes imediatos
+// 1. Gerar tokens JWT válidos de 30 dias para testes contínuos
 const tokenCaixa = jwt.sign(
   {
     id: 2,
@@ -17,7 +17,7 @@ const tokenCaixa = jwt.sign(
     cargo: 'CAIXA'
   },
   JWT_SECRET,
-  { expiresIn: '8h' }
+  { expiresIn: '30d' }
 );
 
 const tokenGerente = jwt.sign(
@@ -28,7 +28,7 @@ const tokenGerente = jwt.sign(
     cargo: 'GERENTE'
   },
   JWT_SECRET,
-  { expiresIn: '8h' }
+  { expiresIn: '30d' }
 );
 
 function createHeader(key: string, value: string) {
@@ -460,37 +460,43 @@ const environmentLocal = {
 };
 
 async function main() {
-  console.log('⚡ Configurando ambiente do FiveDollars para MS² Vestuário...');
+  console.log('⚡ Configurando ambiente do FiveDollars para MS² Vestuário (Antigravity IDE & Desktop)...');
 
-  // Caminho do data.json oficial do FiveDollars
   const appDataRoaming = process.env.APPDATA || 'C:\\Users\\NIT0312117\\AppData\\Roaming';
-  const fiveDollarsDataPath = path.join(appDataRoaming, 'com.fivedollars.app', 'data.json');
+  const targetPaths = [
+    path.join(appDataRoaming, 'Antigravity IDE', 'User', 'globalStorage', 'leandrodettmer.fivedollars', 'data.json'),
+    path.join(appDataRoaming, 'com.fivedollars.app', 'data.json')
+  ];
   const projectDocDir = path.resolve(process.cwd(), '../documentação/s03');
 
-  // Salvar backup local do FiveDollars data.json se existir
-  if (fs.existsSync(fiveDollarsDataPath)) {
-    const rawData = fs.readFileSync(fiveDollarsDataPath, 'utf-8');
-    fs.writeFileSync(fiveDollarsDataPath + '.bak_ms2', rawData, 'utf-8');
+  // Atualizar data.json nos alvos encontrados
+  for (const fiveDollarsDataPath of targetPaths) {
+    if (fs.existsSync(fiveDollarsDataPath)) {
+      const rawData = fs.readFileSync(fiveDollarsDataPath, 'utf-8');
+      fs.writeFileSync(fiveDollarsDataPath + '.bak_ms2', rawData, 'utf-8');
 
-    try {
-      const dataJson = JSON.parse(rawData);
-      if (dataJson.workspaces && dataJson.workspaces.length > 0) {
-        const ws = dataJson.workspaces[0];
+      try {
+        const dataJson = JSON.parse(rawData);
+        if (dataJson.workspaces && dataJson.workspaces.length > 0) {
+          const ws = dataJson.workspaces[0];
 
-        // Atualizar coleções da workspace
-        ws.collections = [ms2Collection];
-        ws.offlineCollections = [ms2Collection];
+          // Atualizar coleções da workspace
+          ws.collections = [ms2Collection];
+          ws.offlineCollections = [ms2Collection];
 
-        // Atualizar ambiente local
-        ws.environments = [environmentLocal];
-        ws.offlineEnvironments = [environmentLocal];
-        ws.currentEnvId = environmentLocal.id;
+          // Atualizar ambiente local
+          ws.environments = [environmentLocal];
+          ws.offlineEnvironments = [environmentLocal];
+          ws.currentEnvId = environmentLocal.id;
 
-        fs.writeFileSync(fiveDollarsDataPath, JSON.stringify(dataJson, null, 2), 'utf-8');
-        console.log(`✅ FiveDollars atualizado com sucesso em: ${fiveDollarsDataPath}`);
+          fs.writeFileSync(fiveDollarsDataPath, JSON.stringify(dataJson, null, 2), 'utf-8');
+          console.log(`✅ FiveDollars atualizado com sucesso em: ${fiveDollarsDataPath}`);
+        }
+      } catch (err) {
+        console.error(`Erro ao atualizar data.json em ${fiveDollarsDataPath}:`, err);
       }
-    } catch (err) {
-      console.error('Erro ao atualizar data.json do FiveDollars:', err);
+    } else {
+      console.log(`ℹ️ Caminho não encontrado (ignorado): ${fiveDollarsDataPath}`);
     }
   }
 
@@ -547,7 +553,7 @@ async function main() {
   console.log(`✅ Coleção Postman v2.1 gerada: ${exportPostmanPath}`);
 
   console.log('\n======================================================');
-  console.log('🎉 23 ROTAS CONFIGURADAS COM SUCESSO NO FIVEDOLLARS!');
+  console.log('🎉 28 ROTAS CONFIGURADAS COM SUCESSO NO FIVEDOLLARS!');
   console.log('======================================================\n');
 }
 
