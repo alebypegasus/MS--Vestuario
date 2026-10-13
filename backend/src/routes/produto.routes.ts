@@ -36,9 +36,10 @@ router.patch(
   ProdutoController.inativar
 );
 
+// SOMENTE ADMIN pode deletar um produto
 router.delete(
   '/:id',
-  autorizarCargos('ADMIN', 'GERENTE'),
+  autorizarCargos('ADMIN'),
   ProdutoController.inativar
 );
 

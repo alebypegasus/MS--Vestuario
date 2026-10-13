@@ -11,6 +11,8 @@
 [![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![MySQL](https://img.shields.io/badge/Database-MySQL_8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Aceternity UI](https://img.shields.io/badge/UI-Aceternity_UI-8B5CF6?style=for-the-badge&logo=framer&logoColor=white)](https://ui.aceternity.com/)
+[![Framer Motion](https://img.shields.io/badge/Animation-Framer_Motion-FF0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
 </div>
 
@@ -206,7 +208,20 @@ O script de sementes (`seeds.sql`) já fornece usuários operacionais com senhas
 
 ---
 
-## 🎓 9. Informações Acadêmicas
+## 🚀 9. Roteiro e Status das Sprints
+
+| Sprint | Escopo & Entregas Principais | Status | Documentação |
+| :---: | :--- | :---: | :---: |
+| **Sprint 1** | Planejamento, Requisitos, Regras de Negócio, Modelagem Relacional & DDL | Concluído | [Ver Sprint 1](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s01/) |
+| **Sprint 2** | Backend Foundations, Pool de Conexões MySQL, Camada de Dados & Seeds | Concluído | [Ver Sprint 2](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s02/) |
+| **Sprint 3** | Backend Logic, RBAC (Admin/Gerente/Caixa), Validação Zod, Testes & FiveDollars | Concluído | [Ver Sprint 3](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s03/) |
+| **Sprint 4** | Frontend SPA (React + Vite + Tailwind + Aceternity UI), Identidade Visual, Fotos de Catálogo, Configuração Fiscal (Admin), RBAC Estrito de Produtos, Dual Dashboards (Gerente/Admin), Alçadas & E-Nota Dinâmica, Modo Claro/Escuro Automático | Concluído | [Ver Sprint 4](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s04/01-setup-e-interfaces-frontend.md) |
+| **Sprint 5** | Testes Integrados E2E, Auditoria de Segurança & Homologação | A Seguir | [Sprint 5](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s05/) |
+| **Sprint 6** | Apresentação Pitch Técnico (Slides) & Preparação de Live Demo | Planejado | [Sprint 6](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s06/) |
+
+---
+
+## 🎓 10. Informações Acadêmicas
 
 - **Instituição:** Firjan - Senai
 - **Unidade Curricular:** Desenvolvimento de Sistemas
