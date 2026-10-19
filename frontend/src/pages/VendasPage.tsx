@@ -9,32 +9,62 @@ import {
   Percent,
   RefreshCw,
   TrendingUp,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  FileCode,
+  ShieldCheck,
+  ChevronDown,
+  QrCode,
 } from 'lucide-react';
-import { IVendaCompleta } from '../types';
-import { vendasApi } from '../services/api';
+import { IVendaCompleta, IEmpresa } from '../types';
+import { vendasApi, empresaApi } from '../services/api';
 import { formatarMoeda, formatarDataHora } from '../utils/formatters';
 import { formatarCPF } from '../utils/cpf.validator';
 import { useToast } from '../contexts/ToastContext';
 import { CancelSaleModal } from '../components/CancelSaleModal';
 import { ReceiptModal } from '../components/ReceiptModal';
+import { NfceModal } from '../components/NfceModal';
+import { HomologacaoModal } from '../components/HomologacaoModal';
+import {
+  exportarParaCSV,
+  exportarParaExcel,
+  exportarRelatorioPDF,
+  exportarParaJSON,
+} from '../utils/exportUtils';
 
 export const VendasPage: React.FC = () => {
   const { adicionarToast } = useToast();
 
   const [vendas, setVendas] = useState<IVendaCompleta[]>([]);
+  const [empresa, setEmpresa] = useState<IEmpresa | null>(null);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [filtroStatus, setFiltroStatus] = useState<string>('TODAS');
   const [busca, setBusca] = useState<string>('');
+  const [menuExportarAberto, setMenuExportarAberto] = useState<boolean>(false);
 
   // Modais
   const [vendaSelecionada, setVendaSelecionada] = useState<IVendaCompleta | null>(null);
   const [modalDetalhesAberto, setModalDetalhesAberto] = useState<boolean>(false);
   const [modalCancelarAberto, setModalCancelarAberto] = useState<boolean>(false);
   const [vendaParaCancelar, setVendaParaCancelar] = useState<IVendaCompleta | null>(null);
+  const [modalNfceAberto, setModalNfceAberto] = useState<boolean>(false);
+  const [vendaParaNfce, setVendaParaNfce] = useState<IVendaCompleta | null>(null);
+  const [modalHomologacaoAberto, setModalHomologacaoAberto] = useState<boolean>(false);
 
   useEffect(() => {
     carregarVendas();
+    carregarEmpresa();
   }, []);
+
+  const carregarEmpresa = async () => {
+    try {
+      const dados = await empresaApi.obter();
+      setEmpresa(dados);
+    } catch {
+      // Ignora erro se backend ainda não configurado
+    }
+  };
 
   const carregarVendas = async () => {
     try {
@@ -56,6 +86,11 @@ export const VendasPage: React.FC = () => {
   const abrirCancelar = (venda: IVendaCompleta) => {
     setVendaParaCancelar(venda);
     setModalCancelarAberto(true);
+  };
+
+  const abrirNfce = (venda: IVendaCompleta) => {
+    setVendaParaNfce(venda);
+    setModalNfceAberto(true);
   };
 
   const handleVendaCancelada = () => {
@@ -85,6 +120,87 @@ export const VendasPage: React.FC = () => {
     (v) => Number(v.desconto || 0) > 0 && v.gerente_aprovador_nome
   ).length;
 
+  // Handlers de Exportação
+  const obterLinhasExportacao = () => {
+    return vendasFiltradas.map((v) => [
+      `#${String(v.id).padStart(5, '0')}`,
+      formatarDataHora(v.criado_em),
+      v.operador_nome || `#${v.usuario_id}`,
+      v.cliente_nome || 'Consumidor Final',
+      v.cliente_cpf ? formatarCPF(v.cliente_cpf) : 'Não Informado',
+      formatarMoeda(Number(v.subtotal)),
+      formatarMoeda(Number(v.desconto)),
+      formatarMoeda(Number(v.valor_total)),
+      v.forma_pagamento,
+      v.status === 'CONCLUIDA' ? 'Concluída' : 'Cancelada',
+      v.gerente_aprovador_nome || 'N/A',
+    ]);
+  };
+
+  const colunasExportacao = [
+    'ID Venda',
+    'Data/Hora',
+    'Operador',
+    'Cliente (RN-06)',
+    'CPF Cliente',
+    'Subtotal (R$)',
+    'Desconto (R$)',
+    'Total Líquido (R$)',
+    'Forma Pagamento',
+    'Status',
+    'Alçada Gerente (RN-02)',
+  ];
+
+  const handleExportarExcel = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasExportacao();
+    const totais = [
+      { label: 'Total de Vendas Listadas', valor: String(vendasFiltradas.length) },
+      { label: 'Faturamento Total Líquido', valor: formatarMoeda(faturamentoTotal) },
+      { label: 'Total de Descontos Concedidos', valor: formatarMoeda(totalDescontos) },
+    ];
+    exportarParaExcel('relatorio_vendas_ms2', 'Relatório de Auditoria de Vendas & PDV', colunasExportacao, linhas, totais);
+    adicionarToast('success', 'Excel Gerado!', 'Planilha formatada baixada com sucesso.');
+  };
+
+  const handleExportarCSV = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasExportacao();
+    exportarParaCSV('relatorio_vendas_ms2', colunasExportacao, linhas);
+    adicionarToast('success', 'CSV Exportado!', 'Arquivo CSV (UTF-8 com BOM) baixado.');
+  };
+
+  const handleExportarPDF = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasExportacao();
+    const totais = [
+      { label: 'Vendas Filtradas', valor: String(vendasFiltradas.length) },
+      { label: 'Descontos Totais', valor: formatarMoeda(totalDescontos) },
+      { label: 'Total Faturamento Líquido', valor: formatarMoeda(faturamentoTotal) },
+    ];
+    exportarRelatorioPDF({
+      titulo: 'Relatório de Auditoria de Vendas & PDV',
+      subtitulo: `Filtro aplicado: ${filtroStatus} • Período Atual • Sistema Homologado`,
+      colunas: colunasExportacao.slice(0, 9),
+      linhas: linhas.map((l) => l.slice(0, 9)),
+      totais,
+      empresa: empresa || undefined,
+    });
+    adicionarToast('info', 'Gerando PDF', 'Janela de impressão e exportação A4 aberta.');
+  };
+
+  const handleExportarJSON = () => {
+    setMenuExportarAberto(false);
+    exportarParaJSON('auditoria_fiscal_vendas_ms2', {
+      empresa,
+      data_extracao: new Date().toISOString(),
+      total_registros: vendasFiltradas.length,
+      faturamento_total: faturamentoTotal,
+      vendas: vendasFiltradas,
+    });
+    adicionarToast('success', 'JSON Fiscal Gerado', 'Arquivo JSON de auditoria baixado.');
+  };
+
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-24 sm:pb-8">
       {/* Header Bento */}
@@ -108,14 +224,74 @@ export const VendasPage: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={carregarVendas}
-          disabled={carregando}
-          className="self-start lg:self-auto px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-2 transition-all btn-interactive"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${carregando ? 'animate-spin text-amber-500' : ''}`} />
-          <span>Atualizar Auditoria</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+          {/* Botão Dossiê de Homologação */}
+          <button
+            onClick={() => setModalHomologacaoAberto(true)}
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-2 transition-all btn-interactive shadow-xs"
+            title="Abrir Dossiê de Homologação do Sistema"
+          >
+            <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <span>Homologação Fiscal</span>
+          </button>
+
+          {/* Menu Dropdown de Exportação */}
+          <div className="relative">
+            <button
+              onClick={() => setMenuExportarAberto(!menuExportarAberto)}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center gap-2 transition-all btn-interactive"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Exportar Relatórios</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+
+            {menuExportarAberto && (
+              <div className="absolute right-0 mt-2 w-56 rounded-2xl glass-card border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-30 animate-in fade-in">
+                <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                  Formatos Disponíveis
+                </div>
+                <button
+                  onClick={handleExportarExcel}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                  <span>Planilha Excel (.xlsx / .xls)</span>
+                </button>
+                <button
+                  onClick={handleExportarPDF}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-rose-500" />
+                  <span>Relatório PDF (A4 Executivo)</span>
+                </button>
+                <button
+                  onClick={handleExportarCSV}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-blue-500" />
+                  <span>Arquivo CSV (UTF-8 com BOM)</span>
+                </button>
+                <button
+                  onClick={handleExportarJSON}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileCode className="w-4 h-4 text-amber-500" />
+                  <span>Auditoria Fiscal (JSON)</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={carregarVendas}
+            disabled={carregando}
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-2 transition-all btn-interactive"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${carregando ? 'animate-spin text-amber-500' : ''}`} />
+            <span>Atualizar</span>
+          </button>
+        </div>
       </div>
 
       {/* Bento Grid: Cards de Métricas em Tela Inteira */}
@@ -338,6 +514,15 @@ export const VendasPage: React.FC = () => {
                         </button>
                         {v.status === 'CONCLUIDA' && (
                           <button
+                            onClick={() => abrirNfce(v)}
+                            title="DANFE NFC-e / SAT (Modelo 65 - SEFAZ)"
+                            className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 transition-colors btn-interactive"
+                          >
+                            <QrCode className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        {v.status === 'CONCLUIDA' && (
+                          <button
                             onClick={() => abrirCancelar(v)}
                             title="Cancelar Venda com Alçada (RN-03)"
                             className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-slate-700/60 hover:border-rose-400 dark:hover:border-rose-500/40 transition-colors btn-interactive"
@@ -419,6 +604,16 @@ export const VendasPage: React.FC = () => {
                   </button>
                   {v.status === 'CONCLUIDA' && (
                     <button
+                      onClick={() => abrirNfce(v)}
+                      title="NFC-e / SAT"
+                      className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 text-xs font-semibold flex items-center gap-1"
+                    >
+                      <QrCode className="w-3.5 h-3.5" />
+                      <span>NFC-e</span>
+                    </button>
+                  )}
+                  {v.status === 'CONCLUIDA' && (
+                    <button
                       onClick={() => abrirCancelar(v)}
                       className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs font-semibold flex items-center gap-1"
                     >
@@ -446,6 +641,19 @@ export const VendasPage: React.FC = () => {
         venda={vendaParaCancelar}
         onConfirmado={handleVendaCancelada}
         onFechar={() => setModalCancelarAberto(false)}
+      />
+
+      {/* Modal Fiscal DANFE NFC-e / SAT */}
+      <NfceModal
+        aberto={modalNfceAberto}
+        venda={vendaParaNfce}
+        onFechar={() => setModalNfceAberto(false)}
+      />
+
+      {/* Modal do Dossiê de Homologação */}
+      <HomologacaoModal
+        aberto={modalHomologacaoAberto}
+        onFechar={() => setModalHomologacaoAberto(false)}
       />
     </div>
   );

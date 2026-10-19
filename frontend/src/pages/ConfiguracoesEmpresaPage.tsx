@@ -5,16 +5,19 @@ import {
   Printer,
   Phone,
   MapPin,
+  ShieldCheck,
 } from 'lucide-react';
 import { empresaApi } from '../services/api';
 import { IEmpresa } from '../types';
 import { useToast } from '../contexts/ToastContext';
 import { ShimmerButton } from '../components/ui/shimmer-button';
+import { HomologacaoModal } from '../components/HomologacaoModal';
 
 export const ConfiguracoesEmpresaPage: React.FC = () => {
   const { adicionarToast } = useToast();
   const [carregando, setCarregando] = useState<boolean>(true);
   const [salvando, setSalvando] = useState<boolean>(false);
+  const [modalHomologacaoAberto, setModalHomologacaoAberto] = useState<boolean>(false);
 
   const [form, setForm] = useState<IEmpresa>({
     id: 1,
@@ -106,6 +109,14 @@ export const ConfiguracoesEmpresaPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <button
+          onClick={() => setModalHomologacaoAberto(true)}
+          className="px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-2 transition-all shadow-xs btn-interactive self-start sm:self-auto"
+        >
+          <ShieldCheck className="w-4 h-4 text-amber-500" />
+          <span>Dossiê de Homologação</span>
+        </button>
       </div>
 
       {/* Bento Grid: Cards de Resumo Fiscal */}
@@ -458,6 +469,12 @@ export const ConfiguracoesEmpresaPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Homologação Técnica & Fiscal */}
+      <HomologacaoModal
+        aberto={modalHomologacaoAberto}
+        onFechar={() => setModalHomologacaoAberto(false)}
+      />
     </div>
   );
 };

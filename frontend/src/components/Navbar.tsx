@@ -14,15 +14,18 @@ import {
   Monitor,
   Menu,
   X,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { getRoleBadgeConfig } from '../utils/formatters';
+import { HomologacaoModal } from './HomologacaoModal';
 
 export const Navbar: React.FC = () => {
   const { usuario, logout, isAdmin, isGerenteOuAdmin } = useAuth();
   const { tema, temaEfetivo, setTema } = useTheme();
   const [menuMobileAberto, setMenuMobileAberto] = useState<boolean>(false);
+  const [modalHomologacaoAberto, setModalHomologacaoAberto] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -42,7 +45,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-3 shrink-0">
             <NavLink to="/pdv" className="flex items-center gap-3 group">
               <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700/80 overflow-hidden flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
-                <img src="/logo.png" alt="MS² Vestuário" className="w-full h-full object-cover" />
+                <img src="/logo-emblem.png" alt="MS² Vestuário" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
@@ -170,6 +173,16 @@ export const Navbar: React.FC = () => {
 
           {/* 3. LADO DIREITO: Seletor de Tema, Perfil do Usuário e Logout */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Botão de Dossiê de Homologação */}
+            <button
+              onClick={() => setModalHomologacaoAberto(true)}
+              title="Dossiê de Homologação Fiscal & Regras de Negócio (RN-01 a RN-06)"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 transition-all btn-interactive shadow-xs"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+              <span>Homologação</span>
+            </button>
+
             {/* Seletor de Tema Triplo Elegante */}
             <div
               className="flex items-center bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-xl p-0.5 shadow-xs"
@@ -476,6 +489,12 @@ export const Navbar: React.FC = () => {
           </NavLink>
         )}
       </nav>
+
+      {/* Modal de Homologação Técnica & Fiscal */}
+      <HomologacaoModal
+        aberto={modalHomologacaoAberto}
+        onFechar={() => setModalHomologacaoAberto(false)}
+      />
     </>
   );
 };

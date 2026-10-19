@@ -11,6 +11,10 @@ import {
   PlayCircle,
   Trash2,
   Tag,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  ChevronDown,
 } from 'lucide-react';
 import { IProduto, IProdutoCriacaoDTO, IProdutoAtualizacaoDTO } from '../types';
 import { produtosApi } from '../services/api';
@@ -18,6 +22,7 @@ import { formatarMoeda } from '../utils/formatters';
 import { obterImagemProduto } from '../utils/productImages';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
+import { exportarParaCSV, exportarParaExcel, exportarRelatorioPDF } from '../utils/exportUtils';
 
 export const ProdutosPage: React.FC = () => {
   const { isAdmin, isGerenteOuAdmin, isCaixa } = useAuth();
@@ -27,6 +32,7 @@ export const ProdutosPage: React.FC = () => {
   const [carregando, setCarregando] = useState<boolean>(true);
   const [busca, setBusca] = useState<string>('');
   const [filtroCategoria, setFiltroCategoria] = useState<string>('TODAS');
+  const [menuExportarAberto, setMenuExportarAberto] = useState<boolean>(false);
 
   // Modal de Criação / Edição
   const [modalAberto, setModalAberto] = useState<boolean>(false);
@@ -166,6 +172,51 @@ export const ProdutosPage: React.FC = () => {
   const totalPausados = produtos.filter((p) => !p.ativo).length;
   const precoMedio = produtos.length > 0 ? produtos.reduce((acc, p) => acc + Number(p.preco), 0) / produtos.length : 0;
 
+  const colunasProdutos = ['Código SKU', 'Descrição', 'Categoria', 'Preço Unitário (R$)', 'Status'];
+  const obterLinhasProdutos = () =>
+    produtosFiltrados.map((p) => [
+      `#${p.codigo}`,
+      p.descricao,
+      p.categoria || 'Geral',
+      formatarMoeda(Number(p.preco)),
+      p.ativo ? 'Ativo no PDV' : 'Pausado',
+    ]);
+
+  const handleExportarExcel = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasProdutos();
+    const totais = [
+      { label: 'Total de Itens', valor: String(produtosFiltrados.length) },
+      { label: 'Itens Ativos no PDV', valor: String(totalAtivos) },
+      { label: 'Preço Médio do Catálogo', valor: formatarMoeda(precoMedio) },
+    ];
+    exportarParaExcel('catalogo_produtos_ms2', 'Catálogo de Produtos & Estoque', colunasProdutos, linhas, totais);
+    adicionarToast('success', 'Excel Gerado!', 'Catálogo baixado em formato Excel.');
+  };
+
+  const handleExportarCSV = () => {
+    setMenuExportarAberto(false);
+    exportarParaCSV('catalogo_produtos_ms2', colunasProdutos, obterLinhasProdutos());
+    adicionarToast('success', 'CSV Exportado!', 'Arquivo CSV baixado.');
+  };
+
+  const handleExportarPDF = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasProdutos();
+    const totais = [
+      { label: 'Total de Itens', valor: String(produtosFiltrados.length) },
+      { label: 'Preço Médio', valor: formatarMoeda(precoMedio) },
+    ];
+    exportarRelatorioPDF({
+      titulo: 'Catálogo de Produtos & Tabela de Preços',
+      subtitulo: `Categoria: ${filtroCategoria} • Sistema Homologado`,
+      colunas: colunasProdutos,
+      linhas,
+      totais,
+    });
+    adicionarToast('info', 'Gerando PDF', 'Janela de impressão A4 aberta.');
+  };
+
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-24 lg:pb-8">
       {/* Header da Página */}
@@ -186,15 +237,55 @@ export const ProdutosPage: React.FC = () => {
           </p>
         </div>
 
-        {isGerenteOuAdmin && (
-          <button
-            onClick={abrirModalNovo}
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-glow-indigo self-start sm:self-auto btn-interactive"
-          >
-            <Plus className="w-4 h-4" />
-            Novo Produto
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          {/* Menu Dropdown de Exportação */}
+          <div className="relative">
+            <button
+              onClick={() => setMenuExportarAberto(!menuExportarAberto)}
+              className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2 transition-all btn-interactive"
+            >
+              <Download className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Exportar</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+
+            {menuExportarAberto && (
+              <div className="absolute right-0 mt-2 w-52 rounded-2xl glass-card border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-30 animate-in fade-in">
+                <button
+                  onClick={handleExportarExcel}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                  <span>Planilha Excel (.xlsx)</span>
+                </button>
+                <button
+                  onClick={handleExportarPDF}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-rose-500" />
+                  <span>Relatório PDF (A4)</span>
+                </button>
+                <button
+                  onClick={handleExportarCSV}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-blue-500" />
+                  <span>Arquivo CSV (UTF-8)</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {isGerenteOuAdmin && (
+            <button
+              onClick={abrirModalNovo}
+              className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-glow-indigo btn-interactive"
+            >
+              <Plus className="w-4 h-4" />
+              Novo Produto
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Top Bento Metrics Row */}

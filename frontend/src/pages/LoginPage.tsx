@@ -70,11 +70,11 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-md relative z-10 py-8">
         {/* Cabeçalho de Apresentação com Logo e Aceternity FlipWords */}
         <div className="text-center mb-7">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-indigo-400 shadow-glow-indigo mb-3 p-1 transform hover:scale-105 transition-transform">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-900 border border-slate-700/80 shadow-glow-indigo mb-3 p-1 transform hover:scale-105 transition-transform overflow-hidden">
             <img
-              src="/logo.png"
-              alt="MS² Logo"
-              className="w-full h-full object-contain rounded-xl"
+              src="/logo-emblem.png"
+              alt="MS² Vestuário Logo"
+              className="w-full h-full object-cover rounded-xl"
             />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-900 to-indigo-600 dark:from-white dark:via-slate-100 dark:to-indigo-200 bg-clip-text text-transparent">
