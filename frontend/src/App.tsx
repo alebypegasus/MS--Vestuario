@@ -23,7 +23,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#0b0f19] dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {autenticado && !isLoginPage && <Navbar />}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 w-full">{children}</main>
     </div>
   );
 };

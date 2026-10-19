@@ -5,58 +5,60 @@ import {
   Plus,
   Minus,
   Trash2,
+  ShoppingBag,
   User,
-  ShieldAlert,
   CreditCard,
   QrCode,
   Banknote,
+  ShieldAlert,
   CheckCircle2,
-  ShoppingBag,
   X,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
-import {
-  IProduto,
-  ICliente,
-  ICarrinhoItem,
-  FormaPagamento,
-  IVendaCompleta,
-} from '../types';
+import { IProduto, ICliente, ICarrinhoItem, FormaPagamento, IVendaCompleta } from '../types';
 import { produtosApi, clientesApi, vendasApi } from '../services/api';
 import { formatarMoeda } from '../utils/formatters';
 import { formatarCPF } from '../utils/cpf.validator';
 import { obterImagemProduto } from '../utils/productImages';
 import { useToast } from '../contexts/ToastContext';
-import { ManagerApprovalModal } from '../components/ManagerApprovalModal';
-import { ReceiptModal } from '../components/ReceiptModal';
+import { useAuth } from '../contexts/AuthContext';
+
 import { Meteors } from '../components/ui/meteors';
 import { ButtonMovingBorder } from '../components/ui/moving-border';
+import { ManagerApprovalModal } from '../components/ManagerApprovalModal';
+import { ReceiptModal } from '../components/ReceiptModal';
 
 export const PdvPage: React.FC = () => {
+  const { usuario } = useAuth();
   const { adicionarToast } = useToast();
 
-  // Estados de Produtos e Catálogo
+  // Estados dos Produtos e Filtros
   const [produtos, setProdutos] = useState<IProduto[]>([]);
-  const [filtroCategoria, setFiltroCategoria] = useState<string>('TODOS');
-  const [buscaProduto, setBuscaProduto] = useState<string>('');
-  const [codigoBarrasInput, setCodigoBarrasInput] = useState<string>('');
   const [carregandoProdutos, setCarregandoProdutos] = useState<boolean>(true);
+  const [buscaProduto, setBuscaProduto] = useState<string>('');
+  const [filtroCategoria, setFiltroCategoria] = useState<string>('TODOS');
 
-  // Estados do Carrinho
+  // Estado do Carrinho de Venda
   const [carrinho, setCarrinho] = useState<ICarrinhoItem[]>([]);
-  const [descontoPercentual, setDescontoPercentual] = useState<number>(0);
+  const [codigoBarrasInput, setCodigoBarrasInput] = useState<string>('');
 
-  // Estados de Cliente
-  const [identificarCliente, setIdentificarCliente] = useState<boolean>(false);
+  // Identificação do Cliente (RN-06 - Opcional)
   const [clientes, setClientes] = useState<ICliente[]>([]);
+  const [identificarCliente, setIdentificarCliente] = useState<boolean>(false);
   const [clienteSelecionado, setClienteSelecionado] = useState<ICliente | null>(null);
 
-  // Estados de Pagamento e Fechamento
-  const [modalPagamentoAberto, setModalPagamentoAberto] = useState<boolean>(false);
+  // Desconto e Alçadas (RN-02)
+  const [descontoPercentual, setDescontoPercentual] = useState<number>(0);
+  const [requerAlcadaDesconto, setRequerAlcadaDesconto] = useState<boolean>(false);
+
+  // Forma de Pagamento e Finalização
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>('PIX');
+  const [modalPagamentoAberto, setModalPagamentoAberto] = useState<boolean>(false);
   const [valorRecebidoDinheiro, setValorRecebidoDinheiro] = useState<string>('');
   const [finalizandoVenda, setFinalizandoVenda] = useState<boolean>(false);
 
-  // Estados de Alçada Gerencial (RN-02)
+  // Alçada Gerencial (RN-02)
   const [modalAlcadaAberto, setModalAlcadaAberto] = useState<boolean>(false);
   const [gerenteAprovadorId, setGerenteAprovadorId] = useState<number | null>(null);
   const [gerenteAprovadorNome, setGerenteAprovadorNome] = useState<string | null>(null);
@@ -64,6 +66,9 @@ export const PdvPage: React.FC = () => {
   // Estado do Comprovante de Venda Concluída
   const [vendaConcluida, setVendaConcluida] = useState<IVendaCompleta | null>(null);
   const [modalComprovanteAberto, setModalComprovanteAberto] = useState<boolean>(false);
+
+  // Aba Mobile / Tablet: 'catalogo' | 'carrinho'
+  const [abaMobile, setAbaMobile] = useState<'catalogo' | 'carrinho'>('catalogo');
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,25 +132,24 @@ export const PdvPage: React.FC = () => {
       }
     });
 
-    adicionarToast('info', 'Item Adicionado', `${produto.descricao} adicionado ao carrinho`);
+    adicionarToast('info', 'Produto Adicionado', `${produto.descricao} incluído no carrinho`);
   };
 
-  // Busca rápida por código de barras / SKU
+  // Bipagem expressa por código ou leitor de código de barras
   const handleBarcodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!codigoBarrasInput.trim()) return;
+    const codigoLimpo = codigoBarrasInput.trim().toUpperCase();
+    if (!codigoLimpo) return;
 
-    const encontrado = produtos.find(
-      (p) =>
-        p.codigo.toLowerCase() === codigoBarrasInput.trim().toLowerCase() ||
-        String(p.id) === codigoBarrasInput.trim()
+    const produtoEncontrado = produtos.find(
+      (p) => p.codigo.toUpperCase() === codigoLimpo || p.id.toString() === codigoLimpo
     );
 
-    if (encontrado) {
-      adicionarAoCarrinho(encontrado);
+    if (produtoEncontrado) {
+      adicionarAoCarrinho(produtoEncontrado);
       setCodigoBarrasInput('');
     } else {
-      adicionarToast('warning', 'Não encontrado', `Nenhum produto com código "${codigoBarrasInput}"`);
+      adicionarToast('error', 'Não Localizado', `Código "${codigoLimpo}" não encontrado no catálogo`);
     }
   };
 
@@ -176,6 +180,7 @@ export const PdvPage: React.FC = () => {
   const limparCarrinho = () => {
     setCarrinho([]);
     setDescontoPercentual(0);
+    setRequerAlcadaDesconto(false);
     setGerenteAprovadorId(null);
     setGerenteAprovadorNome(null);
     setClienteSelecionado(null);
@@ -183,145 +188,291 @@ export const PdvPage: React.FC = () => {
 
   // Cálculos financeiros do carrinho
   const subtotal = carrinho.reduce((acc, item) => acc + item.subtotal, 0);
-  const valorDesconto = (subtotal * (descontoPercentual || 0)) / 100;
+  const totalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+  const valorDesconto = (subtotal * descontoPercentual) / 100;
   const valorTotalLiquido = Math.max(0, subtotal - valorDesconto);
-  const requerAlcadaDesconto = descontoPercentual > 10;
 
-  // Alteração de desconto com verificação de RN-02
+  // Monitora alçada de desconto (> 10%)
   const handleDescontoChange = (novoPercentual: number) => {
-    const valor = Math.max(0, Math.min(100, novoPercentual));
-    setDescontoPercentual(valor);
+    const seguro = Math.min(100, Math.max(0, novoPercentual));
+    setDescontoPercentual(seguro);
 
-    if (valor <= 10) {
+    if (seguro > 10) {
+      if (usuario?.cargo === 'GERENTE' || usuario?.cargo === 'ADMIN') {
+        setRequerAlcadaDesconto(false);
+        setGerenteAprovadorId(usuario.id);
+        setGerenteAprovadorNome(usuario.nome);
+      } else {
+        setRequerAlcadaDesconto(true);
+        if (!gerenteAprovadorId) {
+          setModalAlcadaAberto(true);
+        }
+      }
+    } else {
+      setRequerAlcadaDesconto(false);
       setGerenteAprovadorId(null);
       setGerenteAprovadorNome(null);
-    } else if (!gerenteAprovadorId) {
-      // Abre modal para alçada gerencial
-      setModalAlcadaAberto(true);
     }
   };
 
-  const handleGerenteAutorizado = (id: number, nome: string) => {
-    setGerenteAprovadorId(id);
-    setGerenteAprovadorNome(nome);
+  // Callback de aprovação do Gerente
+  const handleGerenteAutorizado = (gerenteId: number, nomeGerente: string) => {
+    setGerenteAprovadorId(gerenteId);
+    setGerenteAprovadorNome(nomeGerente);
+    setRequerAlcadaDesconto(false);
     setModalAlcadaAberto(false);
+    adicionarToast(
+      'success',
+      'Alçada Autorizada!',
+      `Desconto de ${descontoPercentual}% aprovado por ${nomeGerente}`
+    );
   };
 
-  // Abrir Modal de Pagamento
+  // Filtragem dos produtos
+  const produtosFiltrados = produtos.filter((prod) => {
+    const matchBusca =
+      prod.descricao.toLowerCase().includes(buscaProduto.toLowerCase()) ||
+      prod.codigo.toLowerCase().includes(buscaProduto.toLowerCase());
+    const matchCat = filtroCategoria === 'TODOS' || prod.categoria === filtroCategoria;
+    return matchBusca && matchCat;
+  });
+
+  // Abertura do modal de pagamento
   const iniciarPagamento = () => {
     if (carrinho.length === 0) {
-      adicionarToast('warning', 'Carrinho Vazio', 'Adicione ao menos um item ao carrinho');
+      adicionarToast('warning', 'Carrinho Vazio', 'Adicione pelo menos um produto para finalizar');
       return;
     }
-
     if (requerAlcadaDesconto && !gerenteAprovadorId) {
+      adicionarToast(
+        'error',
+        'Alçada Obrigatória',
+        'Descontos acima de 10% precisam ser autorizados pelo Gerente (RN-02)'
+      );
       setModalAlcadaAberto(true);
       return;
     }
-
     setModalPagamentoAberto(true);
   };
 
-  // Finalizar a Venda no Backend
+  // Conclusão da Venda
   const handleFinalizarVenda = async () => {
     try {
       setFinalizandoVenda(true);
 
       const payload = {
         cliente_id: clienteSelecionado ? clienteSelecionado.id : null,
-        gerente_aprovador_id: requerAlcadaDesconto ? gerenteAprovadorId : null,
-        desconto: Number(valorDesconto.toFixed(2)),
         forma_pagamento: formaPagamento,
-        itens: carrinho.map((item) => ({
-          produto_id: item.produto.id,
-          quantidade: item.quantidade,
+        desconto: valorDesconto,
+        gerente_aprovador_id: gerenteAprovadorId,
+        itens: carrinho.map((i) => ({
+          produto_id: i.produto.id,
+          quantidade: i.quantidade,
         })),
       };
 
-      const vendaRealizada = await vendasApi.criar(payload);
+      const vendaRegistrada = await vendasApi.criar(payload);
 
-      setVendaConcluida(vendaRealizada);
+      setVendaConcluida(vendaRegistrada);
       setModalPagamentoAberto(false);
       setModalComprovanteAberto(true);
       limparCarrinho();
-      adicionarToast('success', 'Venda Realizada!', `Venda #${vendaRealizada.id} finalizada com sucesso`);
+      adicionarToast('success', 'Venda Finalizada com Sucesso!', `Venda #${vendaRegistrada.id} registrada no banco.`);
     } catch (err: any) {
-      adicionarToast('error', 'Falha ao Finalizar Venda', err.message);
+      adicionarToast('error', 'Falha ao Finalizar Venda', err.message || 'Erro de comunicação');
     } finally {
       setFinalizandoVenda(false);
     }
   };
 
-  // Filtragem de catálogo
-  const produtosFiltrados = produtos.filter((p) => {
-    const matchCat =
-      filtroCategoria === 'TODOS' ||
-      (p.categoria && p.categoria.toUpperCase() === filtroCategoria.toUpperCase());
-    const matchBusca =
-      !buscaProduto ||
-      p.descricao.toLowerCase().includes(buscaProduto.toLowerCase()) ||
-      p.codigo.toLowerCase().includes(buscaProduto.toLowerCase());
-    return matchCat && matchBusca;
-  });
-
-  // Troco para dinheiro
+  // Cálculo de troco no dinheiro
   const valorRecebidoNum = parseFloat(valorRecebidoDinheiro) || 0;
   const trocoCalculado = Math.max(0, valorRecebidoNum - valorTotalLiquido);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Top Bar: Código de Barras / SKU com resposta instantânea e Meteors Aceternity */}
-      <div className="glass-card rounded-2xl p-4 border border-slate-700/60 shadow-xl flex flex-col md:flex-row items-center gap-4 relative overflow-hidden">
-        <Meteors number={10} />
-        <div className="flex items-center gap-3 shrink-0 relative z-10">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-            <Barcode className="w-5 h-5" />
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-5 space-y-5 pb-24 lg:pb-8">
+      {/* ========================================================================= */}
+      {/* 1. TOP BENTO ROW: Comando Rápido, Identificação do Cliente & Status PDV   */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        {/* Bento 1: Leitor de Código de Barras / SKU Express */}
+        <div className="md:col-span-12 lg:col-span-6 glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm relative overflow-hidden flex flex-col justify-between">
+          <Meteors number={8} />
+          <div className="flex items-center justify-between mb-3 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <Barcode className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>Leitor Express de SKU</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                </h2>
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                  Bipagem instantânea (&lt; 300ms)
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+              ENTER ou BIP
+            </span>
           </div>
+
+          <form onSubmit={handleBarcodeSubmit} className="flex items-center gap-2 relative z-10">
+            <div className="relative flex-1">
+              <input
+                ref={barcodeInputRef}
+                type="text"
+                value={codigoBarrasInput}
+                onChange={(e) => setCodigoBarrasInput(e.target.value)}
+                placeholder="Bipe o código de barras ou digite (Ex: 101, 102, 103)..."
+                className="w-full px-4 py-2.5 pl-10 rounded-xl glass-input text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-mono"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+            </div>
+            <button
+              type="submit"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-glow-emerald shrink-0"
+            >
+              Lançar
+            </button>
+          </form>
+        </div>
+
+        {/* Bento 2: Identificação do Cliente (RN-06 Fidelização & CPF) */}
+        <div className="md:col-span-6 lg:col-span-3 glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <User className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Cliente (RN-06)
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setIdentificarCliente(!identificarCliente);
+                if (identificarCliente) setClienteSelecionado(null);
+              }}
+              className="text-[11px] text-brand-600 dark:text-brand-400 hover:underline font-bold"
+            >
+              {identificarCliente ? 'Remover' : '+ CPF'}
+            </button>
+          </div>
+
           <div>
-            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider">
-              Leitor de Código / SKU
-            </h2>
-            <p className="text-[11px] text-emerald-400 font-medium">Bipagem Expressa (&lt; 300ms)</p>
+            {identificarCliente ? (
+              <select
+                value={clienteSelecionado ? clienteSelecionado.id : ''}
+                onChange={(e) => {
+                  const c = clientes.find((cli) => cli.id === Number(e.target.value));
+                  setClienteSelecionado(c || null);
+                }}
+                className="w-full px-2.5 py-2 rounded-xl glass-input text-xs text-slate-800 dark:text-slate-100"
+              >
+                <option value="">Selecione o Cliente Cadastrado...</option>
+                {clientes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome} ({formatarCPF(c.cpf)})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">Consumidor Final</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Venda Anônima Padrão</span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                  Sem CPF
+                </span>
+              </div>
+            )}
+            {clienteSelecionado && (
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-1.5 truncate">
+                ✓ {clienteSelecionado.nome} ({formatarCPF(clienteSelecionado.cpf)})
+              </p>
+            )}
           </div>
         </div>
 
-        <form onSubmit={handleBarcodeSubmit} className="flex-1 w-full flex items-center gap-2">
-          <div className="relative flex-1">
-            <input
-              ref={barcodeInputRef}
-              type="text"
-              value={codigoBarrasInput}
-              onChange={(e) => setCodigoBarrasInput(e.target.value)}
-              placeholder="Bipe ou digite o código de barras (Ex: 101, 102, 103) e pressione ENTER..."
-              className="w-full px-4 py-2.5 pl-10 rounded-xl glass-input text-sm text-white placeholder-slate-500 font-mono"
-            />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+        {/* Bento 3: Informações do Caixa & Sessão Ativa */}
+        <div className="md:col-span-6 lg:col-span-3 glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Caixa & Terminal
+              </span>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30">
+              Operando
+            </span>
           </div>
-          <button
-            type="submit"
-            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-glow-emerald shrink-0"
-          >
-            Lançar Item
-          </button>
-        </form>
+
+          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate block">
+                {usuario?.nome || 'Operador'}
+              </span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                Terminal #01 &bull; {totalItens} un no carrinho
+              </span>
+            </div>
+            <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+              {formatarMoeda(valorTotalLiquido)}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Grid Principal: Catálogo Visual à Esquerda & Carrinho à Direita */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Painel Esquerdo: Catálogo Interativo */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="glass-card rounded-2xl p-5 border border-slate-700/60 space-y-4">
+      {/* Tabs Responsivas para Mobile e Tablet (< lg) */}
+      <div className="lg:hidden flex items-center p-1 rounded-2xl bg-slate-200/80 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 shadow-sm">
+        <button
+          onClick={() => setAbaMobile('catalogo')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            abaMobile === 'catalogo'
+              ? 'bg-white dark:bg-brand-600 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          <Layers className="w-3.5 h-3.5" />
+          <span>Catálogo ({produtosFiltrados.length})</span>
+        </button>
+        <button
+          onClick={() => setAbaMobile('carrinho')}
+          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            abaMobile === 'carrinho'
+              ? 'bg-white dark:bg-brand-600 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          <ShoppingBag className="w-3.5 h-3.5 text-emerald-500" />
+          <span>Carrinho ({totalItens} un &bull; {formatarMoeda(valorTotalLiquido)})</span>
+        </button>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 2. GRID PRINCIPAL BENTO: Catálogo Amplo à Esquerda & Carrinho à Direita    */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+        {/* Painel Esquerdo: Catálogo Visual Ampliado */}
+        <div className={`lg:col-span-7 xl:col-span-8 space-y-4 ${abaMobile === 'carrinho' ? 'hidden lg:block' : 'block'}`}>
+          <div className="glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               {/* Filtro de Categorias */}
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800">
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 overflow-x-auto">
                 {['TODOS', 'Vestuário', 'Acessórios'].map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setFiltroCategoria(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all btn-interactive ${
                       filtroCategoria === cat
-                        ? 'bg-brand-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-brand-600 text-white shadow-sm font-bold'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                     }`}
                   >
                     {cat}
@@ -330,34 +481,34 @@ export const PdvPage: React.FC = () => {
               </div>
 
               {/* Busca textual de produtos */}
-              <div className="relative w-full sm:w-60">
+              <div className="relative w-full sm:w-72">
                 <input
                   type="text"
                   value={buscaProduto}
                   onChange={(e) => setBuscaProduto(e.target.value)}
-                  placeholder="Filtrar catálogo..."
-                  className="w-full px-3 py-1.5 pl-8 rounded-lg glass-input text-xs text-white placeholder-slate-500"
+                  placeholder="Pesquisar por nome ou código..."
+                  className="w-full px-3.5 py-2 pl-9 rounded-xl glass-input text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
                 />
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
               </div>
             </div>
 
-            {/* Grid de Cards de Produtos */}
+            {/* Grid de Cards de Produtos: Total Aproveitamento em Widescreen */}
             {carregandoProdutos ? (
-              <div className="py-12 text-center text-slate-400 text-sm">Carregando catálogo...</div>
+              <div className="py-20 text-center text-slate-400 text-sm">Carregando catálogo com fotos...</div>
             ) : produtosFiltrados.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 text-sm">
+              <div className="py-20 text-center text-slate-500 text-sm">
                 Nenhum produto encontrado com os filtros aplicados.
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[520px] overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-3.5 max-h-[640px] overflow-y-auto pr-1">
                 {produtosFiltrados.map((prod) => (
                   <button
                     key={prod.id}
                     onClick={() => adicionarAoCarrinho(prod)}
-                    className="p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 hover:border-brand-500/50 text-left transition-all duration-200 flex flex-col justify-between group hover:shadow-lg overflow-hidden"
+                    className="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-800/70 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 hover:border-brand-500/50 text-left transition-all duration-200 flex flex-col justify-between group shadow-xs hover:shadow-md overflow-hidden btn-interactive"
                   >
-                    <div className="relative w-full h-24 mb-2 rounded-lg overflow-hidden bg-slate-900 border border-slate-700/40">
+                    <div className="relative w-full h-28 sm:h-32 mb-2 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/40">
                       <img
                         src={obterImagemProduto(prod.codigo)}
                         alt={prod.descricao}
@@ -366,21 +517,25 @@ export const PdvPage: React.FC = () => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
-                      <span className="absolute top-1.5 left-1.5 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-md text-slate-200 border border-white/10">
+                      <span className="absolute top-1.5 left-1.5 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-md text-white border border-white/10 shadow-sm">
                         #{prod.codigo}
                       </span>
                     </div>
+
                     <div>
-                      <span className="text-[10px] text-slate-400 block mb-0.5">{prod.categoria}</span>
-                      <h4 className="text-xs font-semibold text-slate-200 group-hover:text-white line-clamp-2 leading-snug">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block mb-0.5 font-semibold">
+                        {prod.categoria}
+                      </span>
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-white line-clamp-2 leading-snug">
                         {prod.descricao}
                       </h4>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-slate-700/50 flex items-center justify-between">
-                      <span className="text-sm font-bold text-emerald-400">
+
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                      <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
                         {formatarMoeda(Number(prod.preco))}
                       </span>
-                      <span className="w-6 h-6 rounded-lg bg-brand-600/30 group-hover:bg-brand-600 text-brand-300 group-hover:text-white flex items-center justify-center transition-colors">
+                      <span className="w-6 h-6 rounded-lg bg-brand-500/10 group-hover:bg-brand-600 text-brand-600 group-hover:text-white flex items-center justify-center transition-colors">
                         <Plus className="w-3.5 h-3.5" />
                       </span>
                     </div>
@@ -392,22 +547,29 @@ export const PdvPage: React.FC = () => {
         </div>
 
         {/* Painel Direito: Carrinho de Compras & Fechamento */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="glass-card rounded-2xl p-5 border border-slate-700/60 shadow-xl flex flex-col justify-between min-h-[580px]">
+        <div className={`lg:col-span-5 xl:col-span-4 space-y-4 ${abaMobile === 'catalogo' ? 'hidden lg:block' : 'block'}`}>
+          <div className="glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-md flex flex-col justify-between min-h-[620px] xl:sticky xl:top-20">
             <div>
               {/* Header do Carrinho */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-emerald-400" />
-                  <h3 className="font-bold text-slate-100 text-base">Itens da Venda</h3>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                    {carrinho.reduce((a, b) => a + b.quantidade, 0)} un
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base leading-none">
+                      Itens da Venda
+                    </h3>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Checkout em tempo real</span>
+                  </div>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 ml-1">
+                    {totalItens} un
                   </span>
                 </div>
                 {carrinho.length > 0 && (
                   <button
                     onClick={limparCarrinho}
-                    className="text-xs text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1 transition-colors"
+                    className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 font-semibold flex items-center gap-1 transition-colors btn-interactive"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Limpar
@@ -417,20 +579,20 @@ export const PdvPage: React.FC = () => {
 
               {/* Lista de Itens no Carrinho */}
               {carrinho.length === 0 ? (
-                <div className="py-16 text-center text-slate-500">
-                  <ShoppingBag className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-medium">Carrinho vazio</p>
+                <div className="py-16 text-center text-slate-400 dark:text-slate-500">
+                  <ShoppingBag className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">Carrinho Vazio</p>
                   <p className="text-xs mt-1">Bipe um código ou selecione produtos no catálogo</p>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-800/80 max-h-60 overflow-y-auto my-2 pr-1">
+                <div className="divide-y divide-slate-100 dark:divide-slate-800/80 max-h-56 sm:max-h-64 overflow-y-auto my-2 pr-1">
                   {carrinho.map((item) => (
                     <div key={item.produto.id} className="py-2.5 flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-200 truncate">
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                           {item.produto.descricao}
                         </p>
-                        <p className="text-[11px] text-slate-400 font-mono">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                           {item.quantidade}x {formatarMoeda(item.preco_unitario)}
                         </p>
                       </div>
@@ -439,30 +601,30 @@ export const PdvPage: React.FC = () => {
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={() => alterarQuantidade(item.produto.id, -1)}
-                          className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors"
+                          className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center transition-colors btn-interactive"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="text-xs font-bold text-slate-100 w-5 text-center">
+                        <span className="text-xs font-bold text-slate-900 dark:text-slate-100 w-5 text-center">
                           {item.quantidade}
                         </span>
                         <button
                           onClick={() => alterarQuantidade(item.produto.id, 1)}
-                          className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors"
+                          className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center transition-colors btn-interactive"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
 
                       <div className="text-right shrink-0 min-w-16">
-                        <p className="text-xs font-bold text-slate-100">
+                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100 font-mono">
                           {formatarMoeda(item.subtotal)}
                         </p>
                       </div>
 
                       <button
                         onClick={() => removerDoCarrinho(item.produto.id)}
-                        className="p-1 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                        className="p-1 rounded text-slate-400 hover:text-rose-500 transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -471,87 +633,70 @@ export const PdvPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Seção de Identificação de Cliente (RN-01 & RN-06) */}
-              <div className="mt-4 pt-3 border-t border-slate-800">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-blue-400" />
-                    Cliente Vinculado (RN-06):
-                  </span>
-                  <button
-                    onClick={() => {
-                      setIdentificarCliente(!identificarCliente);
-                      if (identificarCliente) setClienteSelecionado(null);
-                    }}
-                    className="text-[11px] text-brand-400 hover:text-brand-300 font-semibold"
-                  >
-                    {identificarCliente ? 'Remover (Consumidor Final)' : 'Identificar por CPF'}
-                  </button>
-                </div>
-
-                {identificarCliente && (
-                  <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
-                    <select
-                      value={clienteSelecionado ? clienteSelecionado.id : ''}
-                      onChange={(e) => {
-                        const c = clientes.find((cli) => cli.id === Number(e.target.value));
-                        setClienteSelecionado(c || null);
-                      }}
-                      className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs text-white"
-                    >
-                      <option value="">Selecione o Cliente Cadastrado...</option>
-                      {clientes.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.nome} ({formatarCPF(c.cpf)})
-                        </option>
-                      ))}
-                    </select>
-                    {clienteSelecionado && (
-                      <p className="text-[11px] text-emerald-400 font-medium">
-                        Cliente vinculado: {clienteSelecionado.nome} (CPF: {formatarCPF(clienteSelecionado.cpf)})
-                      </p>
-                    )}
-                  </div>
-                )}
+              {/* Resumo do Cliente Vinculado (RN-06) */}
+              <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-blue-500" />
+                  Cliente Vinculado:
+                </span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
+                  {clienteSelecionado ? `${clienteSelecionado.nome} (${formatarCPF(clienteSelecionado.cpf)})` : 'Consumidor Final'}
+                </span>
               </div>
 
-              {/* Controle de Desconto com Alçada Gerencial (RN-02) */}
-              <div className="mt-4 pt-3 border-t border-slate-800 space-y-2">
+              {/* Controle de Desconto com Chips Rápidos e Alçada Gerencial (RN-02) */}
+              <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Desconto Promocional (%):
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    {/* Chips rápidos de desconto */}
+                    {[0, 5, 10, 15].map((pct) => (
+                      <button
+                        key={pct}
+                        type="button"
+                        onClick={() => handleDescontoChange(pct)}
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all btn-interactive ${
+                          descontoPercentual === pct
+                            ? pct > 10
+                              ? 'bg-amber-500 text-slate-950 shadow-sm'
+                              : 'bg-brand-600 text-white shadow-sm'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                        }`}
+                      >
+                        {pct}%
+                      </button>
+                    ))}
                     <input
                       type="number"
                       min="0"
                       max="100"
                       value={descontoPercentual}
                       onChange={(e) => handleDescontoChange(Number(e.target.value))}
-                      className="w-16 px-2 py-1 rounded-lg glass-input text-xs text-center font-bold text-white"
+                      className="w-14 px-1.5 py-0.5 rounded-md glass-input text-xs text-center font-bold"
                     />
-                    <span className="text-xs text-slate-400">%</span>
                   </div>
                 </div>
 
                 {requerAlcadaDesconto && (
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2">
-                    <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2 animate-in fade-in">
+                    <ShieldAlert className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-[11px] text-amber-300 font-semibold leading-tight">
-                        Desconto acima de 10% requer aprovação de Gerente (RN-02)
+                      <p className="text-[11px] text-amber-700 dark:text-amber-300 font-semibold leading-tight">
+                        Desconto acima de 10% requer autorização gerencial (RN-02)
                       </p>
                       {gerenteAprovadorNome ? (
-                        <p className="text-[10px] text-emerald-400 font-bold mt-1">
+                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">
                           ✓ Alçada autorizada por: {gerenteAprovadorNome}
                         </p>
                       ) : (
                         <button
                           type="button"
                           onClick={() => setModalAlcadaAberto(true)}
-                          className="mt-1.5 px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] uppercase tracking-wider"
+                          className="mt-1.5 px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] uppercase tracking-wider btn-interactive"
                         >
-                          Solicitar Autorização de Gerência
+                          Solicitar Autorização do Gerente
                         </button>
                       )}
                     </div>
@@ -561,19 +706,19 @@ export const PdvPage: React.FC = () => {
             </div>
 
             {/* Totais e Botão de Finalizar */}
-            <div className="mt-4 pt-4 border-t border-slate-800 space-y-3">
-              <div className="space-y-1.5 text-xs text-slate-300">
+            <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                 <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span className="font-semibold">{formatarMoeda(subtotal)}</span>
+                  <span>Subtotal dos Itens:</span>
+                  <span className="font-semibold font-mono">{formatarMoeda(subtotal)}</span>
                 </div>
                 {valorDesconto > 0 && (
-                  <div className="flex justify-between text-rose-400 font-semibold">
+                  <div className="flex justify-between text-rose-500 dark:text-rose-400 font-semibold">
                     <span>Desconto ({descontoPercentual}%):</span>
-                    <span>- {formatarMoeda(valorDesconto)}</span>
+                    <span className="font-mono">- {formatarMoeda(valorDesconto)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-extrabold text-emerald-400 pt-1 border-t border-slate-800">
+                <div className="flex justify-between text-base sm:text-lg font-extrabold text-emerald-600 dark:text-emerald-400 pt-1 border-t border-slate-200 dark:border-slate-800 font-mono">
                   <span>TOTAL A PAGAR:</span>
                   <span>{formatarMoeda(valorTotalLiquido)}</span>
                 </div>
@@ -584,11 +729,11 @@ export const PdvPage: React.FC = () => {
                 duration={2500}
                 containerClassName="w-full"
                 borderClassName="bg-[radial-gradient(var(--emerald-500)_40%,transparent_60%)]"
-                className="w-full py-3.5 px-4 bg-emerald-950/80 hover:bg-emerald-900/90 text-emerald-100 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 border-emerald-500/40 shadow-glow-emerald disabled:opacity-40"
+                className="w-full py-3 sm:py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-950/80 dark:hover:bg-emerald-900/90 text-white dark:text-emerald-100 font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 border-emerald-500/40 shadow-glow-emerald disabled:opacity-40 btn-interactive"
                 disabled={carrinho.length === 0}
                 onClick={iniciarPagamento}
               >
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <CheckCircle2 className="w-5 h-5 text-white dark:text-emerald-400" />
                 Receber / Finalizar Venda
               </ButtonMovingBorder>
             </div>
@@ -596,34 +741,59 @@ export const PdvPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Floating Action Pill on Mobile when in Catalog tab and cart has items */}
+      {carrinho.length > 0 && abaMobile === 'catalogo' && (
+        <div className="lg:hidden fixed bottom-14 left-3 right-3 z-30 animate-in slide-in-from-bottom-3 duration-200">
+          <button
+            onClick={() => setAbaMobile('carrinho')}
+            className="w-full p-3 rounded-2xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-between shadow-xl shadow-emerald-900/30 active:scale-98 transition-all"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[11px]">
+                {totalItens}
+              </span>
+              <span>Ver Carrinho da Venda</span>
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-sm">
+              <span>{formatarMoeda(valorTotalLiquido)}</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* Modal de Pagamento */}
       {modalPagamentoAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="w-full max-w-md rounded-2xl glass-card border border-emerald-500/30 shadow-glow-emerald overflow-hidden">
-            <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl glass-card border border-emerald-500/40 shadow-2xl overflow-hidden">
+            <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border-b border-emerald-500/20 px-5 sm:px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <CreditCard className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-slate-100 text-base">Fechamento & Pagamento</h3>
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <CreditCard className="w-4 h-4" />
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">Fechamento & Pagamento</h3>
               </div>
               <button
                 onClick={() => setModalPagamentoAberto(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
-              <div className="text-center p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-                <span className="text-xs text-slate-400 uppercase tracking-wider">Total a Pagar</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">
+            <div className="p-5 sm:p-6 space-y-4">
+              <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
+                <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
+                  Total a Pagar
+                </span>
+                <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
                   {formatarMoeda(valorTotalLiquido)}
                 </p>
               </div>
 
               {/* Seletor de Métodos de Pagamento */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                   Forma de Pagamento
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -639,13 +809,13 @@ export const PdvPage: React.FC = () => {
                         key={metodo.id}
                         type="button"
                         onClick={() => setFormaPagamento(metodo.id as FormaPagamento)}
-                        className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all ${
+                        className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all btn-interactive ${
                           formaPagamento === metodo.id
-                            ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300 shadow-glow-emerald'
-                            : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white'
+                            ? 'bg-emerald-50 dark:bg-emerald-600/20 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                            : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:text-white'
                         }`}
                       >
-                        <Icon className="w-4 h-4 shrink-0" />
+                        <Icon className="w-4 h-4 shrink-0 text-emerald-500" />
                         <span>{metodo.label}</span>
                       </button>
                     );
@@ -655,9 +825,9 @@ export const PdvPage: React.FC = () => {
 
               {/* Se DINHEIRO: Calculadora de Troco */}
               {formaPagamento === 'DINHEIRO' && (
-                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Valor Entregue pelo Cliente (R$)
                     </label>
                     <input
@@ -666,15 +836,15 @@ export const PdvPage: React.FC = () => {
                       value={valorRecebidoDinheiro}
                       onChange={(e) => setValorRecebidoDinheiro(e.target.value)}
                       placeholder="0,00"
-                      className="w-full px-3 py-2 rounded-lg glass-input text-sm text-white font-mono"
+                      className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono"
                     />
                   </div>
                   {valorRecebidoNum > 0 && (
-                    <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-800">
-                      <span className="text-slate-400">Troco a Devolver:</span>
+                    <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200 dark:border-slate-800">
+                      <span className="text-slate-500 dark:text-slate-400">Troco a Devolver:</span>
                       <span
                         className={`font-mono font-bold text-sm ${
-                          trocoCalculado > 0 ? 'text-amber-400' : 'text-slate-400'
+                          trocoCalculado > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'
                         }`}
                       >
                         {formatarMoeda(trocoCalculado)}
@@ -686,25 +856,25 @@ export const PdvPage: React.FC = () => {
 
               {/* Se PIX: QR Code simulado */}
               {formaPagamento === 'PIX' && (
-                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center border border-slate-200">
                     <QrCode className="w-12 h-12 text-slate-900" />
                   </div>
                   <div className="text-xs">
-                    <p className="font-bold text-slate-200">Chave PIX Dinâmica Gerada</p>
-                    <p className="text-slate-400 text-[11px] mt-0.5">
+                    <p className="font-bold text-slate-900 dark:text-slate-200">Chave PIX Dinâmica Gerada</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
                       Aguardando confirmação bancária instantânea...
                     </p>
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setModalPagamentoAberto(false)}
                   disabled={finalizandoVenda}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold btn-interactive"
                 >
                   Cancelar
                 </button>
@@ -712,7 +882,7 @@ export const PdvPage: React.FC = () => {
                   type="button"
                   onClick={handleFinalizarVenda}
                   disabled={finalizandoVenda}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-glow-emerald disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-glow-emerald disabled:opacity-50 btn-interactive"
                 >
                   {finalizandoVenda ? 'Processando...' : 'Confirmar e Imprimir'}
                 </button>

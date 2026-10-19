@@ -216,7 +216,7 @@ O script de sementes (`seeds.sql`) já fornece usuários operacionais com senhas
 | **Sprint 2** | Backend Foundations, Pool de Conexões MySQL, Camada de Dados & Seeds | Concluído | [Ver Sprint 2](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s02/) |
 | **Sprint 3** | Backend Logic, RBAC (Admin/Gerente/Caixa), Validação Zod, Testes & FiveDollars | Concluído | [Ver Sprint 3](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s03/) |
 | **Sprint 4** | Frontend SPA (React + Vite + Tailwind + Aceternity UI), Identidade Visual, Fotos de Catálogo, Configuração Fiscal (Admin), RBAC Estrito de Produtos, Dual Dashboards (Gerente/Admin), Alçadas & E-Nota Dinâmica, Modo Claro/Escuro Automático | Concluído | [Ver Sprint 4](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s04/01-setup-e-interfaces-frontend.md) |
-| **Sprint 5** | Testes Integrados E2E, Auditoria de Segurança & Homologação | A Seguir | [Sprint 5](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s05/) |
+| **Sprint 5** | Testes Integrados E2E, Auditoria de Segurança & Homologação | Concluído | [Ver Sprint 5](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s05/01-integracao-e-homologacao.md) |
 | **Sprint 6** | Apresentação Pitch Técnico (Slides) & Preparação de Live Demo | Planejado | [Sprint 6](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s06/) |
 
 ---

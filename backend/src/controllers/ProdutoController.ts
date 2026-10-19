@@ -34,6 +34,7 @@ export class ProdutoController {
   static async inativar(req: Request, res: Response): Promise<void> {
     const id = Number(req.params.id);
     await ProdutoService.inativar(id);
-    res.status(200).json({ mensagem: 'Produto inativado com sucesso (soft delete).' });
+    const produto = await ProdutoService.buscarPorId(id);
+    res.status(200).json({ mensagem: 'Produto inativado com sucesso (soft delete).', produto, ativo: false });
   }
 }

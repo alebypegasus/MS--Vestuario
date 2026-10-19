@@ -41,22 +41,22 @@ export function getRoleBadgeConfig(cargo: CargoUsuario): { label: string; badgeC
     case 'ADMIN':
       return {
         label: 'Administrador',
-        badgeClass: 'bg-purple-950/80 text-purple-300 border border-purple-500/30',
+        badgeClass: 'bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-500/30',
       };
     case 'GERENTE':
       return {
         label: 'Gerente',
-        badgeClass: 'bg-indigo-950/80 text-indigo-300 border border-indigo-500/30',
+        badgeClass: 'bg-indigo-100 text-indigo-800 border border-indigo-200 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-500/30',
       };
     case 'CAIXA':
       return {
         label: 'Operador de Caixa',
-        badgeClass: 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/30',
+        badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500/30',
       };
     default:
       return {
         label: cargo,
-        badgeClass: 'bg-slate-800 text-slate-300 border border-slate-600',
+        badgeClass: 'bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600',
       };
   }
 }
