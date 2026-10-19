@@ -15,6 +15,7 @@ import {
   X,
   Layers,
   ArrowRight,
+  UserPlus,
 } from 'lucide-react';
 import { IProduto, ICliente, ICarrinhoItem, FormaPagamento, IVendaCompleta } from '../types';
 import { produtosApi, clientesApi, vendasApi } from '../services/api';
@@ -28,6 +29,8 @@ import { Meteors } from '../components/ui/meteors';
 import { ButtonMovingBorder } from '../components/ui/moving-border';
 import { ManagerApprovalModal } from '../components/ManagerApprovalModal';
 import { ReceiptModal } from '../components/ReceiptModal';
+import { QuickClienteModal } from '../components/QuickClienteModal';
+import { SearchClienteModal } from '../components/SearchClienteModal';
 
 export const PdvPage: React.FC = () => {
   const { usuario } = useAuth();
@@ -43,10 +46,18 @@ export const PdvPage: React.FC = () => {
   const [carrinho, setCarrinho] = useState<ICarrinhoItem[]>([]);
   const [codigoBarrasInput, setCodigoBarrasInput] = useState<string>('');
 
-  // Identificação do Cliente (RN-06 - Opcional)
+  // Identificação do Cliente (RN-06 - Opcional e Flexível: Consumidor Final, Selecionar Salvo ou Cadastrar Novo)
   const [clientes, setClientes] = useState<ICliente[]>([]);
-  const [identificarCliente, setIdentificarCliente] = useState<boolean>(false);
   const [clienteSelecionado, setClienteSelecionado] = useState<ICliente | null>(null);
+  const [modalBuscaClienteAberto, setModalBuscaClienteAberto] = useState<boolean>(false);
+  const [modalNovoClienteAberto, setModalNovoClienteAberto] = useState<boolean>(false);
+
+  // Callback de novo cliente cadastrado no balcão (Acesso Caixa, Gerente e Admin)
+  const handleClienteCriado = (novoCliente: ICliente) => {
+    setClientes((prev) => [novoCliente, ...prev.filter((c) => c.id !== novoCliente.id)]);
+    setClienteSelecionado(novoCliente);
+    setModalBuscaClienteAberto(false);
+  };
 
   // Desconto e Alçadas (RN-02)
   const [descontoPercentual, setDescontoPercentual] = useState<number>(0);
@@ -339,8 +350,8 @@ export const PdvPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Bento 2: Identificação do Cliente (RN-06 Fidelização & CPF) */}
-        <div className="md:col-span-6 lg:col-span-3 glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
+        {/* Bento 2: Identificação do Cliente (RN-06 - Consumidor Final, Selecionar Salvo ou + Novo Cliente) */}
+        <div className="md:col-span-6 lg:col-span-3 glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/60 shadow-sm flex flex-col justify-between relative">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -350,49 +361,101 @@ export const PdvPage: React.FC = () => {
                 Cliente (RN-06)
               </span>
             </div>
+
+            {/* Botão de Cadastro Rápido de Novo Cliente (Disponível para Caixa, Gerente e Admin) */}
             <button
-              onClick={() => {
-                setIdentificarCliente(!identificarCliente);
-                if (identificarCliente) setClienteSelecionado(null);
-              }}
-              className="text-[11px] text-brand-600 dark:text-brand-400 hover:underline font-bold"
+              type="button"
+              onClick={() => setModalNovoClienteAberto(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-[11px] shadow-xs transition-all btn-interactive"
+              title="Cadastrar novo cliente na hora (Caixa, Gerente e Admin)"
             >
-              {identificarCliente ? 'Remover' : '+ CPF'}
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>+ Novo Cliente</span>
             </button>
           </div>
 
-          <div>
-            {identificarCliente ? (
-              <select
-                value={clienteSelecionado ? clienteSelecionado.id : ''}
-                onChange={(e) => {
-                  const c = clientes.find((cli) => cli.id === Number(e.target.value));
-                  setClienteSelecionado(c || null);
-                }}
-                className="w-full px-2.5 py-2 rounded-xl glass-input text-xs text-slate-800 dark:text-slate-100"
+          <div className="space-y-2">
+            {/* Seletor rápido de tipo de identificação: Consumidor Final vs Salvo */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => setClienteSelecionado(null)}
+                className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                  !clienteSelecionado
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
               >
-                <option value="">Selecione o Cliente Cadastrado...</option>
-                {clientes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome} ({formatarCPF(c.cpf)})
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
+                <User className="w-3 h-3 text-slate-400" />
+                Consumidor Final
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalBuscaClienteAberto(true)}
+                className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1 ${
+                  clienteSelecionado
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
+              >
+                <Search className="w-3 h-3" />
+                {clienteSelecionado ? 'Trocar Salvo' : 'Buscar Salvo'}
+              </button>
+            </div>
+
+            {/* Visualização do Estado Atual do Cliente */}
+            {!clienteSelecionado ? (
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/50 flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">Consumidor Final</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Venda Anônima Padrão</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Cliente não quis ser adicionado (Venda sem CPF)</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                  Sem CPF
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                    Sem CPF
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setModalBuscaClienteAberto(true)}
+                    className="p-1 rounded-md text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                    title="Buscar cliente salvo"
+                  >
+                    <Search className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-            )}
-            {clienteSelecionado && (
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-1.5 truncate">
-                ✓ {clienteSelecionado.nome} ({formatarCPF(clienteSelecionado.cpf)})
-              </p>
+            ) : (
+              <div className="p-2.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-300/60 dark:border-emerald-600/40 flex items-center justify-between animate-in fade-in">
+                <div className="min-w-0 pr-2">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-xs font-extrabold text-slate-900 dark:text-slate-100 truncate block">
+                      {clienteSelecionado.nome}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-400 ml-5 block">
+                    CPF: {formatarCPF(clienteSelecionado.cpf)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setModalBuscaClienteAberto(true)}
+                    className="px-2 py-1 rounded-lg text-[10px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    Trocar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setClienteSelecionado(null)}
+                    className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                    title="Desvincular e tornar Consumidor Final"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -635,13 +698,42 @@ export const PdvPage: React.FC = () => {
 
               {/* Resumo do Cliente Vinculado (RN-06) */}
               <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-blue-500" />
-                  Cliente Vinculado:
-                </span>
-                <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                  {clienteSelecionado ? `${clienteSelecionado.nome} (${formatarCPF(clienteSelecionado.cpf)})` : 'Consumidor Final'}
-                </span>
+                <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                  <User className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                  <span className="font-semibold text-slate-600 dark:text-slate-400">Cliente:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 truncate">
+                    {clienteSelecionado ? `${clienteSelecionado.nome} (${formatarCPF(clienteSelecionado.cpf)})` : 'Consumidor Final'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {clienteSelecionado ? (
+                    <button
+                      type="button"
+                      onClick={() => setClienteSelecionado(null)}
+                      className="text-[10px] text-rose-500 hover:underline font-bold"
+                      title="Voltar para Consumidor Final"
+                    >
+                      Remover
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setModalBuscaClienteAberto(true)}
+                      className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                    >
+                      Buscar
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setModalNovoClienteAberto(true)}
+                    className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
+                    title="Adicionar Novo Cliente no PDV (Caixa, Gerente e Admin)"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Novo
+                  </button>
+                </div>
               </div>
 
               {/* Controle de Desconto com Chips Rápidos e Alçada Gerencial (RN-02) */}
@@ -789,6 +881,25 @@ export const PdvPage: React.FC = () => {
                 <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
                   {formatarMoeda(valorTotalLiquido)}
                 </p>
+                {/* Identificação do Cliente na Venda / Nota Fiscal */}
+                <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <User className="w-3 h-3 text-blue-500" />
+                    Cliente na Nota:
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-slate-800 dark:text-slate-200">
+                      {clienteSelecionado ? `${clienteSelecionado.nome} (${formatarCPF(clienteSelecionado.cpf)})` : 'Consumidor Final (Sem CPF)'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setModalBuscaClienteAberto(true)}
+                      className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                    >
+                      {clienteSelecionado ? 'Trocar/Novo' : '+ Adicionar'}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Seletor de Métodos de Pagamento */}
@@ -910,6 +1021,23 @@ export const PdvPage: React.FC = () => {
         aberto={modalComprovanteAberto}
         venda={vendaConcluida}
         onFechar={() => setModalComprovanteAberto(false)}
+      />
+
+      {/* Modal de Cadastro Rápido de Cliente no PDV (Caixa, Gerente e Administrador) */}
+      <QuickClienteModal
+        aberto={modalNovoClienteAberto}
+        aoFechar={() => setModalNovoClienteAberto(false)}
+        aoClienteCriado={handleClienteCriado}
+      />
+
+      {/* Modal de Busca e Seleção de Cliente Salvo (Z-Index 50 Top-Level Overlay) */}
+      <SearchClienteModal
+        aberto={modalBuscaClienteAberto}
+        aoFechar={() => setModalBuscaClienteAberto(false)}
+        clientes={clientes}
+        clienteSelecionado={clienteSelecionado}
+        aoSelecionarCliente={(c) => setClienteSelecionado(c)}
+        aoAbrirNovoCliente={() => setModalNovoClienteAberto(true)}
       />
     </div>
   );

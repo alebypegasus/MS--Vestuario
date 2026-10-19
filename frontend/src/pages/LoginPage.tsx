@@ -4,7 +4,6 @@ import { Lock, Mail, ArrowRight, ShieldCheck, UserCheck, ShoppingCart, Sun, Moon
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Spotlight } from '../components/ui/spotlight';
-import { FlipWords } from '../components/ui/flip-words';
 import { ShimmerButton } from '../components/ui/shimmer-button';
 import { Meteors } from '../components/ui/meteors';
 
@@ -42,7 +41,6 @@ export const LoginPage: React.FC = () => {
     else setTema('system');
   };
 
-  const words = ['Alta Performance', 'Alçadas Gerenciais', 'Auditoria Fiscal', 'PDV & Varejo'];
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col justify-center items-center px-4 relative overflow-hidden transition-colors duration-300">
@@ -70,19 +68,11 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-md relative z-10 py-8">
         {/* Cabeçalho de Apresentação com Logo e Aceternity FlipWords */}
         <div className="text-center mb-7">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-900 border border-slate-700/80 shadow-glow-indigo mb-3 p-1 transform hover:scale-105 transition-transform overflow-hidden">
-            <img
-              src="/logo-emblem.png"
-              alt="MS² Vestuário Logo"
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-900 to-indigo-600 dark:from-white dark:via-slate-100 dark:to-indigo-200 bg-clip-text text-transparent">
-            MS² Vestuário
-          </h1>
-          <div className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium flex items-center justify-center">
-            Sistema com <FlipWords words={words} className="text-indigo-600 dark:text-indigo-400 font-semibold" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="MS² Vestuário Logo"
+            className="h-40 sm:h-80 w-auto object-contain mx-auto mb-3 transform hover:scale-105 transition-all dark:brightness-125 dark:drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+          />
         </div>
 
         {/* Card Principal de Login com Aceternity Meteors no Rodapé */}

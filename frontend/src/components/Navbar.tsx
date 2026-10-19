@@ -44,23 +44,11 @@ export const Navbar: React.FC = () => {
           {/* 1. LADO ESQUERDO: Logotipo Oficial & Título da Aplicação */}
           <div className="flex items-center gap-3 shrink-0">
             <NavLink to="/pdv" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700/80 overflow-hidden flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
-                <img src="/logo-emblem.png" alt="MS² Vestuário" className="w-full h-full object-cover" />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:via-slate-100 dark:to-indigo-200">
-                    MS² Vestuário
-                  </span>
-                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    PDV Ativo
-                  </span>
-                </div>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                  Gestão Comercial & Ponto de Venda
-                </span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="MS² Vestuário"
+                className="h-15 sm:h-16 w-auto object-contain shrink-0 group-hover:scale-110 transition-all dark:brightness-125 dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.25)]"
+              />
             </NavLink>
           </div>
 

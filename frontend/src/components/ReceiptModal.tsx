@@ -54,7 +54,7 @@ export const ReceiptModal: React.FC<IReceiptModalProps> = ({ venda, aberto, onFe
             <img
               src="/logo.png"
               alt="MS² Vestuário Logo"
-              className="w-12 h-12 mx-auto rounded-xl object-contain mb-2 border border-slate-200 dark:border-slate-700/60 shadow-sm"
+              className="h-12 w-auto mx-auto object-contain mb-2 dark:brightness-125"
             />
             <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-widest print:text-black">
               {empresa?.razao_social || 'MS² VESTUÁRIO LTDA'}

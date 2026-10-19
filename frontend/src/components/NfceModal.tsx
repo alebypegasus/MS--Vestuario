@@ -140,7 +140,7 @@ export const NfceModal: React.FC<INfceModalProps> = ({ aberto, venda, onFechar }
                 <img
                   src="/logo.png"
                   alt="MS² Vestuário"
-                  className="w-12 h-12 mx-auto rounded-xl object-contain mb-2 shadow-xs bg-slate-900 border border-slate-700"
+                  className="h-12 w-auto mx-auto object-contain mb-2 dark:brightness-125"
                 />
                 <h4 className="text-xs font-black uppercase text-slate-900 dark:text-slate-100">
                   {empresa?.razao_social || 'MS² VESTUÁRIO LTDA'}
