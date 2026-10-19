@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MS² Vestuário — Apresentação em Motion Design (Sprint 6)</title>
+  
+  <!-- Google Fonts: Space Grotesk + Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: #03060d;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.playing {
+      cursor: none;
+    }
+
+    /* Contêiner de Escalonamento Automático */
+    #stage-container {
+      position: relative;
+      background: #000;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      transform-origin: center center;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    /* Palco com Resolução Nativa Interna */
+    #stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, #0d1527 0%, #060913 60%, #020408 100%);
+    }
+
+    /* Formato Vertical 9:16 (quando ativo) */
+    #stage-container.aspect-vertical {
+      width: 1080px !important;
+      height: 1920px !important;
+    }
+    #stage-container.aspect-vertical #stage {
+      width: 1080px;
+      height: 1920px;
+    }
+
+    /* Fundo Vivo com Glows e Partículas */
+    .ambient-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      opacity: 0.35;
+      mix-blend-mode: screen;
+      will-change: transform, opacity;
+    }
+    .glow-gold {
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.5) 0%, transparent 70%);
+      top: -200px;
+      right: -100px;
+    }
+    .glow-indigo {
+      width: 900px;
+      height: 900px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, transparent 70%);
+      bottom: -300px;
+      left: -200px;
+    }
+    .glow-emerald {
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, transparent 70%);
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Grid de Fundo Sutil */
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(2, 4, 8, 0.85) 100%);
+      pointer-events: none;
+    }
+
+    /* Câmera e Camada de Cena */
+    #camera {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 100px;
+      transform-origin: center center;
+      will-change: transform;
+    }
+
+    /* Elementos de Interface do Player */
+    .timecode-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .timecode-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    .hud-controls {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(16px);
+      z-index: 100;
+      transition: opacity 0.3s ease;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .hud-controls kbd {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 2px 7px;
+      color: #f1f5f9;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* Tela de Início / Play */
+    #start-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 7, 15, 0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      cursor: pointer;
+      text-align: center;
+      padding: 40px;
+    }
+    .play-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #d4af37, #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #start-overlay:hover .play-circle {
+      transform: scale(1.08);
+      box-shadow: 0 0 70px rgba(212, 175, 55, 0.7);
+    }
+    .play-arrow {
+      width: 0;
+      height: 0;
+      border-top: 18px solid transparent;
+      border-bottom: 18px solid transparent;
+      border-left: 28px solid #000;
+      margin-left: 6px;
+    }
+
+    /* Contagem Regressiva 3-2-1 */
+    #countdown-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 190;
+      pointer-events: none;
+      background: rgba(3, 6, 13, 0.85);
+    }
+    .countdown-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 220px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff, #d4af37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 80px rgba(212, 175, 55, 0.5);
+      transform: scale(0.6);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    }
+
+    /* Componentes Tipográficos das Cenas */
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 140px;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity, transform;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+    }
+    .badge-red {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .badge-gold {
+      background: rgba(212, 175, 55, 0.15);
+      color: #fbbf24;
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .badge-indigo {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .scene-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-align: center;
+      max-width: 1400px;
+      margin-bottom: 36px;
+      letter-spacing: -0.02em;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 0 8px;
+      opacity: 0.15;
+      transform: translateY(15px);
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+      filter: blur(4px);
+    }
+    .word.active {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+    .word.highlight-gold {
+      background: linear-gradient(135deg, #fff, #d4af37, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+      font-weight: 800;
+    }
+    .word.highlight-red {
+      color: #f87171;
+      text-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    }
+    .word.highlight-emerald {
+      color: #34d399;
+      text-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Cards e Elementos Gráficos das Cenas */
+    .visual-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 1350px;
+      margin-top: 20px;
+    }
+
+    .glass-box {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Elementos Específicos das Cenas */
+    /* Cena 1: Caos do Varejo */
+    .metric-card-danger {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.08);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* Cena 2: Logo MS² Livre */
+    .logo-hero {
+      height: 180px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.6));
+      margin-bottom: 20px;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Cena 3: PDV & Bipe Sub-300ms */
+    .barcode-scanner-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: rgba(2, 6, 23, 0.85);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 20px;
+      padding: 24px 36px;
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+    .pulse-laser {
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      box-shadow: 0 0 15px #10b981;
+      width: 100%;
+    }
+
+    /* Cena 4: Alçada Gerencial Âmbar */
+    .alcada-box {
+      border: 2px solid rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.08);
+      box-shadow: 0 0 50px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Cena 5: Cupom Térmico NFC-e */
+    .receipt-paper {
+      background: #fdfbf7;
+      color: #0f172a;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 28px;
+      border-radius: 12px;
+      width: 440px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      border-top: 4px solid #d4af37;
+    }
+
+    /* Cena 6: Selo Homologação */
+    .seal-badge {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f59e0b 0%, #b45309 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 60px rgba(245, 158, 11, 0.6);
+      border: 4px solid #fef3c7;
+    }
+
+    /* Barra de Progresso Inferior */
+    #progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #d4af37, #10b981);
+      width: 0%;
+      z-index: 150;
+      box-shadow: 0 0 12px #d4af37;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Palco Escalado Dinamicamente -->
+  <div id="stage-container">
+    <div id="stage">
+      
+      <!-- Fundo Vivo e Mesh Luminosa -->
+      <div class="ambient-glow glow-gold" id="ambient-gold"></div>
+      <div class="ambient-glow glow-indigo" id="ambient-indigo"></div>
+      <div class="ambient-glow glow-emerald" id="ambient-emerald"></div>
+      <div class="grid-overlay"></div>
+      <div class="vignette"></div>
+
+      <!-- Barra de Progresso Global -->
+      <div id="progress-bar"></div>
+
+      <!-- Timecode HUD -->
+      <div class="timecode-badge" id="hud-timecode">
+        <div class="timecode-dot"></div>
+        <span id="timecode-text">00:00.0 / 00:55.0</span>
+      </div>
+
+      <!-- Atalhos HUD -->
+      <div class="hud-controls" id="hud-controls">
+        <span><kbd>ESPAÇO</kbd> Play/Pause</span>
+        <span><kbd>R</kbd> Reiniciar</span>
+        <span><kbd>←</kbd> <kbd>→</kbd> Cenas</span>
+        <span><kbd>F</kbd> Tela Cheia</span>
+        <span><kbd>A</kbd> 16:9 / 9:16</span>
+      </div>
+
+      <!-- Câmera do Vídeo (Zoom e Movimento Contínuo) -->
+      <div id="camera">
+
+        <!-- ======================================================== -->
+        <!-- CENA 1: O GARGALO DO VAREJO [0.0s – 7.5s] -->
+        <!-- ======================================================== -->
+        <div class="scene" id="scene-1">
+          <div class="badge-pill badge-red">
+            <span>● Gargalo Operacional do Varejo</span>
+          </div>
+          
+          <h1 class="scene-title">
+            <span class="word">No</span>
+            <span class="word">varejo</span>
+            <span class="word">de</span>
+            <span class="word">moda,</span>
+            <span class="word highlight-red">filas</span>
+            <span class="word highlight-red">lentas,</span>
+            <span class="word highlight-red">descontos</span>
+            <span class="word highlight-red">sem</span>
+            <span class="word highlight-red">controle</span>
+            <span class="word">e</span>
+            <span class="word">erros</span>
+            <span class="word">de</span>
+            <span class="word">estoque</span>
+            <span class="word highlight-gold">custam</span>
+            <span class="word highlight-gold">milhares.</span>
+          </h1>
+
+          <div class="visual-container">
+            <div class="glass-box metric-card-danger" id="c1-card-1">
+              <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">TEMPO DE ESPERA</div>
+              <div style="font-size: 48px; font-weight: 800; font-family: 'Space Grotesk'; color: #fff;">+18 min</div>
+              <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Filas travadas por falta de código ou cliente</p>
+            </div>
+
+            <div class="glass-box metric-card-danger" id="c1-card-2">
+              <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">PERDA DE MARGEM</div>
+              <div style="font-size: 48px; font-weight: 800; font-family: 'Space Grotesk'; color: #f87171;">-32.4%</div>
+              <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Descontos abusivos aplicados sem alçada gerencial</p>
+            </div>
+
+            <div class="glass-box metric-card-danger" id="c1-card-3">
+              <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">INSEGURANÇA FISCAL</div>
+              <div style="font-size: 48px; font-weight: 800; font-family: 'Space Grotesk'; color: #fbbf24;">ERRO 409</div>
+              <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Cadastros duplicados e rejeição na SEFAZ</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- CENA 2: REVELAÇÃO - MS² VESTUÁRIO [7.5s – 16.0s] -->
+        <!-- ======================================================== -->
+        <div class="scene" id="scene-2">
+          <div class="badge-pill badge-gold">
+            <span>★ Nova Geração de Gestão Comercial</span>
+          </div>
+
+          <!-- Logo Oficial Livre -->
+          <img src="/logo.png" alt="MS² Vestuário" class="logo-hero" id="c2-logo" onerror="this.src='/favicon.png'">
+
+          <h1 class="scene-title">
+            <span class="word">Apresentamos</span>
+            <span class="word">o</span>
+            <span class="word highlight-gold">MS²</span>
+            <span class="word highlight-gold">Vestuário:</span>
+            <span class="word">um</span>
+            <span class="word">ecossistema</span>
+            <span class="word">completo</span>
+            <span class="word">de</span>
+            <span class="word highlight-emerald">altíssima</span>
+            <span class="word highlight-emerald">performance.</span>
+          </h1>
+
+          <div class="visual-container">
+            <div class="glass-box" style="flex: 1; text-align: center; border-color: rgba(212, 175, 55, 0.4);">
+              <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
+              <div style="font-size: 18px; font-weight: 800; color: #d4af37;">PDV Ultrarrápido</div>
+              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Bipagem & carrinho sub-300ms</p>
+            </div>
+
+            <div class="glass-box" style="flex: 1; text-align: center; border-color: rgba(99, 102, 241, 0.4);">
+              <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
+              <div style="font-size: 18px; font-weight: 800; color: #818cf8;">Governança RBAC</div>
+              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Alçadas gerenciais e auditoria</p>
+            </div>
+
+            <div class="glass-box" style="flex: 1; text-align: center; border-color: rgba(16, 185, 129, 0.4);">
+              <div style="font-size: 32px; margin-bottom: 8px;">📜</div>
+              <div style="font-size: 18px; font-weight: 800; color: #34d399;">Conformidade SEFAZ</div>
+              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">NFC-e / SAT e exportação contábil</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- CENA 3: PROVA - VELOCIDADE E MÓDULO 11 [16.0s – 26.5s] -->
+        <!-- ======================================================== -->
+        <div class="scene" id="scene-3">
+          <div class="badge-pill badge-emerald">
+            <span>✓ Velocidade & Rigor Cadastral</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Bipagem</span>
+            <span class="word">instantânea</span>
+            <span class="word">em</span>
+            <span class="word highlight-emerald">menos</span>
+            <span class="word highlight-emerald">de</span>
+            <span class="word highlight-emerald">300ms,</span>
+            <span class="word">catálogo</span>
+            <span class="word">com</span>
+            <span class="word">fotos</span>
+            <span class="word">e</span>
+            <span class="word highlight-gold">validação</span>
+            <span class="word highlight-gold">oficial</span>
+            <span class="word highlight-gold">de</span>
+            <span class="word highlight-gold">CPF.</span>
+          </h1>
+
+          <div class="visual-container">
+            <!-- Simulação de Leitor de Barras -->
+            <div class="barcode-scanner-box" style="flex: 2;">
+              <div>
+                <div style="font-size: 11px; font-weight: 700; color: #10b981; letter-spacing: 0.1em; text-transform: uppercase;">Leitor Express Ativo</div>
+                <div style="font-size: 24px; font-weight: 800; color: #fff; margin-top: 4px; font-family: 'Space Grotesk';">Bip: 103 — Calça Jeans Slim</div>
+                <div style="font-size: 12px; color: #94a3b8; font-family: 'JetBrains Mono'; margin-top: 4px;">Preço: R$ 159,90 • Subtotal: R$ 159,90</div>
+              </div>
+              <div style="text-align: right;">
+                <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; font-weight: 800; font-size: 16px; padding: 6px 16px; border-radius: 9999px;">
+                  182 ms
+                </span>
+              </div>
+            </div>
+
+            <!-- Validador Módulo 11 -->
+            <div class="glass-box" style="flex: 1; border-color: rgba(16, 185, 129, 0.5);">
+              <div style="font-size: 12px; font-weight: 700; color: #34d399; margin-bottom: 6px;">MÓDULO 11 RECEITA FEDERAL</div>
+              <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #fff;">064.514.702-87</div>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 8px; color: #10b981; font-size: 12px; font-weight: 700;">
+                <span>✓ CPF Autêntico & Sem Duplicata</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- CENA 4: GOVERNANÇA - ALÇADAS GERENCIAIS [26.5s – 37.0s] -->
+        <!-- ======================================================== -->
+        <div class="scene" id="scene-4">
+          <div class="badge-pill badge-gold">
+            <span>🛡️ Segurança & Auditoria Imutável</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Chega</span>
+            <span class="word">de</span>
+            <span class="word">fraudes.</span>
+            <span class="word highlight-gold">Descontos</span>
+            <span class="word highlight-gold">&gt;</span>
+            <span class="word highlight-gold">10%</span>
+            <span class="word">exigem</span>
+            <span class="word highlight-gold">autorização</span>
+            <span class="word highlight-gold">gerencial,</span>
+            <span class="word">e</span>
+            <span class="word">preços</span>
+            <span class="word highlight-emerald">ficam</span>
+            <span class="word highlight-emerald">gravados</span>
+            <span class="word highlight-emerald">para</span>
+            <span class="word highlight-emerald">sempre.</span>
+          </h1>
+
+          <div class="visual-container">
+            <div class="glass-box alcada-box" style="flex: 1.5;">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 12px; margin-bottom: 16px;">
+                <span style="font-weight: 800; color: #fbbf24; font-size: 16px;">⚠️ AUTORIZAÇÃO DE ALÇADA (RN-02)</span>
+                <span style="font-size: 12px; font-weight: 700; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 10px; border-radius: 8px;">Desconto 36.4%</span>
+              </div>
+              <p style="font-size: 13px; color: #fde68a;">Desconto acima de 10% aprovado pelo Gerente: <strong>Carlos Mendes (ID #1)</strong></p>
+              <div style="margin-top: 14px; background: rgba(0, 0, 0, 0.4); padding: 10px 14px; border-radius: 10px; font-family: 'JetBrains Mono'; font-size: 12px; color: #a3e635;">
+                ✓ Chave Criptográfica Gerencial Validada
+              </div>
+            </div>
+
+            <div class="glass-box" style="flex: 1; border-color: rgba(99, 102, 241, 0.4);">
+              <div style="font-size: 12px; font-weight: 700; color: #818cf8; margin-bottom: 6px;">SNAPSHOT HISTÓRICO (RN-04)</div>
+              <div style="font-size: 18px; font-weight: 800; color: #fff;">Imutabilidade Contábil</div>
+              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Alterações de preço no catálogo não alteram vendas já faturadas no passado.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- CENA 5: INTELIGÊNCIA FISCAL & E-NOTA [37.0s – 46.5s] -->
+        <!-- ======================================================== -->
+        <div class="scene" id="scene-5">
+          <div class="badge-pill badge-indigo">
+            <span>⚖️ Módulo Fiscal & Relatórios Executivos</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Emissão</span>
+            <span class="word">de</span>
+            <span class="word highlight-gold">NFC-e</span>
+            <span class="word">com</span>
+            <span class="word highlight-gold">44</span>
+            <span class="word highlight-gold">dígitos,</span>
+            <span class="word">tributos</span>
+            <span class="word">da</span>
+            <span class="word">Lei</span>
+            <span class="word">da</span>
+            <span class="word">Transparência</span>
+            <span class="word">e</span>
+            <span class="word highlight-emerald">relatórios</span>
+            <span class="word highlight-emerald">em</span>
+            <span class="word highlight-emerald">Excel</span>
+            <span class="word highlight-emerald">e</span>
+            <span class="word highlight-emerald">PDF.</span>
+          </h1>
+
+          <div class="visual-container">
+            <!-- Mini Cupom DANFE -->
+            <div class="receipt-paper">
+              <div style="text-align: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 900; font-size: 13px;">MS² VESTUÁRIO LTDA</div>
+                <div style="font-size: 9px; color: #64748b;">CNPJ: 12.345.678/0001-90</div>
+                <div style="font-size: 10px; font-weight: 700; margin-top: 4px;">DANFE NFC-e (MODELO 65)</div>
+              </div>
+              <div style="font-size: 10px; display: flex; justify-content: space-between; margin: 4px 0;">
+                <span>VALOR TOTAL:</span>
+                <span style="font-weight: 900; color: #047857;">R$ 239,90</span>
+              </div>
+              <div style="font-size: 8px; color: #64748b; margin-top: 8px; word-break: break-all;">
+                CHAVE DE ACESSO: 33261012345678000190650010000000241987654321
+              </div>
+            </div>
+
+            <!-- Botões de Exportação -->
+            <div style="display: flex; flex-direction: column; gap: 14px; flex: 1;">
+              <div class="glass-box" style="display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-color: rgba(16, 185, 129, 0.4);">
+                <div style="font-size: 28px;">📊</div>
+                <div>
+                  <div style="font-weight: 800; font-size: 16px; color: #34d399;">Exportação Excel (.xlsx)</div>
+                  <div style="font-size: 12px; color: #94a3b8;">Planilha formatada com fórmulas de totais</div>
+                </div>
+              </div>
+
+              <div class="glass-box" style="display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-color: rgba(239, 68, 68, 0.4);">
+                <div style="font-size: 28px;">📄</div>
+                <div>
+                  <div style="font-weight: 800; font-size: 16px; color: #f87171;">Relatório PDF Executivo A4</div>
+                  <div style="font-size: 12px; color: #94a3b8;">Logotipo oficial, carimbo e paginação</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- CENA 6: HOMOLOGAÇÃO & CTA FINAL [46.5s – 55.0s] -->
+        <!-- ======================================================== -->
+        <div class="scene" id="scene-6">
+          <div class="seal-badge" id="c6-seal">
+            <span style="font-size: 48px;">🏆</span>
+          </div>
+
+          <div class="badge-pill badge-gold" style="margin-top: 24px;">
+            <span>★ Homologação Concluída — Gabarito Firjan SENAI</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word highlight-emerald">100%</span>
+            <span class="word">dos</span>
+            <span class="word highlight-emerald">18</span>
+            <span class="word highlight-emerald">testes</span>
+            <span class="word highlight-emerald">aprovados.</span>
+            <span class="word">MS²</span>
+            <span class="word">Vestuário:</span>
+            <span class="word highlight-gold">moda,</span>
+            <span class="word highlight-gold">estilo</span>
+            <span class="word highlight-gold">e</span>
+            <span class="word highlight-gold">você.</span>
+          </h1>
+
+          <div class="visual-container" style="justify-content: center; gap: 20px;">
+            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 14px 28px; border-radius: 9999px; font-weight: 800; font-size: 18px; color: #34d399; display: flex; align-items: center; gap: 10px;">
+              <span>✓</span> 18/18 Testes E2E Aprovados
+            </div>
+            <div style="background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); padding: 14px 28px; border-radius: 9999px; font-weight: 800; font-size: 18px; color: #fbbf24; display: flex; align-items: center; gap: 10px;">
+              <span>⭐</span> Pronto para Produção & Live Demo
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /camera -->
+    </div> <!-- /stage -->
+  </div> <!-- /stage-container -->
+
+  <!-- Overlay Inicial para Iniciar Reprodução -->
+  <div id="start-overlay">
+    <div class="play-circle">
+      <div class="play-arrow"></div>
+    </div>
+    <h2 style="font-family: 'Space Grotesk'; font-size: 42px; font-weight: 800; margin-bottom: 12px;">
+      MS² Vestuário · Motion Pitch
+    </h2>
+    <p style="font-size: 18px; color: #94a3b8; max-width: 600px; margin-bottom: 24px;">
+      Apresentação técnica e dinâmica da Sprint 6 (Gabarito Firjan SENAI).
+    </p>
+    <div style="font-family: 'JetBrains Mono'; font-size: 14px; background: rgba(255,255,255,0.08); padding: 10px 22px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.15);">
+      Clique ou aperte <strong style="color: #d4af37;">ESPAÇO</strong> para iniciar com contagem 3-2-1
+    </div>
+  </div>
+
+  <!-- Contagem Regressiva 3-2-1 -->
+  <div id="countdown-overlay" style="display: none;">
+    <div class="countdown-number" id="countdown-num">3</div>
+  </div>
+
+  <script>
+    // ========================================================================
+    // MOTOR DE MOTION DESIGN DETERMINÍSTICO (Função render(t))
+    // Conforme o guia oficial de Motion Design em Código
+    // ========================================================================
+
+    const DURACOES_CENAS = [
+      { id: 1, inicio: 0.0, fim: 7.5 },
+      { id: 2, inicio: 7.5, fim: 16.0 },
+      { id: 3, inicio: 16.0, fim: 26.5 },
+      { id: 4, inicio: 26.5, fim: 37.0 },
+      { id: 5, inicio: 37.0, fim: 46.5 },
+      { id: 6, inicio: 46.5, fim: 55.0 }
+    ];
+
+    const DURACAO_TOTAL = 55.0;
+
+    // Estado da Timeline
+    let tempoAtual = 0;
+    let executando = false;
+    let emContagem = false;
+    let valorContagem = 3;
+    let ultimoFrame = performance.now();
+    let audioCtx = null;
+    let proporcaoVertical = false;
+
+    // Elementos DOM
+    const stageContainer = document.getElementById('stage-container');
+    const startOverlay = document.getElementById('start-overlay');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownNum = document.getElementById('countdown-num');
+    const timecodeText = document.getElementById('timecode-text');
+    const progressBar = document.getElementById('progress-bar');
+    const camera = document.getElementById('camera');
+    const hudTimecode = document.getElementById('hud-timecode');
+    const hudControls = document.getElementById('hud-controls');
+
+    // Inicialização da Escala e Redimensionamento de Janela
+    function redimensionarPalco() {
+      const larguraBase = proporcaoVertical ? 1080 : 1920;
+      const alturaBase = proporcaoVertical ? 1920 : 1080;
+
+      const escalaX = window.innerWidth / larguraBase;
+      const escalaY = window.innerHeight / alturaBase;
+      const escala = Math.min(escalaX, escalaY) * 0.96;
+
+      stageContainer.style.width = larguraBase + 'px';
+      stageContainer.style.height = alturaBase + 'px';
+      stageContainer.style.transform = `scale(${escala})`;
+    }
+
+    window.addEventListener('resize', redimensionarPalco);
+    redimensionarPalco();
+
+    // Síntese Sonora Web Audio API (Bips profissionais de contagem)
+    function playBeep(freq = 440, duracao = 0.1, tipo = 'sine') {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = tipo;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duracao);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duracao);
+      } catch (e) {}
+    }
+
+    // Contagem Regressiva 3-2-1
+    function iniciarContagem() {
+      emContagem = true;
+      executando = false;
+      tempoAtual = 0;
+      startOverlay.style.display = 'none';
+      countdownOverlay.style.display = 'flex';
+      valorContagem = 3;
+
+      function step() {
+        if (valorContagem > 0) {
+          countdownNum.textContent = valorContagem;
+          countdownNum.style.transform = 'scale(1.2)';
+          countdownNum.style.opacity = '1';
+          playBeep(valorContagem === 1 ? 880 : 520, 0.15);
+
+          setTimeout(() => {
+            countdownNum.style.transform = 'scale(0.8)';
+            countdownNum.style.opacity = '0';
+          }, 650);
+
+          valorContagem--;
+          setTimeout(step, 1000);
+        } else {
+          countdownOverlay.style.display = 'none';
+          emContagem = false;
+          executando = true;
+          document.body.classList.add('playing');
+          playBeep(1046, 0.35, 'triangle'); // C6 - Início triunfal
+          ultimoFrame = performance.now();
+          requestAnimationFrame(loop);
+        }
+      }
+      step();
+    }
+
+    // ========================================================================
+    // FUNÇÃO MASTER RENDER(T)
+    // Calcula o estado de todos os elementos para qualquer t em segundos
+    // ========================================================================
+    function render(t) {
+      // 1. Barra de Progresso
+      const pct = Math.min(100, Math.max(0, (t / DURACAO_TOTAL) * 100));
+      progressBar.style.width = pct + '%';
+
+      // 2. Timecode HUD
+      const minutos = Math.floor(t / 60);
+      const segs = Math.floor(t % 60);
+      const decs = Math.floor((t % 1) * 10);
+      timecodeText.textContent = `${String(minutos).padStart(2,'0')}:${String(segs).padStart(2,'0')}.${decs} / 00:55.0`;
+
+      // 3. Fundo Vivo com Movimento Suave
+      const ambientGold = document.getElementById('ambient-gold');
+      const ambientIndigo = document.getElementById('ambient-indigo');
+      const ambientEmerald = document.getElementById('ambient-emerald');
+      if (ambientGold) ambientGold.style.transform = `translate(${Math.sin(t * 0.4) * 60}px, ${Math.cos(t * 0.3) * 40}px)`;
+      if (ambientIndigo) ambientIndigo.style.transform = `translate(${Math.cos(t * 0.35) * 50}px, ${Math.sin(t * 0.45) * 50}px)`;
+      if (ambientEmerald) ambientEmerald.style.transform = `translate(-50%, -50%) scale(${1 + Math.sin(t * 0.5) * 0.15})`;
+
+      // 4. Renderização por Cena
+      DURACOES_CENAS.forEach(cena => {
+        const elCena = document.getElementById(`scene-${cena.id}`);
+        if (!elCena) return;
+
+        const ativa = t >= cena.inicio && t < cena.fim;
+        const tempoNaCena = t - cena.inicio;
+        const duracaoCena = cena.fim - cena.inicio;
+
+        if (ativa) {
+          // Fade-in e Fade-out cinematográfico e ágil
+          let opacidade = 1;
+          const margemFade = 0.25;
+          if (tempoNaCena < margemFade) {
+            opacidade = Math.max(0.3, tempoNaCena / margemFade);
+          } else if (cena.fim - t < margemFade && cena.id !== 6) {
+            opacidade = Math.max(0.2, (cena.fim - t) / margemFade);
+          }
+
+          elCena.style.opacity = opacidade;
+          elCena.style.pointerEvents = 'auto';
+
+          // Movimento de Câmera Suave (Push contínuo de 1.0 a 1.07)
+          const zoomCamera = 1.0 + (tempoNaCena / duracaoCena) * 0.07;
+          camera.style.transform = `scale(${zoomCamera})`;
+
+          // Entrada Palavra por Palavra
+          const words = elCena.querySelectorAll('.word');
+          const totalWords = words.length;
+          const duracaoTexto = Math.min(duracaoCena * 0.75, totalWords * 0.28);
+
+          words.forEach((w, idx) => {
+            const momentoPalavra = (idx / totalWords) * duracaoTexto;
+            if (tempoNaCena >= momentoPalavra) {
+              w.classList.add('active');
+            } else {
+              w.classList.remove('active');
+            }
+          });
+
+          // Elementos Gráficos Específicos
+          if (cena.id === 1) {
+            const cards = [document.getElementById('c1-card-1'), document.getElementById('c1-card-2'), document.getElementById('c1-card-3')];
+            cards.forEach((card, i) => {
+              if (card) {
+                const atraso = 1.2 + i * 0.8;
+                card.style.opacity = tempoNaCena >= atraso ? 1 : 0;
+                card.style.transform = tempoNaCena >= atraso ? 'translateY(0)' : 'translateY(30px)';
+                card.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+              }
+            });
+          }
+
+          if (cena.id === 6) {
+            const seal = document.getElementById('c6-seal');
+            if (seal) {
+              const scaleSeal = Math.min(1.1, 0.8 + (tempoNaCena * 0.05));
+              seal.style.transform = `scale(${scaleSeal})`;
+            }
+          }
+
+        } else {
+          elCena.style.opacity = 0;
+          elCena.style.pointerEvents = 'none';
+        }
+      });
+    }
+
+    // Loop Principal de Animação
+    function loop(agora) {
+      if (!executando) return;
+
+      const delta = (agora - ultimoFrame) / 1000;
+      ultimoFrame = agora;
+
+      tempoAtual += delta;
+
+      if (tempoAtual >= DURACAO_TOTAL) {
+        tempoAtual = DURACAO_TOTAL;
+        executando = false;
+        document.body.classList.remove('playing');
+        render(tempoAtual);
+        return;
+      }
+
+      render(tempoAtual);
+      requestAnimationFrame(loop);
+    }
+
+    // ========================================================================
+    // CONTROLES DE INTERAÇÃO & ATALHOS DE TECLADO
+    // ========================================================================
+    function togglePlay() {
+      if (emContagem) return;
+
+      if (!executando) {
+        if (tempoAtual === 0) {
+          iniciarContagem();
+        } else {
+          executando = true;
+          document.body.classList.add('playing');
+          ultimoFrame = performance.now();
+          requestAnimationFrame(loop);
+        }
+      } else {
+        executando = false;
+        document.body.classList.remove('playing');
+      }
+    }
+
+    function pularCena(deltaCena) {
+      const cenaAtualIndex = DURACOES_CENAS.findIndex(c => tempoAtual >= c.inicio && tempoAtual < c.fim);
+      let novoIndex = (cenaAtualIndex === -1 ? 0 : cenaAtualIndex) + deltaCena;
+      if (novoIndex < 0) novoIndex = 0;
+      if (novoIndex >= DURACOES_CENAS.length) novoIndex = DURACOES_CENAS.length - 1;
+      
+      tempoAtual = DURACOES_CENAS[novoIndex].inicio + 0.8;
+      render(tempoAtual);
+    }
+
+    function alternarProporcao() {
+      proporcaoVertical = !proporcaoVertical;
+      if (proporcaoVertical) {
+        stageContainer.classList.add('aspect-vertical');
+      } else {
+        stageContainer.classList.remove('aspect-vertical');
+      }
+      redimensionarPalco();
+      render(tempoAtual);
+    }
+
+    function alternarFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // Eventos de Teclado
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        iniciarContagem();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        pularCena(1);
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        pularCena(-1);
+      } else if (e.key === 't' || e.key === 'T') {
+        hudTimecode.style.display = hudTimecode.style.display === 'none' ? 'flex' : 'none';
+      } else if (e.key === 'f' || e.key === 'F') {
+        alternarFullscreen();
+      } else if (e.key === 'a' || e.key === 'A') {
+        alternarProporcao();
+      }
+    });
+
+    startOverlay.addEventListener('click', () => {
+      iniciarContagem();
+    });
+
+    // Render Inicial Estático
+    render(0);
+  </script>
+</body>
+</html>

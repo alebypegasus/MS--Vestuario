@@ -14,15 +14,17 @@ import { VendasPage } from './pages/VendasPage';
 import { UsuariosPage } from './pages/UsuariosPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ConfiguracoesEmpresaPage } from './pages/ConfiguracoesEmpresaPage';
+import { PitchMotionPage } from './pages/PitchMotionPage';
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { autenticado } = useAuth();
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
+  const isPitchPage = location.pathname === '/pitch';
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#0b0f19] dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
-      {autenticado && !isLoginPage && <Navbar />}
+      {autenticado && !isLoginPage && !isPitchPage && <Navbar />}
       <main className="flex-1 w-full">{children}</main>
     </div>
   );
@@ -95,6 +97,10 @@ export const App: React.FC = () => {
                       <ConfiguracoesEmpresaPage />
                     </ProtectedRoute>
                   }
+                />
+                <Route
+                  path="/pitch"
+                  element={<PitchMotionPage />}
                 />
 
                 {/* Redirecionamento Padrão */}

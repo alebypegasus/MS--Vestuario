@@ -7,7 +7,10 @@ import {
   Building2,
   Database,
   FileSpreadsheet,
+  Sparkles,
+  Video,
 } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { validarCPF } from '../utils/cpf.validator';
 
 interface IHomologacaoModalProps {
@@ -116,6 +119,22 @@ export const HomologacaoModal: React.FC<IHomologacaoModalProps> = ({ aberto, onF
         {
           titulo: 'Geração de Relatório PDF A4 Executivo',
           detalhe: 'Impressão direta e salvamento em PDF com logotipo oficial, cabeçalho da empresa, carimbo de autenticação e tabelas.',
+          status: 'HOMOLOGADO',
+        },
+      ],
+    },
+    {
+      categoria: 'Sprint 6 • Motion Design Pitch & Apresentação',
+      icon: Video,
+      items: [
+        {
+          titulo: 'Player Motion Nativo render(t) & Roteiro em 6 Blocos',
+          detalhe: 'Apresentação em código puro HTML/CSS/JS determinístico, visualização adaptável 16:9 e 9:16 (Reels), áudio neural e atalhos de palco.',
+          status: 'HOMOLOGADO',
+        },
+        {
+          titulo: 'Live Demo & Rubrica Firjan SENAI (10 Minutos)',
+          detalhe: 'Roteiro de apresentação executiva cobrindo gargalo de varejo, regras de negócio RN-01 a RN-06, NFC-e e 18 testes E2E.',
           status: 'HOMOLOGADO',
         },
       ],
@@ -229,17 +248,27 @@ export const HomologacaoModal: React.FC<IHomologacaoModalProps> = ({ aberto, onF
           })}
         </div>
 
-        {/* Rodapé com Fechar */}
-        <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between shrink-0">
+        {/* Rodapé com Fechar e Link para Motion Pitch */}
+        <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <span className="text-[11px] text-slate-500 dark:text-slate-400">
             Dossiê emitido pelo Antigravity • Pronto para avaliação acadêmica
           </span>
-          <button
-            onClick={onFechar}
-            className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all"
-          >
-            Concluir Análise
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <NavLink
+              to="/pitch"
+              onClick={onFechar}
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Ver Motion Pitch</span>
+            </NavLink>
+            <button
+              onClick={onFechar}
+              className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all"
+            >
+              Concluir Análise
+            </button>
+          </div>
         </div>
       </div>
     </div>
