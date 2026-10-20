@@ -10,19 +10,35 @@ import {
   XCircle,
   X,
   CreditCard,
+  ShoppingBag,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  ChevronDown,
 } from 'lucide-react';
-import { ICliente, IClienteCriacaoDTO } from '../types';
-import { clientesApi } from '../services/api';
+import { ICliente, IClienteCriacaoDTO, IVendaCompleta } from '../types';
+import { clientesApi, vendasApi } from '../services/api';
 import { formatarCPF, validarCPF } from '../utils/cpf.validator';
 import { formatarTelefone } from '../utils/formatters';
+import { exportarParaCSV, exportarParaExcel, exportarRelatorioPDF } from '../utils/exportUtils';
 import { useToast } from '../contexts/ToastContext';
+import { ClienteComprasModal } from '../components/ClienteComprasModal';
+import { ReceiptModal } from '../components/ReceiptModal';
 
 export const ClientesPage: React.FC = () => {
   const { adicionarToast } = useToast();
 
   const [clientes, setClientes] = useState<ICliente[]>([]);
+  const [vendas, setVendas] = useState<IVendaCompleta[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [busca, setBusca] = useState<string>('');
+  const [menuExportarAberto, setMenuExportarAberto] = useState<boolean>(false);
+
+  // Modal de Compras e Relatório do Cliente
+  const [clienteCompras, setClienteCompras] = useState<ICliente | null>(null);
+  const [modalComprasAberto, setModalComprasAberto] = useState<boolean>(false);
+  const [vendaRecibo, setVendaRecibo] = useState<IVendaCompleta | null>(null);
+  const [modalReciboAberto, setModalReciboAberto] = useState<boolean>(false);
 
   // Modal de Cadastro
   const [modalAberto, setModalAberto] = useState<boolean>(false);
@@ -34,7 +50,17 @@ export const ClientesPage: React.FC = () => {
 
   useEffect(() => {
     carregarClientes();
+    carregarVendas();
   }, []);
+
+  const carregarVendas = async () => {
+    try {
+      const lista = await vendasApi.listar();
+      setVendas(lista);
+    } catch {
+      // Ignora erro inicial
+    }
+  };
 
   const carregarClientes = async () => {
     try {
@@ -104,6 +130,63 @@ export const ClientesPage: React.FC = () => {
   const comEmail = clientes.filter((c) => !!c.email).length;
   const comTelefone = clientes.filter((c) => !!c.telefone).length;
 
+  const contarComprasCliente = (cli: ICliente) => {
+    return vendas.filter((v) => {
+      const mesmoId = v.cliente_id === cli.id;
+      const mesmoCpf =
+        v.cliente_cpf && cli.cpf && v.cliente_cpf.replace(/\D/g, '') === cli.cpf.replace(/\D/g, '');
+      return mesmoId || mesmoCpf;
+    }).length;
+  };
+
+  const abrirRelatorioCompras = (cli: ICliente) => {
+    setClienteCompras(cli);
+    setModalComprasAberto(true);
+  };
+
+  const colunasClientes = ['Nome do Cliente', 'CPF', 'Telefone', 'E-mail', 'Status', 'Total de Compras'];
+  const obterLinhasClientes = () =>
+    clientesFiltrados.map((cli) => [
+      cli.nome,
+      formatarCPF(cli.cpf),
+      cli.telefone || 'N/I',
+      cli.email || 'N/I',
+      'Verificado (Receita Federal)',
+      `${contarComprasCliente(cli)} compras`,
+    ]);
+
+  const handleExportarExcelGeral = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasClientes();
+    const totais = [
+      { label: 'Total de Clientes Cadastrados', valor: String(clientesFiltrados.length) },
+      { label: 'Clientes com Telefone', valor: String(comTelefone) },
+      { label: 'Clientes com E-mail', valor: String(comEmail) },
+    ];
+    exportarParaExcel('base_clientes_ms2', 'Base de Clientes & Fidelização', colunasClientes, linhas, totais);
+    adicionarToast('success', 'Excel Gerado!', 'Base de clientes exportada em Excel.');
+  };
+
+  const handleExportarCSVGeral = () => {
+    setMenuExportarAberto(false);
+    exportarParaCSV('base_clientes_ms2', colunasClientes, obterLinhasClientes());
+    adicionarToast('success', 'CSV Exportado!', 'Arquivo CSV gerado com sucesso.');
+  };
+
+  const handleExportarPDFGeral = () => {
+    setMenuExportarAberto(false);
+    const linhas = obterLinhasClientes();
+    const totais = [{ label: 'Total de Clientes', valor: String(clientesFiltrados.length) }];
+    exportarRelatorioPDF({
+      titulo: 'Base de Clientes & Fidelização',
+      subtitulo: 'Sistema Homologado MS² Vestuário • Validação Módulo 11',
+      colunas: colunasClientes,
+      linhas,
+      totais,
+    });
+    adicionarToast('info', 'Gerando PDF', 'Janela de impressão A4 aberta.');
+  };
+
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 pb-24 lg:pb-8">
       {/* Header */}
@@ -116,17 +199,57 @@ export const ClientesPage: React.FC = () => {
             <span>Base de Clientes & Fidelização</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Identificação segura com algoritmo oficial da Receita Federal (Módulo 11 - RN-01)
+            Identificação segura com algoritmo oficial da Receita Federal (Módulo 11 - RN-01) e histórico de compras
           </p>
         </div>
 
-        <button
-          onClick={() => setModalAberto(true)}
-          className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-glow-indigo self-start sm:self-auto btn-interactive"
-        >
-          <UserPlus className="w-4 h-4" />
-          Novo Cliente
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          {/* Menu Dropdown de Exportação Geral */}
+          <div className="relative">
+            <button
+              onClick={() => setMenuExportarAberto(!menuExportarAberto)}
+              className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs flex items-center gap-2 transition-all btn-interactive"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-500" />
+              <span>Exportar Base</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+
+            {menuExportarAberto && (
+              <div className="absolute right-0 mt-2 w-52 rounded-2xl glass-card border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-30 animate-in fade-in">
+                <button
+                  onClick={handleExportarExcelGeral}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                  <span>Planilha Excel (.xlsx)</span>
+                </button>
+                <button
+                  onClick={handleExportarPDFGeral}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-rose-500" />
+                  <span>Relatório PDF (A4)</span>
+                </button>
+                <button
+                  onClick={handleExportarCSVGeral}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2.5 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-blue-500" />
+                  <span>Arquivo CSV (UTF-8)</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setModalAberto(true)}
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-glow-indigo btn-interactive"
+          >
+            <UserPlus className="w-4 h-4" />
+            Novo Cliente
+          </button>
+        </div>
       </div>
 
       {/* Top Bento Metrics Row */}
@@ -197,18 +320,19 @@ export const ClientesPage: React.FC = () => {
                 <th className="py-3.5 px-4">Telefone / WhatsApp</th>
                 <th className="py-3.5 px-4">E-mail</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
+                <th className="py-3.5 px-4 text-center">Compras & Relatório</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {carregando ? (
                 <tr>
-                  <td colSpan={5} className="py-16 text-center text-slate-400">
+                  <td colSpan={6} className="py-16 text-center text-slate-400">
                     Carregando base de clientes...
                   </td>
                 </tr>
               ) : clientesFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-16 text-center text-slate-500">
+                  <td colSpan={6} className="py-16 text-center text-slate-500">
                     Nenhum cliente localizado com os filtros aplicados.
                   </td>
                 </tr>
@@ -240,6 +364,17 @@ export const ClientesPage: React.FC = () => {
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                         <ShieldCheck className="w-3 h-3" /> Verificado
                       </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => abrirRelatorioCompras(cli)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 text-xs font-bold transition-all btn-interactive"
+                        title="Ver Todas as Compras do Cliente e Exportar Relatório"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>Ver Compras ({contarComprasCliente(cli)})</span>
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -289,6 +424,20 @@ export const ClientesPage: React.FC = () => {
                     <span className="truncate">{cli.email}</span>
                   </div>
                 )}
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                  {contarComprasCliente(cli)} compras
+                </span>
+                <button
+                  type="button"
+                  onClick={() => abrirRelatorioCompras(cli)}
+                  className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs btn-interactive"
+                >
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Ver Compras</span>
+                </button>
               </div>
             </div>
           ))
@@ -422,6 +571,25 @@ export const ClientesPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Compras e Relatório Analítico do Cliente */}
+      <ClienteComprasModal
+        aberto={modalComprasAberto}
+        onClose={() => setModalComprasAberto(false)}
+        cliente={clienteCompras}
+        vendas={vendas}
+        onAbrirRecibo={(venda) => {
+          setVendaRecibo(venda);
+          setModalReciboAberto(true);
+        }}
+      />
+
+      {/* Modal de Recibo Térmico */}
+      <ReceiptModal
+        aberto={modalReciboAberto}
+        onClose={() => setModalReciboAberto(false)}
+        venda={vendaRecibo}
+      />
     </div>
   );
 };

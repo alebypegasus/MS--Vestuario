@@ -84,6 +84,7 @@ export class VendaService {
       gerente_aprovador_id: gerenteAprovadorId,
       desconto,
       forma_pagamento: dados.forma_pagamento,
+      detalhes_pagamento: dados.detalhes_pagamento,
       itens: dados.itens
     });
   }

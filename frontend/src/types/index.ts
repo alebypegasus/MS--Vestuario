@@ -92,6 +92,24 @@ export interface IProdutoAtualizacaoDTO {
 export type FormaPagamento = 'DINHEIRO' | 'CARTAO_DEBITO' | 'CARTAO_CREDITO' | 'PIX';
 export type StatusVenda = 'CONCLUIDA' | 'CANCELADA';
 
+export interface IDetalhesPagamento {
+  metodo_principal?: FormaPagamento;
+  bandeira?: string;
+  parcelas?: number;
+  valor_parcela?: number;
+  autorizacao_nsu?: string;
+  valor_entregue?: number;
+  troco?: number;
+  chave_pix?: string;
+  txid_pix?: string;
+  pagamento_dividido?: boolean;
+  parcelamentos_multiplos?: {
+    metodo: FormaPagamento;
+    valor: number;
+    detalhe?: string;
+  }[];
+}
+
 export interface IItemVenda {
   id: number;
   venda_id: number;
@@ -121,6 +139,7 @@ export interface IVenda {
   desconto: number;
   valor_total: number;
   forma_pagamento: FormaPagamento;
+  detalhes_pagamento?: IDetalhesPagamento | null;
   status: StatusVenda;
   motivo_cancelamento: string | null;
   criado_em: string;
@@ -132,6 +151,7 @@ export interface IVendaCriacaoDTO {
   gerente_aprovador_id?: number | null;
   desconto?: number;
   forma_pagamento: FormaPagamento;
+  detalhes_pagamento?: IDetalhesPagamento | null;
   itens: IItemVendaCriacaoDTO[];
 }
 

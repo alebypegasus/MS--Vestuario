@@ -204,6 +204,34 @@ export const NfceModal: React.FC<INfceModalProps> = ({ aberto, venda, onFechar }
                   <span>Forma de Pagamento:</span>
                   <span className="font-bold uppercase">{venda.forma_pagamento}</span>
                 </div>
+                {venda.detalhes_pagamento && (
+                  <div className="text-[10px] bg-slate-50 dark:bg-slate-800/80 p-1.5 rounded space-y-0.5 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+                    {venda.detalhes_pagamento.bandeira && (
+                      <div className="flex justify-between">
+                        <span>Bandeira:</span>
+                        <span className="font-bold">{venda.detalhes_pagamento.bandeira}</span>
+                      </div>
+                    )}
+                    {venda.detalhes_pagamento.parcelas && venda.detalhes_pagamento.parcelas > 1 && (
+                      <div className="flex justify-between">
+                        <span>Parcelas:</span>
+                        <span>{venda.detalhes_pagamento.parcelas}x de {formatarMoeda(Number(venda.detalhes_pagamento.valor_parcela || (Number(venda.valor_total) / venda.detalhes_pagamento.parcelas)))}</span>
+                      </div>
+                    )}
+                    {venda.detalhes_pagamento.autorizacao_nsu && (
+                      <div className="flex justify-between font-mono text-[9px]">
+                        <span>NSU/Aut.:</span>
+                        <span>{venda.detalhes_pagamento.autorizacao_nsu}</span>
+                      </div>
+                    )}
+                    {venda.detalhes_pagamento.troco !== undefined && Number(venda.detalhes_pagamento.troco) > 0 && (
+                      <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold">
+                        <span>Troco Devolvido:</span>
+                        <span>{formatarMoeda(Number(venda.detalhes_pagamento.troco))}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Informação dos Tributos (Lei 12.741/2012) */}

@@ -31,13 +31,39 @@ INSERT INTO produtos (id, codigo, descricao, categoria, preco, ativo) VALUES
 (7, '107', 'Cinto de Couro Legítimo Marrom', 'Acessórios', 79.90, TRUE),
 (8, '108', 'Kit 3 Pares de Meias Cano Médio', 'Acessórios', 29.90, TRUE);
 
--- 4. VENDA HOMOLOGADA DE EXEMPLO
--- Operadora Ana Silva (Caixa id 2) vendeu para Mariana Souza (Cliente id 1)
--- 1 Camiseta (R$ 49,90) + 1 Calça Jeans (R$ 159,90) = Subtotal R$ 209,80
--- Desconto padrão de 10% (R$ 20,98) -> Total Líquido: R$ 188,82 via PIX
-INSERT INTO vendas (id, usuario_id, cliente_id, gerente_aprovador_id, subtotal, desconto, valor_total, forma_pagamento, status) VALUES
-(1, 2, 1, NULL, 209.80, 20.98, 188.82, 'PIX', 'CONCLUIDA');
+-- 4. CONFIGURAÇÃO FISCAL E DADOS DA EMPRESA (NFC-e / SAT)
+INSERT INTO configuracao_empresa (id, razao_social, nome_fantasia, cnpj, inscricao_estadual, telefone, email, logradouro, numero, complemento, bairro, cidade, uf, cep, regime_tributario, mensagem_cupom)
+VALUES (1, 'MS² Vestuário Comércio de Roupas LTDA', 'MS² Vestuário', '12.345.678/0001-90', '87.654.321', '(21) 3456-7890', 'contato@ms2vestuario.com.br', 'Rua da Moda', '100', 'Loja A - Firjan SENAI', 'Maracanã', 'Rio de Janeiro', 'RJ', '20271-110', 'Simples Nacional', 'Obrigado pela preferência! Trocas em até 30 dias com apresentação deste cupom fiscal.')
+ON DUPLICATE KEY UPDATE id=1;
+
+-- 5. VENDAS HOMOLOGADAS DE DEMONSTRAÇÃO COM DETALHES DE PAGAMENTO
+
+-- Venda 1: Ana Silva (Caixa #2) -> Mariana Souza (Cliente #1) - PIX
+INSERT INTO vendas (id, usuario_id, cliente_id, gerente_aprovador_id, subtotal, desconto, valor_total, forma_pagamento, detalhes_pagamento, status) VALUES
+(1, 2, 1, NULL, 209.80, 20.98, 188.82, 'PIX', '{"metodo_principal":"PIX","chave_pix":"financeiro@ms2vestuario.com.br","txid_pix":"PIX-MS2-0001-A9F2"}', 'CONCLUIDA');
 
 INSERT INTO itens_venda (id, venda_id, produto_id, quantidade, preco_unitario, subtotal) VALUES
 (1, 1, 1, 1, 49.90, 49.90),
 (2, 1, 3, 1, 159.90, 159.90);
+
+-- Venda 2: Carlos Mendes (Gerente #1) -> Mariana Souza (Cliente #1) - Cartão de Crédito 2x
+INSERT INTO vendas (id, usuario_id, cliente_id, gerente_aprovador_id, subtotal, desconto, valor_total, forma_pagamento, detalhes_pagamento, status) VALUES
+(2, 1, 1, NULL, 239.90, 0.00, 239.90, 'CARTAO_CREDITO', '{"metodo_principal":"CARTAO_CREDITO","bandeira":"Mastercard","parcelas":2,"valor_parcela":119.95,"autorizacao_nsu":"849201"}', 'CONCLUIDA');
+
+INSERT INTO itens_venda (id, venda_id, produto_id, quantidade, preco_unitario, subtotal) VALUES
+(3, 2, 4, 1, 239.90, 239.90);
+
+-- Venda 3: Ana Silva (Caixa #2) -> Lucas Pereira (Cliente #2) - Dinheiro com Troco
+INSERT INTO vendas (id, usuario_id, cliente_id, gerente_aprovador_id, subtotal, desconto, valor_total, forma_pagamento, detalhes_pagamento, status) VALUES
+(3, 2, 2, NULL, 189.90, 0.00, 189.90, 'DINHEIRO', '{"metodo_principal":"DINHEIRO","valor_entregue":200.00,"troco":10.10}', 'CONCLUIDA');
+
+INSERT INTO itens_venda (id, venda_id, produto_id, quantidade, preco_unitario, subtotal) VALUES
+(4, 3, 5, 1, 189.90, 189.90);
+
+-- Venda 4: Ana Silva (Caixa #2) -> Consumidor Final (Sem CPF) - Cartão de Débito
+INSERT INTO vendas (id, usuario_id, cliente_id, gerente_aprovador_id, subtotal, desconto, valor_total, forma_pagamento, detalhes_pagamento, status) VALUES
+(4, 2, NULL, NULL, 89.80, 0.00, 89.80, 'CARTAO_DEBITO', '{"metodo_principal":"CARTAO_DEBITO","bandeira":"Visa","autorizacao_nsu":"392104"}', 'CONCLUIDA');
+
+INSERT INTO itens_venda (id, venda_id, produto_id, quantidade, preco_unitario, subtotal) VALUES
+(5, 4, 6, 1, 59.90, 59.90),
+(6, 4, 8, 1, 29.90, 29.90);

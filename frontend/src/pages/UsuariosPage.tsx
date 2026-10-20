@@ -11,19 +11,34 @@ import {
   Shield,
   KeyRound,
   Search,
+  Award,
+  ShoppingBag,
+  Eye,
 } from 'lucide-react';
-import { IUsuario, IUsuarioCriacaoDTO, CargoUsuario } from '../types';
-import { usuariosApi } from '../services/api';
+import { IUsuario, IUsuarioCriacaoDTO, CargoUsuario, IVendaCompleta } from '../types';
+import { usuariosApi, vendasApi } from '../services/api';
 import { getRoleBadgeConfig } from '../utils/formatters';
 import { useToast } from '../contexts/ToastContext';
+import { UserDetailsModal } from '../components/UserDetailsModal';
+import { RelatorioVendedoresModal } from '../components/RelatorioVendedoresModal';
+import { ReceiptModal } from '../components/ReceiptModal';
 
 export const UsuariosPage: React.FC = () => {
   const { adicionarToast } = useToast();
 
   const [usuarios, setUsuarios] = useState<IUsuario[]>([]);
+  const [vendas, setVendas] = useState<IVendaCompleta[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [busca, setBusca] = useState<string>('');
   const [filtroCargo, setFiltroCargo] = useState<string>('TODOS');
+
+  // Modais de Detalhe do Usuário e Relatório de Vendedores
+  const [usuarioDetalhes, setUsuarioDetalhes] = useState<IUsuario | null>(null);
+  const [modalDetalhesAberto, setModalDetalhesAberto] = useState<boolean>(false);
+  const [modalRelatorioVendedoresAberto, setModalRelatorioVendedoresAberto] = useState<boolean>(false);
+  const [vendedorIdFoco, setVendedorIdFoco] = useState<number | null>(null);
+  const [vendaRecibo, setVendaRecibo] = useState<IVendaCompleta | null>(null);
+  const [modalReciboAberto, setModalReciboAberto] = useState<boolean>(false);
 
   // Modal Novo Usuário
   const [modalAberto, setModalAberto] = useState<boolean>(false);
@@ -35,7 +50,17 @@ export const UsuariosPage: React.FC = () => {
 
   useEffect(() => {
     carregarUsuarios();
+    carregarVendas();
   }, []);
+
+  const carregarVendas = async () => {
+    try {
+      const lista = await vendasApi.listar();
+      setVendas(lista);
+    } catch {
+      // Ignora erro inicial
+    }
+  };
 
   const carregarUsuarios = async () => {
     try {
@@ -47,6 +72,16 @@ export const UsuariosPage: React.FC = () => {
     } finally {
       setCarregando(false);
     }
+  };
+
+  const abrirDetalhes = (user: IUsuario) => {
+    setUsuarioDetalhes(user);
+    setModalDetalhesAberto(true);
+  };
+
+  const abrirRelatorioVendedor = (vendedorId: number | null = null) => {
+    setVendedorIdFoco(vendedorId);
+    setModalRelatorioVendedoresAberto(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,13 +165,25 @@ export const UsuariosPage: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setModalAberto(true)}
-          className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md self-start sm:self-auto btn-interactive"
-        >
-          <UserPlus className="w-4 h-4" />
-          Novo Colaborador
-        </button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => {
+              setVendedorIdFoco(null);
+              setModalRelatorioVendedoresAberto(true);
+            }}
+            className="px-4 py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all border border-purple-500/30 btn-interactive"
+          >
+            <Award className="w-4 h-4" />
+            Relatório de Vendedores
+          </button>
+          <button
+            onClick={() => setModalAberto(true)}
+            className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md btn-interactive"
+          >
+            <UserPlus className="w-4 h-4" />
+            Novo Colaborador
+          </button>
+        </div>
       </div>
 
       {/* Bento Grid: Cards de Métricas em Tela Inteira */}
@@ -267,7 +314,8 @@ export const UsuariosPage: React.FC = () => {
             return (
               <div
                 key={user.id}
-                className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/40 transition-all flex flex-col justify-between space-y-4 group"
+                onClick={() => abrirDetalhes(user)}
+                className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-purple-500/50 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between space-y-4 group relative"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -288,11 +336,11 @@ export const UsuariosPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-sm text-purple-600 dark:text-purple-400 shrink-0">
+                    <div className="w-11 h-11 rounded-2xl bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 flex items-center justify-center font-bold text-sm text-purple-600 dark:text-purple-300 shrink-0 group-hover:scale-105 transition-transform">
                       {user.nome.substring(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                         {user.nome}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 truncate">
@@ -303,16 +351,40 @@ export const UsuariosPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                  <span className="font-mono">ID: #{user.id}</span>
-                  {user.ativo && (
+                <div
+                  className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-[11px]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="font-mono text-slate-400 text-[10px]">#{user.id}</span>
+                  <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => handleDesativar(user)}
-                      className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold transition-colors btn-interactive"
+                      type="button"
+                      onClick={() => abrirRelatorioVendedor(user.id)}
+                      title="Ver relatório de vendas deste vendedor"
+                      className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-purple-500/15 hover:text-purple-600 dark:hover:text-purple-300 text-slate-600 dark:text-slate-300 text-[10px] font-bold flex items-center gap-1 transition-colors"
                     >
-                      Desativar
+                      <ShoppingBag className="w-3 h-3" />
+                      Vendas
                     </button>
-                  )}
+                    <button
+                      type="button"
+                      onClick={() => abrirDetalhes(user)}
+                      title="Ver perfil completo e alçadas"
+                      className="px-2 py-1 rounded-lg bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20 text-[10px] font-bold flex items-center gap-1 transition-colors"
+                    >
+                      <Eye className="w-3 h-3" />
+                      Perfil
+                    </button>
+                    {user.ativo && (
+                      <button
+                        type="button"
+                        onClick={() => handleDesativar(user)}
+                        className="px-2 py-1 rounded-lg hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-semibold transition-colors"
+                      >
+                        Desativar
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -417,6 +489,46 @@ export const UsuariosPage: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Modal Detalhes do Usuário */}
+      <UserDetailsModal
+        isOpen={modalDetalhesAberto}
+        onClose={() => setModalDetalhesAberto(false)}
+        usuario={usuarioDetalhes}
+        vendas={vendas}
+        onVerVendas={(id: number) => {
+          abrirRelatorioVendedor(id);
+        }}
+        onAlternarStatus={async (usr: IUsuario) => {
+          await usuariosApi.desativar(usr.id);
+          await carregarUsuarios();
+        }}
+      />
+
+      {/* Modal Relatório de Vendedores / Comissões */}
+      <RelatorioVendedoresModal
+        isOpen={modalRelatorioVendedoresAberto}
+        onClose={() => {
+          setModalRelatorioVendedoresAberto(false);
+          setVendedorIdFoco(null);
+        }}
+        usuarios={usuarios}
+        vendas={vendas}
+        vendedorIdInicial={vendedorIdFoco}
+        onVerRecibo={(venda: IVendaCompleta) => {
+          setVendaRecibo(venda);
+          setModalReciboAberto(true);
+        }}
+      />
+
+      {/* Modal de Recibo Térmico */}
+      {modalReciboAberto && vendaRecibo && (
+        <ReceiptModal
+          venda={vendaRecibo}
+          isOpen={modalReciboAberto}
+          onClose={() => setModalReciboAberto(false)}
+        />
       )}
     </div>
   );

@@ -33,7 +33,7 @@ router.put(
 router.patch(
   '/:id/status',
   autorizarCargos('ADMIN', 'GERENTE'),
-  ProdutoController.inativar
+  ProdutoController.alternarStatus
 );
 
 // SOMENTE ADMIN pode deletar um produto

@@ -26,6 +26,7 @@ export const vendaCriacaoSchema = z.object({
   forma_pagamento: z.enum(['DINHEIRO', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'PIX'], {
     required_error: 'Forma de pagamento é obrigatória'
   }),
+  detalhes_pagamento: z.any().optional().nullable(),
   itens: z
     .array(itemVendaInputSchema)
     .min(1, 'A venda deve conter ao menos 1 item'),

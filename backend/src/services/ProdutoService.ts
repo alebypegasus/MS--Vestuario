@@ -34,7 +34,7 @@ export class ProdutoService {
     return produto;
   }
 
-  static async listar(somenteAtivos: boolean = true): Promise<IProduto[]> {
+  static async listar(somenteAtivos: boolean | 'todos' = true): Promise<IProduto[]> {
     return await ProdutoModel.findAll(somenteAtivos);
   }
 
@@ -51,6 +51,18 @@ export class ProdutoService {
     const atualizado = await ProdutoModel.update(id, dados);
     if (!atualizado) {
       throw new AppError('Falha ao atualizar produto.', 500);
+    }
+    return atualizado;
+  }
+
+  /**
+   * Alterna ou define explicitamente o status ativo/pausado do produto (RN-08)
+   */
+  static async alternarStatus(id: number, novoStatus?: boolean): Promise<IProduto> {
+    await this.buscarPorId(id);
+    const atualizado = await ProdutoModel.toggleStatus(id, novoStatus);
+    if (!atualizado) {
+      throw new AppError('Falha ao alternar status do produto.', 500);
     }
     return atualizado;
   }

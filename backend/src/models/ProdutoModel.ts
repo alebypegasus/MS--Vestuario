@@ -76,15 +76,17 @@ export class ProdutoModel {
   }
 
   /**
-   * Lista todos os produtos (com opção de filtrar somente ativos para o PDV)
+   * Lista produtos (ativos para o PDV, inativos/pausados ou todos para gestão)
    */
-  static async findAll(somenteAtivos: boolean = true): Promise<IProduto[]> {
+  static async findAll(somenteAtivos: boolean | 'todos' = true): Promise<IProduto[]> {
     let query = `
       SELECT id, codigo, descricao, categoria, preco, ativo, criado_em, atualizado_em
       FROM produtos
     `;
-    if (somenteAtivos) {
+    if (somenteAtivos === true) {
       query += ` WHERE ativo = TRUE`;
+    } else if (somenteAtivos === false) {
+      query += ` WHERE ativo = FALSE`;
     }
     query += ` ORDER BY descricao ASC`;
 
@@ -141,6 +143,18 @@ export class ProdutoModel {
     params.push(id);
 
     await db.execute(query, params);
+    return this.findById(id);
+  }
+
+  /**
+   * Alterna ou define explicitamente o status ativo/pausado do produto (RN-08)
+   */
+  static async toggleStatus(id: number, novoStatus?: boolean): Promise<IProduto | null> {
+    if (novoStatus !== undefined) {
+      await db.execute<ResultSetHeader>('UPDATE produtos SET ativo = ? WHERE id = ?', [novoStatus, id]);
+    } else {
+      await db.execute<ResultSetHeader>('UPDATE produtos SET ativo = NOT ativo WHERE id = ?', [id]);
+    }
     return this.findById(id);
   }
 

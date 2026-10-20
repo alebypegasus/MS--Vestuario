@@ -14,6 +14,7 @@ import {
   Building2,
   ExternalLink,
   Percent,
+  Award,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { vendasApi, clientesApi } from '../services/api';
@@ -21,12 +22,14 @@ import { IVendaCompleta, ICliente } from '../types';
 import { formatarMoeda } from '../utils/formatters';
 import { obterImagemProduto } from '../utils/productImages';
 import { NavLink } from 'react-router-dom';
+import { RelatorioVendedoresModal } from '../components/RelatorioVendedoresModal';
 
 export const DashboardPage: React.FC = () => {
   const { isAdmin } = useAuth();
   const [vendas, setVendas] = useState<IVendaCompleta[]>([]);
   const [clientes, setClientes] = useState<ICliente[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
+  const [modalRelatorioVendedores, setModalRelatorioVendedores] = useState<boolean>(false);
 
   useEffect(() => {
     carregarDados();
@@ -349,23 +352,43 @@ export const DashboardPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Desempenho por Operador de Caixa */}
             <div className="glass-card rounded-2xl p-4 sm:p-5 border border-purple-200 dark:border-purple-500/30 shadow-sm md:col-span-2 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-purple-500 dark:text-purple-400" />
-                Produtividade por Operador de Caixa
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                  Produtividade por Operador de Caixa
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setModalRelatorioVendedores(true)}
+                  className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors border border-purple-500/30 btn-interactive"
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  Relatório Completo
+                </button>
+              </div>
               <div className="space-y-2">
                 {Object.values(vendasPorOperadorMap).map((op) => (
                   <div
                     key={op.nome}
-                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
+                    onClick={() => setModalRelatorioVendedores(true)}
+                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between hover:border-purple-500/40 hover:shadow-xs cursor-pointer transition-all group"
                   >
                     <div>
-                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{op.nome}</p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400">{op.count} atendimentos finalizados</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                        {op.nome}
+                      </p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        {op.count} atendimentos finalizados
+                      </p>
                     </div>
-                    <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">
-                      {formatarMoeda(op.faturamento)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono block">
+                        {formatarMoeda(op.faturamento)}
+                      </span>
+                      <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold group-hover:underline">
+                        Ver Vendas &rarr;
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -421,6 +444,13 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Relatório de Vendedores & Desempenho */}
+      <RelatorioVendedoresModal
+        isOpen={modalRelatorioVendedores}
+        onClose={() => setModalRelatorioVendedores(false)}
+        vendas={vendas}
+      />
     </div>
   );
 };

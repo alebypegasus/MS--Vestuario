@@ -7,20 +7,30 @@ import { formatarCPF } from '../utils/cpf.validator';
 
 interface IReceiptModalProps {
   venda: IVendaCompleta | null;
-  aberto: boolean;
-  onFechar: () => void;
+  aberto?: boolean;
+  isOpen?: boolean;
+  onFechar?: () => void;
+  onClose?: () => void;
 }
 
-export const ReceiptModal: React.FC<IReceiptModalProps> = ({ venda, aberto, onFechar }) => {
+export const ReceiptModal: React.FC<IReceiptModalProps> = ({
+  venda,
+  aberto,
+  isOpen,
+  onFechar,
+  onClose,
+}) => {
+  const modalAberto = aberto ?? isOpen ?? false;
+  const fechar = onFechar || onClose || (() => {});
   const [empresa, setEmpresa] = useState<IEmpresa | null>(null);
 
   useEffect(() => {
-    if (aberto) {
+    if (modalAberto) {
       empresaApi.obter().then(setEmpresa).catch(() => null);
     }
-  }, [aberto]);
+  }, [modalAberto]);
 
-  if (!aberto || !venda) return null;
+  if (!modalAberto || !venda) return null;
 
   const handlePrint = () => {
     window.print();
@@ -41,7 +51,7 @@ export const ReceiptModal: React.FC<IReceiptModalProps> = ({ venda, aberto, onFe
             </div>
           </div>
           <button
-            onClick={onFechar}
+            onClick={fechar}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -157,6 +167,60 @@ export const ReceiptModal: React.FC<IReceiptModalProps> = ({ venda, aberto, onFe
               <span>Forma de Pagamento:</span>
               <span className="font-bold uppercase text-slate-900 dark:text-slate-100">{venda.forma_pagamento}</span>
             </div>
+
+            {venda.detalhes_pagamento && (
+              <div className="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-2 space-y-1 text-[11px] border border-slate-200 dark:border-slate-700/60">
+                {venda.detalhes_pagamento.bandeira && (
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span>Bandeira do Cartão:</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{venda.detalhes_pagamento.bandeira}</span>
+                  </div>
+                )}
+                {venda.detalhes_pagamento.parcelas && venda.detalhes_pagamento.parcelas > 1 && (
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span>Condição:</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {venda.detalhes_pagamento.parcelas}x de {formatarMoeda(Number(venda.detalhes_pagamento.valor_parcela || (Number(venda.valor_total) / venda.detalhes_pagamento.parcelas)))}
+                    </span>
+                  </div>
+                )}
+                {venda.detalhes_pagamento.autorizacao_nsu && (
+                  <div className="flex justify-between text-slate-500 dark:text-slate-400 font-mono text-[10px]">
+                    <span>NSU / Aut.:</span>
+                    <span>{venda.detalhes_pagamento.autorizacao_nsu}</span>
+                  </div>
+                )}
+                {venda.detalhes_pagamento.valor_entregue !== undefined && Number(venda.detalhes_pagamento.valor_entregue) > 0 && (
+                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span>Valor Recebido:</span>
+                    <span className="font-semibold">{formatarMoeda(Number(venda.detalhes_pagamento.valor_entregue))}</span>
+                  </div>
+                )}
+                {venda.detalhes_pagamento.troco !== undefined && Number(venda.detalhes_pagamento.troco) > 0 && (
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold">
+                    <span>Troco:</span>
+                    <span>{formatarMoeda(Number(venda.detalhes_pagamento.troco))}</span>
+                  </div>
+                )}
+                {venda.detalhes_pagamento.txid_pix && (
+                  <div className="flex justify-between text-slate-500 dark:text-slate-400 font-mono text-[9px] truncate">
+                    <span>ID Transação PIX:</span>
+                    <span className="truncate max-w-[170px]">{venda.detalhes_pagamento.txid_pix}</span>
+                  </div>
+                )}
+                {venda.detalhes_pagamento.pagamento_dividido && venda.detalhes_pagamento.parcelamentos_multiplos && (
+                  <div className="pt-1 border-t border-slate-200 dark:border-slate-700">
+                    <span className="block font-semibold text-slate-700 dark:text-slate-300 text-[10px] mb-0.5">Composição do Pagamento Misto:</span>
+                    {venda.detalhes_pagamento.parcelamentos_multiplos.map((m, idx) => (
+                      <div key={idx} className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
+                        <span>&bull; {m.metodo} ({m.detalhe || 'Integral'}):</span>
+                        <span className="font-mono font-medium">{formatarMoeda(Number(m.valor))}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             {empresa?.regime_tributario && (
               <div className="flex justify-between text-slate-500 dark:text-slate-400 text-[10px] pt-0.5">
                 <span>Regime Fiscal:</span>
@@ -183,7 +247,7 @@ export const ReceiptModal: React.FC<IReceiptModalProps> = ({ venda, aberto, onFe
             Imprimir Cupom
           </button>
           <button
-            onClick={onFechar}
+            onClick={fechar}
             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-glow-emerald"
           >
             <ShoppingBag className="w-4 h-4" />

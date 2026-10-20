@@ -97,9 +97,9 @@ export const usuariosApi = {
 
 // 3. Serviços de Produtos
 export const produtosApi = {
-  listar: (filtros?: { categoria?: string; ativo?: boolean; busca?: string }) => {
+  listar: (filtros?: { categoria?: string; ativo?: boolean | 'todos'; busca?: string }) => {
     const params = new URLSearchParams();
-    if (filtros?.categoria) params.append('categoria', filtros.categoria);
+    if (filtros?.categoria && filtros.categoria !== 'TODAS') params.append('categoria', filtros.categoria);
     if (filtros?.ativo !== undefined) params.append('ativo', String(filtros.ativo));
     if (filtros?.busca) params.append('busca', filtros.busca);
     const query = params.toString() ? `?${params.toString()}` : '';
@@ -117,9 +117,10 @@ export const produtosApi = {
       method: 'PUT',
       body: JSON.stringify(dados),
     }),
-  alternarStatus: (id: number) =>
-    request<{ mensagem: string }>(`/produtos/${id}/status`, {
+  alternarStatus: (id: number, ativo?: boolean) =>
+    request<{ mensagem: string; produto: IProduto; ativo: boolean }>(`/produtos/${id}/status`, {
       method: 'PATCH',
+      body: JSON.stringify({ ativo }),
     }),
   excluir: (id: number) =>
     request<{ mensagem: string }>(`/produtos/${id}`, {

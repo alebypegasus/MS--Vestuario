@@ -8,8 +8,20 @@ export class ProdutoController {
   }
 
   static async listar(req: Request, res: Response): Promise<void> {
-    const somenteAtivos = req.query.somenteAtivos !== 'false';
-    const produtos = await ProdutoService.listar(somenteAtivos);
+    const rawAtivo = req.query.ativo ?? req.query.somenteAtivos;
+    let modoFiltro: boolean | 'todos' = true;
+
+    if (rawAtivo === 'todos' || rawAtivo === 'all' || (req.query.somenteAtivos === 'false' && req.query.ativo === undefined)) {
+      modoFiltro = 'todos';
+    } else if (rawAtivo === 'false') {
+      modoFiltro = false; // somente pausados
+    } else if (rawAtivo === 'true') {
+      modoFiltro = true; // somente ativos
+    } else {
+      modoFiltro = true; // padrão: ativos para PDV
+    }
+
+    const produtos = await ProdutoService.listar(modoFiltro);
     res.status(200).json(produtos);
   }
 
@@ -29,6 +41,22 @@ export class ProdutoController {
     const id = Number(req.params.id);
     const produto = await ProdutoService.atualizar(id, req.body);
     res.status(200).json(produto);
+  }
+
+  static async alternarStatus(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params.id);
+    const { ativo } = req.body || {};
+    const produto = await ProdutoService.alternarStatus(
+      id,
+      typeof ativo === 'boolean' ? ativo : undefined
+    );
+    res.status(200).json({
+      mensagem: produto.ativo
+        ? 'Produto reativado com sucesso para venda no PDV.'
+        : 'Produto pausado com sucesso (retirado temporariamente do PDV).',
+      produto,
+      ativo: produto.ativo
+    });
   }
 
   static async inativar(req: Request, res: Response): Promise<void> {

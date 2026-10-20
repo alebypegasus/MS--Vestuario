@@ -19,6 +19,7 @@ DROP TABLE IF EXISTS vendas;
 DROP TABLE IF EXISTS produtos;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS configuracao_empresa;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -77,6 +78,7 @@ CREATE TABLE vendas (
     desconto DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT 'Valor monetário de desconto (RN-02)',
     valor_total DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT 'Subtotal menos desconto (RN-07)',
     forma_pagamento ENUM('DINHEIRO', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'PIX') NOT NULL,
+    detalhes_pagamento TEXT NULL COMMENT 'JSON com bandeira, parcelas, autorizacao_nsu, troco, txid_pix e composicao de pagamento misto',
     status ENUM('CONCLUIDA', 'CANCELADA') NOT NULL DEFAULT 'CONCLUIDA' COMMENT 'Status da transação (RN-05)',
     motivo_cancelamento TEXT NULL COMMENT 'Justificativa obrigatória em caso de cancelamento',
     criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -123,7 +125,30 @@ CREATE TABLE itens_venda (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Linhas de produtos com congelamento de preço histórico';
 
 -- --------------------------------------------------------------------
--- 6. ÍNDICES DE PERFORMANCE (BUSCAS RÁPIDAS NO PDV)
+-- 6. TABELA DE CONFIGURAÇÃO FISCAL E DADOS DA EMPRESA (NFC-e / SAT)
+-- --------------------------------------------------------------------
+CREATE TABLE configuracao_empresa (
+    id INT PRIMARY KEY DEFAULT 1,
+    razao_social VARCHAR(255) NOT NULL,
+    nome_fantasia VARCHAR(255) NOT NULL,
+    cnpj VARCHAR(20) NOT NULL,
+    inscricao_estadual VARCHAR(20) NULL,
+    telefone VARCHAR(20) NULL,
+    email VARCHAR(100) NULL,
+    logradouro VARCHAR(255) NOT NULL,
+    numero VARCHAR(20) NOT NULL,
+    complemento VARCHAR(100) NULL,
+    bairro VARCHAR(100) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    uf VARCHAR(2) NOT NULL,
+    cep VARCHAR(10) NOT NULL,
+    regime_tributario VARCHAR(100) DEFAULT 'Simples Nacional',
+    mensagem_cupom TEXT NULL,
+    atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Dados fiscais, cadastrais e tributários da matriz/filial emissora';
+
+-- --------------------------------------------------------------------
+-- 7. ÍNDICES DE PERFORMANCE (BUSCAS RÁPIDAS NO PDV)
 -- --------------------------------------------------------------------
 CREATE INDEX idx_clientes_cpf ON clientes(cpf);
 CREATE INDEX idx_produtos_codigo ON produtos(codigo);

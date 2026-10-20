@@ -32,6 +32,7 @@ export const ProdutosPage: React.FC = () => {
   const [carregando, setCarregando] = useState<boolean>(true);
   const [busca, setBusca] = useState<string>('');
   const [filtroCategoria, setFiltroCategoria] = useState<string>('TODAS');
+  const [filtroStatus, setFiltroStatus] = useState<'TODOS' | 'ATIVOS' | 'PAUSADOS'>('TODOS');
   const [menuExportarAberto, setMenuExportarAberto] = useState<boolean>(false);
 
   // Modal de Criação / Edição
@@ -51,7 +52,8 @@ export const ProdutosPage: React.FC = () => {
   const carregarProdutos = async () => {
     try {
       setCarregando(true);
-      const lista = await produtosApi.listar({ ativo: isCaixa ? true : undefined });
+      // Caixas veem apenas ativos; Gerentes e Admins carregam todos (ativos e pausados)
+      const lista = await produtosApi.listar({ ativo: isCaixa ? true : 'todos' });
       setProdutos(lista);
     } catch (err: any) {
       adicionarToast('error', 'Falha ao buscar produtos', err.message);
@@ -80,16 +82,19 @@ export const ProdutosPage: React.FC = () => {
     setModalAberto(true);
   };
 
-  // Gerente e Admin podem pausar/reativar produto
+  // Gerente e Admin podem pausar/reativar produto com feedback imediato
   const handleAlternarPausa = async (produto: IProduto) => {
     try {
-      await produtosApi.alternarStatus(produto.id);
+      const resp = await produtosApi.alternarStatus(produto.id, !produto.ativo);
+      const novoStatus = resp.ativo !== undefined ? resp.ativo : !produto.ativo;
+      setProdutos((prev) =>
+        prev.map((p) => (p.id === produto.id ? { ...p, ativo: novoStatus } : p))
+      );
       adicionarToast(
         'info',
-        produto.ativo ? 'Produto Pausado' : 'Produto Reativado',
-        `O item ${produto.descricao} foi ${produto.ativo ? 'pausado e retirado do PDV' : 'reativado para venda'}.`
+        novoStatus ? 'Produto Reativado' : 'Produto Pausado',
+        `O item ${produto.descricao} foi ${novoStatus ? 'reativado para venda no PDV' : 'pausado e retirado do PDV'}.`
       );
-      carregarProdutos();
     } catch (err: any) {
       adicionarToast('error', 'Erro ao alterar status', err.message);
     }
@@ -165,7 +170,11 @@ export const ProdutosPage: React.FC = () => {
       !busca ||
       p.descricao.toLowerCase().includes(busca.toLowerCase()) ||
       p.codigo.toLowerCase().includes(busca.toLowerCase());
-    return matchCat && matchBusca;
+    const matchStatus =
+      filtroStatus === 'TODOS' ||
+      (filtroStatus === 'ATIVOS' && p.ativo) ||
+      (filtroStatus === 'PAUSADOS' && !p.ativo);
+    return matchCat && matchBusca && matchStatus;
   });
 
   const totalAtivos = produtos.filter((p) => p.ativo).length;
@@ -232,8 +241,8 @@ export const ProdutosPage: React.FC = () => {
             {isCaixa
               ? 'Consulta de produtos ativos no terminal do caixa'
               : isAdmin
-              ? 'Controle total: cadastrar, editar, pausar e excluir produtos'
-              : 'Gestão gerencial: cadastrar, editar e pausar produtos'}
+              ? 'Controle total: cadastrar, editar, pausar/despausar e excluir produtos'
+              : 'Gestão gerencial: cadastrar, editar e pausar/despausar produtos'}
           </p>
         </div>
 
@@ -288,19 +297,33 @@ export const ProdutosPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Top Bento Metrics Row */}
+      {/* Top Bento Metrics Row (Cards Clicáveis para Filtro Rápido) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-        <div className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60 shadow-xs flex items-center justify-between">
+        <button
+          onClick={() => setFiltroStatus('TODOS')}
+          className={`glass-card rounded-2xl p-4 border text-left shadow-xs flex items-center justify-between transition-all btn-interactive ${
+            filtroStatus === 'TODOS'
+              ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/10'
+              : 'border-slate-200 dark:border-slate-700/60 hover:border-indigo-400'
+          }`}
+        >
           <div>
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total de Itens</span>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total no Catálogo</span>
             <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5 font-mono">{produtos.length}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
             <Package className="w-5 h-5" />
           </div>
-        </div>
+        </button>
 
-        <div className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60 shadow-xs flex items-center justify-between">
+        <button
+          onClick={() => setFiltroStatus('ATIVOS')}
+          className={`glass-card rounded-2xl p-4 border text-left shadow-xs flex items-center justify-between transition-all btn-interactive ${
+            filtroStatus === 'ATIVOS'
+              ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/10'
+              : 'border-slate-200 dark:border-slate-700/60 hover:border-emerald-400'
+          }`}
+        >
           <div>
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ativos no PDV</span>
             <p className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 font-mono">{totalAtivos}</p>
@@ -308,17 +331,24 @@ export const ProdutosPage: React.FC = () => {
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle2 className="w-5 h-5" />
           </div>
-        </div>
+        </button>
 
-        <div className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60 shadow-xs flex items-center justify-between">
+        <button
+          onClick={() => setFiltroStatus('PAUSADOS')}
+          className={`glass-card rounded-2xl p-4 border text-left shadow-xs flex items-center justify-between transition-all btn-interactive ${
+            filtroStatus === 'PAUSADOS'
+              ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/10'
+              : 'border-slate-200 dark:border-slate-700/60 hover:border-amber-400'
+          }`}
+        >
           <div>
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pausados</span>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pausados (Fora do PDV)</span>
             <p className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 mt-0.5 font-mono">{totalPausados}</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
             <PauseCircle className="w-5 h-5" />
           </div>
-        </div>
+        </button>
 
         <div className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60 shadow-xs flex items-center justify-between">
           <div>
@@ -332,8 +362,8 @@ export const ProdutosPage: React.FC = () => {
       </div>
 
       {/* Barra de Filtros e Busca */}
-      <div className="glass-card rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700/60 shadow-sm dark:shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative w-full sm:w-80">
+      <div className="glass-card rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700/60 shadow-sm dark:shadow-lg flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="relative w-full md:w-80">
           <input
             type="text"
             value={busca}
@@ -344,8 +374,43 @@ export const ProdutosPage: React.FC = () => {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 w-full sm:w-auto overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Filtro de Status: TODOS / ATIVOS / PAUSADOS */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => setFiltroStatus('TODOS')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all btn-interactive ${
+                filtroStatus === 'TODOS'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Todos ({produtos.length})
+            </button>
+            <button
+              onClick={() => setFiltroStatus('ATIVOS')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all btn-interactive ${
+                filtroStatus === 'ATIVOS'
+                  ? 'bg-emerald-600 text-white shadow-xs font-bold'
+                  : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800'
+              }`}
+            >
+              Ativos ({totalAtivos})
+            </button>
+            <button
+              onClick={() => setFiltroStatus('PAUSADOS')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all btn-interactive ${
+                filtroStatus === 'PAUSADOS'
+                  ? 'bg-amber-600 text-white shadow-xs font-bold'
+                  : 'text-amber-700 dark:text-amber-400 hover:text-amber-800'
+              }`}
+            >
+              Pausados ({totalPausados})
+            </button>
+          </div>
+
+          {/* Filtro de Categoria */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 overflow-x-auto">
             {['TODAS', 'Vestuário', 'Acessórios'].map((cat) => (
               <button
                 key={cat}
@@ -392,7 +457,14 @@ export const ProdutosPage: React.FC = () => {
                 </tr>
               ) : (
                 produtosFiltrados.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={prod.id}
+                    className={`transition-colors ${
+                      !prod.ativo
+                        ? 'bg-amber-500/5 hover:bg-amber-500/10'
+                        : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                    }`}
+                  >
                     <td className="py-3 px-4 flex items-center gap-3">
                       <img
                         src={obterImagemProduto(prod.codigo)}
@@ -406,7 +478,16 @@ export const ProdutosPage: React.FC = () => {
                         #{prod.codigo}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-bold text-slate-800 dark:text-slate-100">{prod.descricao}</td>
+                    <td className="py-3 px-4 font-bold text-slate-800 dark:text-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span>{prod.descricao}</span>
+                        {!prod.ativo && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                            Pausado
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 px-4">
                       <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
                         {prod.categoria || 'Geral'}
@@ -421,8 +502,8 @@ export const ProdutosPage: React.FC = () => {
                           <CheckCircle2 className="w-3.5 h-3.5" /> Ativo
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                          <PauseCircle className="w-3.5 h-3.5" /> Pausado
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700">
+                          <PauseCircle className="w-3.5 h-3.5" /> Pausado (Fora PDV)
                         </span>
                       )}
                     </td>
@@ -443,14 +524,24 @@ export const ProdutosPage: React.FC = () => {
                           {/* Pausar/Reativar: Liberado para Gerente e Admin */}
                           <button
                             onClick={() => handleAlternarPausa(prod)}
-                            title={prod.ativo ? 'Pausar Produto no PDV' : 'Reativar Produto no PDV'}
-                            className={`p-1.5 rounded-lg border transition-colors btn-interactive ${
+                            title={prod.ativo ? 'Pausar Produto (retirar do PDV)' : 'Despausar / Reativar no PDV'}
+                            className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition-colors btn-interactive ${
                               prod.ativo
                                 ? 'bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/50 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 border-slate-200 dark:border-slate-700/60'
-                                : 'bg-amber-50 dark:bg-amber-950/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-amber-700 dark:text-amber-300 hover:text-emerald-600 dark:hover:text-emerald-400 border-amber-200 dark:border-amber-500/40'
+                                : 'bg-amber-500 hover:bg-amber-400 text-slate-950 border-amber-600 font-extrabold shadow-sm'
                             }`}
                           >
-                            {prod.ativo ? <PauseCircle className="w-3.5 h-3.5" /> : <PlayCircle className="w-3.5 h-3.5" />}
+                            {prod.ativo ? (
+                              <>
+                                <PauseCircle className="w-3.5 h-3.5" />
+                                <span className="hidden xl:inline">Pausar</span>
+                              </>
+                            ) : (
+                              <>
+                                <PlayCircle className="w-3.5 h-3.5" />
+                                <span>Reativar</span>
+                              </>
+                            )}
                           </button>
 
                           {/* Excluir: EXCLUSIVO DO ADMIN */}
@@ -538,14 +629,15 @@ export const ProdutosPage: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleAlternarPausa(prod)}
-                      className={`p-2 rounded-xl border text-xs ${
+                      className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1 ${
                         prod.ativo
                           ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                          : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700'
+                          : 'bg-amber-500 hover:bg-amber-400 text-slate-950 border-amber-600 shadow-xs'
                       }`}
-                      title={prod.ativo ? 'Pausar' : 'Reativar'}
+                      title={prod.ativo ? 'Pausar (retirar do PDV)' : 'Despausar / Reativar no PDV'}
                     >
                       {prod.ativo ? <PauseCircle className="w-3.5 h-3.5" /> : <PlayCircle className="w-3.5 h-3.5" />}
+                      {!prod.ativo && <span>Reativar</span>}
                     </button>
                     {isAdmin && (
                       <button

@@ -51,12 +51,18 @@ export class VendaModel {
       }
       const valorTotal = Number((subtotal - desconto).toFixed(2));
 
+      const detalhesPagamentoStr = dados.detalhes_pagamento
+        ? typeof dados.detalhes_pagamento === 'string'
+          ? dados.detalhes_pagamento
+          : JSON.stringify(dados.detalhes_pagamento)
+        : null;
+
       // 1. Inserir Cabeçalho da Venda (1 Usuário : N Vendas)
       const queryVenda = `
         INSERT INTO vendas (
           usuario_id, cliente_id, gerente_aprovador_id,
-          subtotal, desconto, valor_total, forma_pagamento, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'CONCLUIDA')
+          subtotal, desconto, valor_total, forma_pagamento, detalhes_pagamento, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'CONCLUIDA')
       `;
       const [resVenda] = await conn.execute<ResultSetHeader>(queryVenda, [
         dados.usuario_id,
@@ -65,7 +71,8 @@ export class VendaModel {
         subtotal,
         desconto,
         valorTotal,
-        dados.forma_pagamento
+        dados.forma_pagamento,
+        detalhesPagamentoStr
       ]);
 
       const vendaId = resVenda.insertId;
@@ -97,12 +104,25 @@ export class VendaModel {
   }
 
   /**
+   * Helper para sanitizar / parsear detalhes de pagamento
+   */
+  private static parseDetalhesPagamento(raw: any) {
+    if (!raw) return null;
+    if (typeof raw === 'object') return raw;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return raw;
+    }
+  }
+
+  /**
    * Busca uma venda por ID trazendo dados do operador, cliente e itens
    */
   static async findById(id: number): Promise<IVendaCompleta | null> {
     const query = `
       SELECT v.id, v.usuario_id, v.cliente_id, v.gerente_aprovador_id,
-             v.subtotal, v.desconto, v.valor_total, v.forma_pagamento,
+             v.subtotal, v.desconto, v.valor_total, v.forma_pagamento, v.detalhes_pagamento,
              v.status, v.motivo_cancelamento, v.criado_em, v.atualizado_em,
              u.nome AS operador_nome,
              c.nome AS cliente_nome,
@@ -129,6 +149,7 @@ export class VendaModel {
       desconto: Number(row.desconto),
       valor_total: Number(row.valor_total),
       forma_pagamento: row.forma_pagamento,
+      detalhes_pagamento: this.parseDetalhesPagamento(row.detalhes_pagamento),
       status: row.status,
       motivo_cancelamento: row.motivo_cancelamento,
       criado_em: row.criado_em,
@@ -147,7 +168,7 @@ export class VendaModel {
   static async findAll(): Promise<IVendaCompleta[]> {
     const query = `
       SELECT v.id, v.usuario_id, v.cliente_id, v.gerente_aprovador_id,
-             v.subtotal, v.desconto, v.valor_total, v.forma_pagamento,
+             v.subtotal, v.desconto, v.valor_total, v.forma_pagamento, v.detalhes_pagamento,
              v.status, v.motivo_cancelamento, v.criado_em, v.atualizado_em,
              u.nome AS operador_nome,
              c.nome AS cliente_nome,
@@ -173,6 +194,7 @@ export class VendaModel {
         desconto: Number(row.desconto),
         valor_total: Number(row.valor_total),
         forma_pagamento: row.forma_pagamento,
+        detalhes_pagamento: this.parseDetalhesPagamento(row.detalhes_pagamento),
         status: row.status,
         motivo_cancelamento: row.motivo_cancelamento,
         criado_em: row.criado_em,

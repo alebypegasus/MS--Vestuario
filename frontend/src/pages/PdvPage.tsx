@@ -16,6 +16,10 @@ import {
   Layers,
   ArrowRight,
   UserPlus,
+  Copy,
+  Check,
+  Sparkles,
+  Calculator,
 } from 'lucide-react';
 import { IProduto, ICliente, ICarrinhoItem, FormaPagamento, IVendaCompleta } from '../types';
 import { produtosApi, clientesApi, vendasApi } from '../services/api';
@@ -63,11 +67,22 @@ export const PdvPage: React.FC = () => {
   const [descontoPercentual, setDescontoPercentual] = useState<number>(0);
   const [requerAlcadaDesconto, setRequerAlcadaDesconto] = useState<boolean>(false);
 
-  // Forma de Pagamento e Finalização
+  // Forma de Pagamento e Finalização Detalhada
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento>('PIX');
   const [modalPagamentoAberto, setModalPagamentoAberto] = useState<boolean>(false);
   const [valorRecebidoDinheiro, setValorRecebidoDinheiro] = useState<string>('');
   const [finalizandoVenda, setFinalizandoVenda] = useState<boolean>(false);
+
+  // Detalhes Específicos do Pagamento (Cartões, PIX, Dinheiro & Pagamento Misto)
+  const [bandeiraCartao, setBandeiraCartao] = useState<string>('Mastercard');
+  const [parcelasCartao, setParcelasCartao] = useState<number>(1);
+  const [nsuAutorizacao, setNsuAutorizacao] = useState<string>('');
+  const [txidPix, setTxidPix] = useState<string>('');
+  const [pixConfirmado, setPixConfirmado] = useState<boolean>(false);
+  const [copiadoPix, setCopiadoPix] = useState<boolean>(false);
+  const [pagamentoDividido, setPagamentoDividido] = useState<boolean>(false);
+  const [formaDividida2, setFormaDividida2] = useState<FormaPagamento>('DINHEIRO');
+  const [valorDividido1, setValorDividido1] = useState<number>(0);
 
   // Alçada Gerencial (RN-02)
   const [modalAlcadaAberto, setModalAlcadaAberto] = useState<boolean>(false);
@@ -263,6 +278,15 @@ export const PdvPage: React.FC = () => {
       setModalAlcadaAberto(true);
       return;
     }
+    const novoTxid = 'PIX-' + Math.random().toString(36).substring(2, 9).toUpperCase() + '-' + Date.now().toString().slice(-4);
+    setTxidPix(novoTxid);
+    setPixConfirmado(false);
+    setCopiadoPix(false);
+    setNsuAutorizacao(Math.floor(100000 + Math.random() * 900000).toString());
+    setValorRecebidoDinheiro('');
+    setValorDividido1(Math.round((valorTotalLiquido / 2) * 100) / 100);
+    setPagamentoDividido(false);
+    setParcelasCartao(1);
     setModalPagamentoAberto(true);
   };
 
@@ -337,16 +361,81 @@ export const PdvPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handlePdvKeyDown);
   }, [carrinho, modalPagamentoAberto, modalBuscaClienteAberto, modalNovoClienteAberto, modalAlcadaAberto, modalComprovanteAberto, requerAlcadaDesconto, gerenteAprovadorNome]);
 
+  // Cálculo de troco e cédulas sugeridas no dinheiro
+  const valorRecebidoNum = parseFloat(valorRecebidoDinheiro) || 0;
+  const trocoCalculado = Math.max(0, valorRecebidoNum - valorTotalLiquido);
+
+  const calcularCedulasTroco = (troco: number) => {
+    if (troco <= 0) return [];
+    const cedulas = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.25, 0.1, 0.05];
+    let restante = Math.round(troco * 100) / 100;
+    const resultado: { valor: number; qtd: number }[] = [];
+
+    for (const c of cedulas) {
+      if (restante >= c) {
+        const qtd = Math.floor(restante / c);
+        if (qtd > 0) {
+          resultado.push({ valor: c, qtd });
+          restante = Math.round((restante - qtd * c) * 100) / 100;
+        }
+      }
+    }
+    return resultado;
+  };
+
   // Conclusão da Venda
   const handleFinalizarVenda = async () => {
     try {
       setFinalizandoVenda(true);
+
+      let detalhesPagamentoObj = undefined;
+
+      if (pagamentoDividido) {
+        const val1 = Number(valorDividido1) || 0;
+        const val2 = Math.max(0, Number(valorTotalLiquido) - val1);
+        detalhesPagamentoObj = {
+          metodo_principal: formaPagamento,
+          pagamento_dividido: true,
+          bandeira: (formaPagamento.includes('CARTAO') || formaDividida2.includes('CARTAO')) ? bandeiraCartao : undefined,
+          parcelas: formaPagamento === 'CARTAO_CREDITO' ? parcelasCartao : 1,
+          valor_parcela: formaPagamento === 'CARTAO_CREDITO' && parcelasCartao > 1 ? val1 / parcelasCartao : undefined,
+          autorizacao_nsu: nsuAutorizacao || undefined,
+          valor_entregue: formaPagamento === 'DINHEIRO' ? valorRecebidoNum : undefined,
+          troco: formaPagamento === 'DINHEIRO' ? trocoCalculado : undefined,
+          txid_pix: (formaPagamento === 'PIX' || formaDividida2 === 'PIX') ? txidPix : undefined,
+          parcelamentos_multiplos: [
+            {
+              metodo: formaPagamento,
+              valor: val1,
+              detalhe: formaPagamento.includes('CARTAO') ? `${bandeiraCartao} ${parcelasCartao}x` : 'Principal',
+            },
+            {
+              metodo: formaDividida2,
+              valor: val2,
+              detalhe: 'Complementar',
+            },
+          ],
+        };
+      } else {
+        detalhesPagamentoObj = {
+          metodo_principal: formaPagamento,
+          bandeira: formaPagamento.includes('CARTAO') ? bandeiraCartao : undefined,
+          parcelas: formaPagamento === 'CARTAO_CREDITO' ? parcelasCartao : 1,
+          valor_parcela: formaPagamento === 'CARTAO_CREDITO' && parcelasCartao > 1 ? valorTotalLiquido / parcelasCartao : undefined,
+          autorizacao_nsu: formaPagamento.includes('CARTAO') ? (nsuAutorizacao || undefined) : undefined,
+          valor_entregue: formaPagamento === 'DINHEIRO' ? valorRecebidoNum : undefined,
+          troco: formaPagamento === 'DINHEIRO' ? trocoCalculado : undefined,
+          chave_pix: formaPagamento === 'PIX' ? 'financeiro@ms2vestuario.com.br' : undefined,
+          txid_pix: formaPagamento === 'PIX' ? txidPix : undefined,
+        };
+      }
 
       const payload = {
         cliente_id: clienteSelecionado ? clienteSelecionado.id : null,
         forma_pagamento: formaPagamento,
         desconto: valorDesconto,
         gerente_aprovador_id: gerenteAprovadorId,
+        detalhes_pagamento: detalhesPagamentoObj,
         itens: carrinho.map((i) => ({
           produto_id: i.produto.id,
           quantidade: i.quantidade,
@@ -366,10 +455,6 @@ export const PdvPage: React.FC = () => {
       setFinalizandoVenda(false);
     }
   };
-
-  // Cálculo de troco no dinheiro
-  const valorRecebidoNum = parseFloat(valorRecebidoDinheiro) || 0;
-  const trocoCalculado = Math.max(0, valorRecebidoNum - valorTotalLiquido);
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-5 space-y-5 pb-24 lg:pb-8">
@@ -946,91 +1031,323 @@ export const PdvPage: React.FC = () => {
         </div>
       )}
 
-      {/* Modal de Pagamento */}
+      {/* Modal de Pagamento Avançado e Detalhado */}
       {modalPagamentoAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-          <div className="w-full max-w-md rounded-2xl glass-card border border-emerald-500/40 shadow-2xl overflow-hidden">
-            <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border-b border-emerald-500/20 px-5 sm:px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl glass-card border border-emerald-500/40 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[92vh]">
+            <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border-b border-emerald-500/20 px-5 sm:px-6 py-3.5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                   <CreditCard className="w-4 h-4" />
                 </div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">Fechamento & Pagamento</h3>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base leading-snug">
+                    Fechamento & Checkout Detalhado
+                  </h3>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    Cartões &bull; PIX com Conciliação &bull; Troco Inteligente &bull; Pagamento Misto
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setModalPagamentoAberto(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 sm:p-6 space-y-4">
-              <div className="text-center p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
-                <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
-                  Total a Pagar
-                </span>
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
+              {/* Totalizador Principal e Cliente */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
+                    Valor Total da Venda
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPagamentoDividido(!pagamentoDividido)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                      pagamentoDividido
+                        ? 'bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-300 border-purple-300 dark:border-purple-500/40'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-purple-400'
+                    }`}
+                  >
+                    {pagamentoDividido ? '✓ Pagamento Misto Ativo' : '+ Dividir Pagamento'}
+                  </button>
+                </div>
                 <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
                   {formatarMoeda(valorTotalLiquido)}
                 </p>
-                {/* Identificação do Cliente na Venda / Nota Fiscal */}
-                <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px]">
+
+                {/* Cliente Selecionado */}
+                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px]">
                   <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
                     <User className="w-3 h-3 text-blue-500" />
-                    Cliente na Nota:
+                    Cliente Vinculado:
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-slate-800 dark:text-slate-200">
-                      {clienteSelecionado ? `${clienteSelecionado.nome} (${formatarCPF(clienteSelecionado.cpf)})` : 'Consumidor Final (Sem CPF)'}
+                    <span className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
+                      {clienteSelecionado
+                        ? `${clienteSelecionado.nome} (${formatarCPF(clienteSelecionado.cpf)})`
+                        : 'Consumidor Final (Não Identificado)'}
                     </span>
                     <button
                       type="button"
                       onClick={() => setModalBuscaClienteAberto(true)}
                       className="text-[10px] text-blue-600 dark:text-blue-400 font-bold hover:underline"
                     >
-                      {clienteSelecionado ? 'Trocar/Novo' : '+ Adicionar'}
+                      {clienteSelecionado ? 'Alterar' : '+ Adicionar'}
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Seletor de Métodos de Pagamento */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  Forma de Pagamento
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'PIX', label: 'PIX Instantâneo', icon: QrCode },
-                    { id: 'DINHEIRO', label: 'Dinheiro', icon: Banknote },
-                    { id: 'CARTAO_DEBITO', label: 'Cartão Débito', icon: CreditCard },
-                    { id: 'CARTAO_CREDITO', label: 'Cartão Crédito', icon: CreditCard },
-                  ].map((metodo) => {
-                    const Icon = metodo.icon;
-                    return (
-                      <button
-                        key={metodo.id}
-                        type="button"
-                        onClick={() => setFormaPagamento(metodo.id as FormaPagamento)}
-                        className={`p-3 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all btn-interactive ${
-                          formaPagamento === metodo.id
-                            ? 'bg-emerald-50 dark:bg-emerald-600/20 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-sm'
-                            : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:text-white'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4 shrink-0 text-emerald-500" />
-                        <span>{metodo.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Modo Pagamento Misto / Dividido */}
+              {pagamentoDividido ? (
+                <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/25 border border-purple-200 dark:border-purple-500/30 space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Divisão de Formas de Pagamento
+                    </span>
+                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">
+                      2 Métodos
+                    </span>
+                  </div>
 
-              {/* Se DINHEIRO: Calculadora de Troco */}
-              {formaPagamento === 'DINHEIRO' && (
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
+                  {/* 1º Método */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        1º Método
+                      </label>
+                      <select
+                        value={formaPagamento}
+                        onChange={(e) => setFormaPagamento(e.target.value as FormaPagamento)}
+                        className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs font-semibold"
+                      >
+                        <option value="DINHEIRO">Dinheiro</option>
+                        <option value="PIX">PIX Instantâneo</option>
+                        <option value="CARTAO_DEBITO">Cartão Débito</option>
+                        <option value="CARTAO_CREDITO">Cartão Crédito</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Valor 1º Método (R$)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={valorDividido1 || ''}
+                        onChange={(e) => setValorDividido1(Math.max(0, parseFloat(e.target.value) || 0))}
+                        className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs font-mono font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2º Método */}
+                  <div className="grid grid-cols-2 gap-2 pt-1 border-t border-purple-200/60 dark:border-purple-900/40">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        2º Método (Restante)
+                      </label>
+                      <select
+                        value={formaDividida2}
+                        onChange={(e) => setFormaDividida2(e.target.value as FormaPagamento)}
+                        className="w-full px-2.5 py-1.5 rounded-lg glass-input text-xs font-semibold"
+                      >
+                        <option value="CARTAO_CREDITO">Cartão Crédito</option>
+                        <option value="CARTAO_DEBITO">Cartão Débito</option>
+                        <option value="PIX">PIX Instantâneo</option>
+                        <option value="DINHEIRO">Dinheiro</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Saldo Restante (R$)
+                      </label>
+                      <div className="w-full px-2.5 py-1.5 rounded-lg bg-white/70 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center">
+                        {formatarMoeda(Math.max(0, valorTotalLiquido - Number(valorDividido1)))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Seletor Padrão de Forma de Pagamento */
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                    Forma de Pagamento Principal
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { id: 'PIX', label: 'PIX', icon: QrCode },
+                      { id: 'DINHEIRO', label: 'Dinheiro', icon: Banknote },
+                      { id: 'CARTAO_DEBITO', label: 'Débito', icon: CreditCard },
+                      { id: 'CARTAO_CREDITO', label: 'Crédito', icon: CreditCard },
+                    ].map((metodo) => {
+                      const Icon = metodo.icon;
+                      return (
+                        <button
+                          key={metodo.id}
+                          type="button"
+                          onClick={() => setFormaPagamento(metodo.id as FormaPagamento)}
+                          className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-1 transition-all btn-interactive ${
+                            formaPagamento === metodo.id
+                              ? 'bg-emerald-50 dark:bg-emerald-600/20 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-sm ring-1 ring-emerald-500/30'
+                              : 'bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:text-white'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 text-emerald-500" />
+                          <span>{metodo.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Se CARTÃO (DÉBITO OU CRÉDITO): Bandeira, Parcelas e NSU */}
+              {(formaPagamento === 'CARTAO_CREDITO' ||
+                formaPagamento === 'CARTAO_DEBITO' ||
+                (pagamentoDividido && (formaDividida2 === 'CARTAO_CREDITO' || formaDividida2 === 'CARTAO_DEBITO'))) && (
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-blue-500" />
+                      Parâmetros da Maquininha (TEF / POS)
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {formaPagamento === 'CARTAO_CREDITO' ? 'Crédito' : 'Débito'}
+                    </span>
+                  </div>
+
+                  {/* Bandeira */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
+                      Bandeira do Cartão
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['Mastercard', 'Visa', 'Elo', 'Hipercard', 'Amex'].map((brand) => (
+                        <button
+                          key={brand}
+                          type="button"
+                          onClick={() => setBandeiraCartao(brand)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
+                            bandeiraCartao === brand
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+                          }`}
+                        >
+                          {brand}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Parcelas se Crédito */}
+                  {(formaPagamento === 'CARTAO_CREDITO' || (pagamentoDividido && formaDividida2 === 'CARTAO_CREDITO')) && (
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                        Condição de Parcelamento (Sem Juros)
+                      </label>
+                      <select
+                        value={parcelasCartao}
+                        onChange={(e) => setParcelasCartao(Number(e.target.value))}
+                        className="w-full px-3 py-2 rounded-lg glass-input text-xs font-mono font-semibold"
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((parc) => {
+                          const valBase = pagamentoDividido ? Number(valorDividido1) : valorTotalLiquido;
+                          const valParc = valBase / parc;
+                          return (
+                            <option key={parc} value={parc}>
+                              {parc}x de {formatarMoeda(valParc)} {parc === 1 ? '(À Vista)' : ''}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* NSU / Código de Autorização */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                        Código de Autorização / NSU
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setNsuAutorizacao(Math.floor(100000 + Math.random() * 900000).toString())}
+                        className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                      >
+                        Gerar NSU
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={nsuAutorizacao}
+                      onChange={(e) => setNsuAutorizacao(e.target.value)}
+                      placeholder="Ex: 849201"
+                      className="w-full px-3 py-1.5 rounded-lg glass-input text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Se DINHEIRO: Calculadora de Cédulas, Cédulas Rápidas e Troco */}
+              {(formaPagamento === 'DINHEIRO' || (pagamentoDividido && formaDividida2 === 'DINHEIRO')) && (
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calculator className="w-3.5 h-3.5 text-emerald-500" />
+                      Calculadora de Troco & Cédulas Rápidas
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setValorRecebidoDinheiro(String(valorTotalLiquido))}
+                      className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
+                    >
+                      Valor Exato
+                    </button>
+                  </div>
+
+                  {/* Cédulas Rápidas (Chips de Agilidade no Caixa) */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {[10, 20, 50, 100, 200].map((nota) => (
+                      <button
+                        key={nota}
+                        type="button"
+                        onClick={() => setValorRecebidoDinheiro(String(nota))}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-600/30 text-emerald-700 dark:text-emerald-300 text-xs font-mono font-bold hover:bg-emerald-100 transition-colors"
+                      >
+                        R$ {nota}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const atual = parseFloat(valorRecebidoDinheiro) || 0;
+                        setValorRecebidoDinheiro(String(atual + 10));
+                      }}
+                      className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300"
+                    >
+                      +R$ 10
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const atual = parseFloat(valorRecebidoDinheiro) || 0;
+                        setValorRecebidoDinheiro(String(atual + 50));
+                      }}
+                      className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300"
+                    >
+                      +R$ 50
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
                       Valor Entregue pelo Cliente (R$)
                     </label>
                     <input
@@ -1039,39 +1356,107 @@ export const PdvPage: React.FC = () => {
                       value={valorRecebidoDinheiro}
                       onChange={(e) => setValorRecebidoDinheiro(e.target.value)}
                       placeholder="0,00"
-                      className="w-full px-3 py-2 rounded-lg glass-input text-sm font-mono"
+                      className="w-full px-3 py-2 rounded-lg glass-input text-base font-mono font-bold text-slate-900 dark:text-slate-100"
                     />
                   </div>
+
                   {valorRecebidoNum > 0 && (
-                    <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-200 dark:border-slate-800">
-                      <span className="text-slate-500 dark:text-slate-400">Troco a Devolver:</span>
-                      <span
-                        className={`font-mono font-bold text-sm ${
-                          trocoCalculado > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'
-                        }`}
-                      >
-                        {formatarMoeda(trocoCalculado)}
-                      </span>
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500 dark:text-slate-400 font-semibold">Troco a Devolver:</span>
+                        <span
+                          className={`font-mono font-black text-base ${
+                            trocoCalculado > 0
+                              ? 'text-amber-500 dark:text-amber-400'
+                              : valorRecebidoNum < valorTotalLiquido
+                              ? 'text-rose-500'
+                              : 'text-emerald-500'
+                          }`}
+                        >
+                          {valorRecebidoNum < valorTotalLiquido
+                            ? `Faltam ${formatarMoeda(valorTotalLiquido - valorRecebidoNum)}`
+                            : formatarMoeda(trocoCalculado)}
+                        </span>
+                      </div>
+
+                      {/* Decomposição Sugerida de Cédulas */}
+                      {trocoCalculado > 0 && (
+                        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-600/30 rounded-lg p-2 text-[10px]">
+                          <span className="font-bold text-amber-800 dark:text-amber-300 block mb-1">
+                            Sugestão de Cédulas para o Troco:
+                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {calcularCedulasTroco(trocoCalculado).map((item, idx) => (
+                              <span
+                                key={idx}
+                                className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 font-mono font-bold text-slate-800 dark:text-slate-200 border border-amber-300 dark:border-amber-700/50"
+                              >
+                                {item.qtd}x R$ {item.valor >= 1 ? item.valor.toFixed(0) : item.valor.toFixed(2)}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Se PIX: QR Code simulado */}
-              {formaPagamento === 'PIX' && (
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-lg bg-white p-1 shrink-0 flex items-center justify-center border border-slate-200">
-                    <QrCode className="w-12 h-12 text-slate-900" />
+              {/* Se PIX: QR Code, Chave Copia-e-Cola e Conciliação */}
+              {(formaPagamento === 'PIX' || (pagamentoDividido && formaDividida2 === 'PIX')) && (
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3 animate-in fade-in">
+                  <div className="flex items-center gap-3">
+                    <div className="w-16 h-16 rounded-xl bg-white p-1.5 shrink-0 flex items-center justify-center border border-slate-200 shadow-xs">
+                      <QrCode className="w-12 h-12 text-slate-900" />
+                    </div>
+                    <div className="text-xs min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-slate-900 dark:text-slate-100">PIX Instantâneo Banco Central</p>
+                        {pixConfirmado && (
+                          <span className="px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold">
+                            ✓ Confirmado
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-slate-400 text-[10px] font-mono truncate mt-0.5">
+                        ID: {txidPix}
+                      </p>
+                      <p className="text-emerald-600 dark:text-emerald-400 text-[10px] font-medium mt-0.5">
+                        {pixConfirmado ? 'Crédito já liquidado na conta empresarial' : 'Aguardando leitura do QR Code pelo cliente...'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-xs">
-                    <p className="font-bold text-slate-900 dark:text-slate-200">Chave PIX Dinâmica Gerada</p>
-                    <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
-                      Aguardando confirmação bancária instantânea...
-                    </p>
+
+                  <div className="flex items-center gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`00020126580014BR.GOV.BCB.PIX0136financeiro@ms2vestuario.com.br520400005303986540${valorTotalLiquido.toFixed(2)}5802BR5913MS2 VESTUARIO6014RIO DE JANEIRO62070503***6304${txidPix.slice(-4)}`);
+                        setCopiadoPix(true);
+                        adicionarToast('success', 'PIX Copiado', 'Linha de código copia-e-cola copiada para a área de transferência');
+                        setTimeout(() => setCopiadoPix(false), 2500);
+                      }}
+                      className="flex-1 py-1.5 px-2.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      {copiadoPix ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiadoPix ? 'Código Copiado!' : 'Copiar Código PIX'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPixConfirmado(true);
+                        adicionarToast('success', 'PIX Confirmado', `Recebimento de ${formatarMoeda(valorTotalLiquido)} confirmado instantaneamente.`);
+                      }}
+                      className="py-1.5 px-3 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-colors"
+                    >
+                      Simular Confirmação
+                    </button>
                   </div>
                 </div>
               )}
 
+              {/* Botões Finais de Ação */}
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
@@ -1084,10 +1469,10 @@ export const PdvPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleFinalizarVenda}
-                  disabled={finalizandoVenda}
+                  disabled={finalizandoVenda || (formaPagamento === 'DINHEIRO' && valorRecebidoNum > 0 && valorRecebidoNum < valorTotalLiquido)}
                   className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-glow-emerald disabled:opacity-50 btn-interactive"
                 >
-                  {finalizandoVenda ? 'Processando...' : 'Confirmar e Imprimir'}
+                  {finalizandoVenda ? 'Processando...' : 'Confirmar & Imprimir Cupom'}
                 </button>
               </div>
             </div>
