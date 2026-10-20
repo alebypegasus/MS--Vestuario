@@ -266,6 +266,77 @@ export const PdvPage: React.FC = () => {
     setModalPagamentoAberto(true);
   };
 
+  // Atalhos de Teclado Operacionais do PDV (F2, F4, F8, F9, F12, ESC)
+  useEffect(() => {
+    const handlePdvKeyDown = (e: KeyboardEvent) => {
+      // F2: Focar no leitor de código de barras
+      if (e.key === 'F2') {
+        e.preventDefault();
+        barcodeInputRef.current?.focus();
+        barcodeInputRef.current?.select();
+        adicionarToast('info', 'Leitor Ativo [F2]', 'Pronto para bipagem de código');
+        return;
+      }
+
+      // F4: Abrir Seleção / Cadastro de Cliente
+      if (e.key === 'F4') {
+        e.preventDefault();
+        setModalBuscaClienteAberto(true);
+        return;
+      }
+
+      // F8: Focar Desconto / Alçada
+      if (e.key === 'F8') {
+        e.preventDefault();
+        const inputDesc = document.getElementById('input-desconto-pdv') as HTMLInputElement;
+        if (inputDesc) {
+          inputDesc.focus();
+          inputDesc.select();
+        } else if (requerAlcadaDesconto && !gerenteAprovadorNome) {
+          setModalAlcadaAberto(true);
+        }
+        return;
+      }
+
+      // F9: Receber / Finalizar Venda
+      if (e.key === 'F9') {
+        e.preventDefault();
+        if (carrinho.length > 0) {
+          iniciarPagamento();
+        } else {
+          adicionarToast('warning', 'Carrinho Vazio', 'Adicione produtos antes de finalizar [F9]');
+        }
+        return;
+      }
+
+      // F12: Limpar Carrinho
+      if (e.key === 'F12') {
+        e.preventDefault();
+        if (carrinho.length > 0) {
+          setCarrinho([]);
+          setDescontoPercentual(0);
+          setClienteSelecionado(null);
+          setGerenteAprovadorId(null);
+          setGerenteAprovadorNome(null);
+          adicionarToast('info', 'Carrinho Limpo [F12]', 'Todos os itens foram removidos do PDV');
+        }
+        return;
+      }
+
+      // ESC: Fechar modais abertos no PDV
+      if (e.key === 'Escape') {
+        if (modalPagamentoAberto) setModalPagamentoAberto(false);
+        else if (modalBuscaClienteAberto) setModalBuscaClienteAberto(false);
+        else if (modalNovoClienteAberto) setModalNovoClienteAberto(false);
+        else if (modalAlcadaAberto) setModalAlcadaAberto(false);
+        else if (modalComprovanteAberto) setModalComprovanteAberto(false);
+      }
+    };
+
+    window.addEventListener('keydown', handlePdvKeyDown);
+    return () => window.removeEventListener('keydown', handlePdvKeyDown);
+  }, [carrinho, modalPagamentoAberto, modalBuscaClienteAberto, modalNovoClienteAberto, modalAlcadaAberto, modalComprovanteAberto, requerAlcadaDesconto, gerenteAprovadorNome]);
+
   // Conclusão da Venda
   const handleFinalizarVenda = async () => {
     try {
@@ -761,12 +832,14 @@ export const PdvPage: React.FC = () => {
                       </button>
                     ))}
                     <input
+                      id="input-desconto-pdv"
                       type="number"
                       min="0"
                       max="100"
                       value={descontoPercentual}
                       onChange={(e) => handleDescontoChange(Number(e.target.value))}
                       className="w-14 px-1.5 py-0.5 rounded-md glass-input text-xs text-center font-bold"
+                      title="Desconto percentual [F8]"
                     />
                   </div>
                 </div>
@@ -814,6 +887,25 @@ export const PdvPage: React.FC = () => {
                   <span>TOTAL A PAGAR:</span>
                   <span>{formatarMoeda(valorTotalLiquido)}</span>
                 </div>
+              </div>
+
+              {/* Barra de Ajuda Rápida de Teclas de Atalho do Caixa */}
+              <div className="flex flex-wrap items-center justify-between gap-1 text-[10px] text-slate-500 dark:text-slate-400 py-1.5 px-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1 py-0.2 bg-slate-200 dark:bg-slate-800 rounded font-mono font-bold text-slate-700 dark:text-slate-300">F2</kbd> Bipar
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1 py-0.2 bg-slate-200 dark:bg-slate-800 rounded font-mono font-bold text-slate-700 dark:text-slate-300">F4</kbd> Cliente
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1 py-0.2 bg-slate-200 dark:bg-slate-800 rounded font-mono font-bold text-slate-700 dark:text-slate-300">F8</kbd> Desconto
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1 py-0.2 bg-slate-200 dark:bg-slate-800 rounded font-mono font-bold text-emerald-600 dark:text-emerald-400">F9</kbd> Pagar
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1 py-0.2 bg-slate-200 dark:bg-slate-800 rounded font-mono font-bold text-rose-500">F12</kbd> Limpar
+                </span>
               </div>
 
               <ButtonMovingBorder

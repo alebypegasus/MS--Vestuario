@@ -1,0 +1,112 @@
+{
+  "titulo": "MS² Vestuário — Motion Pitch (Sprint 6)",
+  "atrasoNarracao": 0.45,
+  "folgaFinal": 1.1,
+  "cenas": [
+    {
+      "id": 1,
+      "chave": "abertura",
+      "rotulo": "Abertura",
+      "duracaoPadrao": 8,
+      "narracao": "Moda é emoção. Mas, por trás de cada vitrine, existe uma operação que não pode parar."
+    },
+    {
+      "id": 2,
+      "chave": "problema",
+      "rotulo": "O Problema",
+      "duracaoPadrao": 11,
+      "narracao": "Filas que travam no horário de pico. Descontos aplicados sem controle. Cadastros duplicados e notas rejeitadas. Cada minuto de caixa parado é venda perdida."
+    },
+    {
+      "id": 3,
+      "chave": "revelacao",
+      "rotulo": "A Solução",
+      "duracaoPadrao": 10,
+      "narracao": "Por isso nasceu o MS² Vestuário: um sistema de PDV e gestão comercial pensado, do primeiro pixel ao último byte, para o varejo de moda."
+    },
+    {
+      "id": 4,
+      "chave": "arquitetura",
+      "rotulo": "Arquitetura",
+      "duracaoPadrao": 12,
+      "narracao": "A arquitetura é moderna e segura: React com TypeScript no front-end, uma API REST em Node e Express, validação com Zod, autenticação JWT e um banco relacional com transações ACID."
+    },
+    {
+      "id": 5,
+      "chave": "pdv",
+      "rotulo": "PDV ao Vivo",
+      "duracaoPadrao": 13,
+      "narracao": "No caixa, a velocidade é absoluta. O produto é bipado e entra no carrinho em menos de trezentos milissegundos. O total é recalculado em centavos, e cada ação tem a sua tecla de atalho."
+    },
+    {
+      "id": 6,
+      "chave": "cpf",
+      "rotulo": "Código · RN-01",
+      "duracaoPadrao": 12,
+      "narracao": "A identificação do cliente segue o algoritmo oficial da Receita Federal. O Módulo onze calcula os dois dígitos verificadores e bloqueia qualquer CPF inválido ou duplicado."
+    },
+    {
+      "id": 7,
+      "chave": "clientes",
+      "rotulo": "Clientes",
+      "duracaoPadrao": 10,
+      "narracao": "O operador decide em segundos: seleciona um cliente fidelizado, cadastra um novo sem sair da venda, ou segue como consumidor final."
+    },
+    {
+      "id": 8,
+      "chave": "rbac",
+      "rotulo": "Perfis de Acesso",
+      "duracaoPadrao": 12,
+      "narracao": "Cada perfil tem o seu poder. O caixa opera o PDV, o gerente autoriza alçadas, e o administrador controla equipe, empresa e dados fiscais. Tudo protegido por middleware de acesso."
+    },
+    {
+      "id": 9,
+      "chave": "alcada",
+      "rotulo": "Alçada · RN-02",
+      "duracaoPadrao": 12,
+      "narracao": "Desconto acima de dez por cento? O sistema bloqueia a venda e exige a senha do gerente. A aprovação fica gravada, com nome, data e valor, pronta para auditoria."
+    },
+    {
+      "id": 10,
+      "chave": "snapshot",
+      "rotulo": "Histórico · RN-03/04",
+      "duracaoPadrao": 12,
+      "narracao": "E o histórico é imutável. O preço de cada item é congelado no momento da venda, e um estorno só acontece com motivo formal e autorização gerencial."
+    },
+    {
+      "id": 11,
+      "chave": "dashboard",
+      "rotulo": "Dashboard",
+      "duracaoPadrao": 11,
+      "narracao": "Para a gestão, um painel em tempo real: faturamento, ticket médio, ranking de produtos e formas de pagamento, atualizados a cada venda."
+    },
+    {
+      "id": 12,
+      "chave": "fiscal",
+      "rotulo": "Fiscal · NFC-e",
+      "duracaoPadrao": 12,
+      "narracao": "No fiscal, a NFC-e modelo sessenta e cinco é gerada com chave de quarenta e quatro dígitos, QR Code de consulta pública e os tributos da Lei da Transparência."
+    },
+    {
+      "id": 13,
+      "chave": "relatorios",
+      "rotulo": "Relatórios",
+      "duracaoPadrao": 10,
+      "narracao": "Relatórios executivos saem com um clique: PDF com identidade visual, planilha Excel formatada e CSV pronto para qualquer ferramenta de análise."
+    },
+    {
+      "id": 14,
+      "chave": "qualidade",
+      "rotulo": "Qualidade",
+      "duracaoPadrao": 11,
+      "narracao": "Qualidade não é promessa, é evidência. Dezoito testes de ponta a ponta aprovados, build sem erros e todas as regras de negócio homologadas."
+    },
+    {
+      "id": 15,
+      "chave": "encerramento",
+      "rotulo": "Encerramento",
+      "duracaoPadrao": 11,
+      "narracao": "MS² Vestuário. Moda, estilo e você, com a tecnologia que o seu varejo merece. Projeto Integrador Firjan SENAI."
+    }
+  ]
+}

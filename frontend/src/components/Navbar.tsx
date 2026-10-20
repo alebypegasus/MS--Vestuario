@@ -16,18 +16,28 @@ import {
   X,
   ShieldCheck,
   Play,
+  Keyboard,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { getRoleBadgeConfig } from '../utils/formatters';
 import { HomologacaoModal } from './HomologacaoModal';
+import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export const Navbar: React.FC = () => {
   const { usuario, logout, isAdmin, isGerenteOuAdmin } = useAuth();
   const { tema, temaEfetivo, setTema } = useTheme();
   const [menuMobileAberto, setMenuMobileAberto] = useState<boolean>(false);
   const [modalHomologacaoAberto, setModalHomologacaoAberto] = useState<boolean>(false);
+  const [modalAtalhosAberto, setModalAtalhosAberto] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  // Ativação dos Atalhos Globais de Teclado
+  useKeyboardShortcuts({
+    onAbrirHomologacao: () => setModalHomologacaoAberto(true),
+    onAbrirAjudaAtalhos: () => setModalAtalhosAberto(true),
+  });
 
   const handleLogout = () => {
     logout();
@@ -165,17 +175,28 @@ export const Navbar: React.FC = () => {
             {/* Botão de Dossiê de Homologação */}
             <button
               onClick={() => setModalHomologacaoAberto(true)}
-              title="Dossiê de Homologação Fiscal & Regras de Negócio (RN-01 a RN-06)"
+              title="Dossiê de Homologação Fiscal & Regras de Negócio (RN-01 a RN-06) [Alt+H ou F1]"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 transition-all btn-interactive shadow-xs"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
               <span>Homologação</span>
             </button>
 
+            {/* Botão de Atalhos de Teclado */}
+            <button
+              onClick={() => setModalAtalhosAberto(true)}
+              title="Guia de Atalhos de Teclado do Sistema [?]"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all shadow-xs"
+            >
+              <Keyboard className="w-3.5 h-3.5 text-amber-500" />
+              <span>Atalhos</span>
+              <kbd className="text-[10px] font-mono px-1 py-0.2 bg-slate-200 dark:bg-slate-900 rounded text-slate-500 dark:text-slate-400">?</kbd>
+            </button>
+
             {/* Link para Pitch em Motion Design (Sprint 6) */}
             <NavLink
               to="/pitch"
-              title="Apresentação em Motion Design da Sprint 6 (Gabarito Firjan SENAI)"
+              title="Apresentação em Motion Design da Sprint 6 (Gabarito Firjan SENAI) [Alt+P ou F10]"
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 transition-all btn-interactive shadow-xs"
             >
               <Play className="w-3 h-3 text-indigo-500 fill-indigo-500" />
@@ -493,6 +514,12 @@ export const Navbar: React.FC = () => {
       <HomologacaoModal
         aberto={modalHomologacaoAberto}
         onFechar={() => setModalHomologacaoAberto(false)}
+      />
+
+      {/* Modal de Ajuda de Atalhos de Teclado */}
+      <KeyboardShortcutsModal
+        aberto={modalAtalhosAberto}
+        onFechar={() => setModalAtalhosAberto(false)}
       />
     </>
   );
