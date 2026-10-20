@@ -56,41 +56,47 @@ if (!CHAVE) {
   console.error('[ERRO] ELEVENLABS_API_KEY ausente em backend/.env');
   process.exit(1);
 }
-if (!CHAVE.startsWith('sk_')) {
-  console.error(
-    '[ERRO] A chave em ELEVENLABS_API_KEY não é uma API key válida.\n' +
-      '       O valor informado parece ser o "Key ID". A chave real começa com "sk_" e só aparece\n' +
-      '       no momento em que é criada em https://elevenlabs.io/app/settings/api-keys.\n' +
-      '       Atualize backend/.env e rode novamente: npm run pitch:audio'
-  );
-  process.exit(1);
-}
 
 const cabecalhos = { 'xi-api-key': CHAVE, 'Content-Type': 'application/json' };
 
 async function getJson(caminho) {
   const r = await fetch(`${API}${caminho}`, { headers: cabecalhos });
-  if (!r.ok) throw new Error(`GET ${caminho} -> ${r.status} ${await r.text()}`);
+  if (!r.ok) {
+    const texto = await r.text();
+    if (texto.includes('api_key_id_used_as_api_key') || texto.includes('API key ID used as API key')) {
+      throw new Error(
+        `A chave informada (${CHAVE.slice(0, 8)}...) é o "Key ID" (identificador público) e não a Chave Secreta da API.\n` +
+        `  Para gerar os áudios via ElevenLabs:\n` +
+        `  1. Acesse https://elevenlabs.io/app/settings/api-keys\n` +
+        `  2. Clique no botão "+ Create API Key" (Criar Chave de API)\n` +
+        `  3. Copie o segredo que começa com "sk_..." exibido no pop-up\n` +
+        `  4. Atualize o backend/.env com: ELEVENLABS_API_KEY=sk_...\n` +
+        `  5. Execute novamente: npm run pitch:audio`
+      );
+    }
+    throw new Error(`GET ${caminho} -> ${r.status} ${texto}`);
+  }
   return r.json();
 }
 
-/** Escolhe o modelo multilíngue mais novo disponível (ex.: v4 > v3 > v2). */
+/** Escolhe o modelo multilíngue: eleven_v4 (mais recente, 90+ idiomas) ou v2 */
 async function escolherModelo() {
-  if (env.ELEVENLABS_MODEL_ID) return env.ELEVENLABS_MODEL_ID;
+  const custom = env.ELEVENLABS_MODEL_ID;
+  if (custom) {
+    if (/multilingual.*v4|v4.*multilingual|eleven_v4/i.test(custom)) return 'eleven_v4';
+    return custom;
+  }
   try {
     const modelos = await getJson('/models');
     const tts = modelos.filter((m) => m.can_do_text_to_speech);
-    const versao = (id) => Number((id.match(/v(\d+)/) || [0, 0])[1]);
-    const multi = tts
-      .filter((m) => /multilingual/i.test(m.model_id))
-      .sort((a, b) => versao(b.model_id) - versao(a.model_id));
-    if (multi.length) return multi[0].model_id;
-    const v3 = tts.find((m) => m.model_id === 'eleven_v3');
-    if (v3) return v3.model_id;
+    const v4 = tts.find((m) => m.model_id === 'eleven_v4');
+    if (v4) return v4.model_id;
+    const multi = tts.find((m) => m.model_id === 'eleven_multilingual_v2');
+    if (multi) return multi.model_id;
   } catch (e) {
     console.warn('[AVISO] Não foi possível listar modelos:', e.message);
   }
-  return 'eleven_multilingual_v2';
+  return 'eleven_v4';
 }
 
 /** Prefere voz com rótulo de português/brasileiro; senão, narrador multilíngue. */
@@ -99,6 +105,7 @@ async function escolherVoz() {
   try {
     const { voices = [] } = await getJson('/voices');
     const pt = voices.find((v) => {
+      if (v.category !== 'premade' && v.category !== 'cloned') return false;
       const l = v.labels || {};
       const txt = `${l.language || ''} ${l.accent || ''} ${v.name || ''}`.toLowerCase();
       return /\bpt\b|portug|brazil|brasil/.test(txt);
@@ -107,7 +114,7 @@ async function escolherVoz() {
   } catch (e) {
     console.warn('[AVISO] Não foi possível listar vozes:', e.message);
   }
-  return { id: VOZ_FALLBACK, nome: 'George (multilíngue)' };
+  return { id: VOZ_FALLBACK, nome: 'George (multilíngue v4)' };
 }
 
 /** Converte alinhamento por caractere em palavras com início/fim. */
@@ -139,13 +146,34 @@ async function sintetizar(texto, vozId, modelo, anterior, proximo) {
   const url = `${API}/text-to-speech/${vozId}/with-timestamps?output_format=mp3_44100_128`;
   let r = await fetch(url, { method: 'POST', headers: cabecalhos, body: JSON.stringify(corpo) });
 
+  // Se a conta gratuita não tiver acesso à voz da biblioteca (402), usa o narrador premade multilíngue
+  if (r.status === 402 && vozId !== VOZ_FALLBACK) {
+    const urlFallback = `${API}/text-to-speech/${VOZ_FALLBACK}/with-timestamps?output_format=mp3_44100_128`;
+    r = await fetch(urlFallback, { method: 'POST', headers: cabecalhos, body: JSON.stringify(corpo) });
+  }
+
   // Alguns modelos não aceitam request stitching; tenta novamente sem contexto.
   if (r.status === 400 || r.status === 422) {
     delete corpo.previous_text;
     delete corpo.next_text;
     r = await fetch(url, { method: 'POST', headers: cabecalhos, body: JSON.stringify(corpo) });
   }
-  if (!r.ok) throw new Error(`TTS ${r.status}: ${await r.text()}`);
+  if (!r.ok) {
+    const errText = await r.text();
+    if (errText.includes('api_key_id_used_as_api_key') || errText.includes('API key ID used as API key')) {
+      throw new Error(
+        `\n[ElevenLabs Autenticação] O valor informado (${CHAVE.slice(0, 8)}...) é o "Key ID" da ElevenLabs.\n` +
+        `A API exige a "Secret API Key", que sempre começa com "sk_".\n` +
+        `Para obter sua chave secreta:\n` +
+        `  1. Acesse: https://elevenlabs.io/app/settings/api-keys\n` +
+        `  2. Clique em "+ Create API Key" (ou gere uma nova)\n` +
+        `  3. Copie o valor completo começando com "sk_..." exibido no momento da criação\n` +
+        `  4. Cole em backend/.env: ELEVENLABS_API_KEY=sk_...\n` +
+        `  5. Rode: npm run pitch:audio\n`
+      );
+    }
+    throw new Error(`TTS ${r.status}: ${errText}`);
+  }
   return r.json();
 }
 

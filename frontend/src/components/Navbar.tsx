@@ -1,23 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  ShoppingCart,
-  Package,
-  Users,
-  Receipt,
-  UserCheck,
-  LogOut,
-  BarChart3,
-  Settings,
-  Sun,
-  Moon,
-  Monitor,
-  Menu,
-  X,
-  ShieldCheck,
-  Play,
-  Keyboard,
-} from 'lucide-react';
+import { MorphIcon, LucideIcons } from './MorphIcon';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { getRoleBadgeConfig } from '../utils/formatters';
@@ -75,7 +58,7 @@ export const Navbar: React.FC = () => {
                 }`
               }
             >
-              <ShoppingCart className="w-4 h-4 text-emerald-500" />
+              <MorphIcon icon={LucideIcons.ShoppingCart} size={16} className="text-emerald-500" />
               <span>PDV Caixa</span>
             </NavLink>
 
@@ -89,7 +72,7 @@ export const Navbar: React.FC = () => {
                 }`
               }
             >
-              <Package className="w-4 h-4 text-indigo-500" />
+              <MorphIcon icon={LucideIcons.Package} size={16} className="text-indigo-500" />
               <span>Catálogo</span>
             </NavLink>
 
@@ -103,7 +86,7 @@ export const Navbar: React.FC = () => {
                 }`
               }
             >
-              <Users className="w-4 h-4 text-blue-500" />
+              <MorphIcon icon={LucideIcons.Users} size={16} className="text-blue-500" />
               <span>Clientes</span>
             </NavLink>
 
@@ -117,7 +100,7 @@ export const Navbar: React.FC = () => {
                 }`
               }
             >
-              <Receipt className="w-4 h-4 text-amber-500" />
+              <MorphIcon icon={LucideIcons.Receipt} size={16} className="text-amber-500" />
               <span>Vendas</span>
             </NavLink>
 
@@ -132,7 +115,7 @@ export const Navbar: React.FC = () => {
                   }`
                 }
               >
-                <BarChart3 className="w-4 h-4 text-teal-500" />
+                <MorphIcon icon={LucideIcons.BarChart3} size={16} className="text-teal-500" />
                 <span>Dashboard</span>
               </NavLink>
             )}
@@ -149,7 +132,7 @@ export const Navbar: React.FC = () => {
                     }`
                   }
                 >
-                  <UserCheck className="w-4 h-4 text-purple-500" />
+                  <MorphIcon icon={LucideIcons.UserCheck} size={16} className="text-purple-500" />
                   <span>Equipe</span>
                 </NavLink>
 
@@ -163,7 +146,7 @@ export const Navbar: React.FC = () => {
                     }`
                   }
                 >
-                  <Settings className="w-4 h-4 text-cyan-500" />
+                  <MorphIcon icon={LucideIcons.Settings} size={16} className="text-cyan-500" />
                   <span>Empresa</span>
                 </NavLink>
               </>
@@ -178,7 +161,7 @@ export const Navbar: React.FC = () => {
               title="Dossiê de Homologação Fiscal & Regras de Negócio (RN-01 a RN-06) [Alt+H ou F1]"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 transition-all btn-interactive shadow-xs"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+              <MorphIcon icon={LucideIcons.ShieldCheck} size={14} className="text-amber-500" />
               <span>Homologação</span>
             </button>
 
@@ -188,7 +171,7 @@ export const Navbar: React.FC = () => {
               title="Guia de Atalhos de Teclado do Sistema [?]"
               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-all shadow-xs"
             >
-              <Keyboard className="w-3.5 h-3.5 text-amber-500" />
+              <MorphIcon icon={LucideIcons.Keyboard} size={14} className="text-amber-500" />
               <span>Atalhos</span>
               <kbd className="text-[10px] font-mono px-1 py-0.2 bg-slate-200 dark:bg-slate-900 rounded text-slate-500 dark:text-slate-400">?</kbd>
             </button>
@@ -199,7 +182,7 @@ export const Navbar: React.FC = () => {
               title="Apresentação em Motion Design da Sprint 6 (Gabarito Firjan SENAI) [Alt+P ou F10]"
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 transition-all btn-interactive shadow-xs"
             >
-              <Play className="w-3 h-3 text-indigo-500 fill-indigo-500" />
+              <MorphIcon icon={LucideIcons.Play} size={14} className="text-indigo-500" />
               <span>Motion Pitch</span>
             </NavLink>
 
@@ -217,7 +200,7 @@ export const Navbar: React.FC = () => {
                 }`}
                 title="Modo Claro"
               >
-                <Sun className="w-3.5 h-3.5" />
+                <MorphIcon icon={LucideIcons.Sun} size={14} />
               </button>
               <button
                 onClick={() => setTema('system')}
@@ -228,7 +211,7 @@ export const Navbar: React.FC = () => {
                 }`}
                 title="Automático (Preferência do Sistema)"
               >
-                <Monitor className="w-3.5 h-3.5" />
+                <MorphIcon icon={LucideIcons.Monitor} size={14} />
               </button>
               <button
                 onClick={() => setTema('dark')}
@@ -239,7 +222,7 @@ export const Navbar: React.FC = () => {
                 }`}
                 title="Modo Escuro"
               >
-                <Moon className="w-3.5 h-3.5" />
+                <MorphIcon icon={LucideIcons.Moon} size={14} />
               </button>
             </div>
 
@@ -267,7 +250,7 @@ export const Navbar: React.FC = () => {
                   title="Encerrar Sessão"
                   className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-slate-700/60 hover:border-rose-300 dark:hover:border-rose-500/40 text-slate-600 dark:text-slate-300 transition-all ml-1"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <MorphIcon icon={LucideIcons.LogOut} size={16} />
                 </button>
               </div>
             )}
@@ -278,7 +261,7 @@ export const Navbar: React.FC = () => {
               className="xl:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 transition-all hover:bg-slate-200 dark:hover:bg-slate-700"
               aria-label="Menu de Navegação"
             >
-              {menuMobileAberto ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <MorphIcon icon={menuMobileAberto ? LucideIcons.X : LucideIcons.Menu} size={20} spring="bouncy" />
             </button>
           </div>
         </div>
@@ -317,7 +300,7 @@ export const Navbar: React.FC = () => {
                 }
               >
                 <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  <ShoppingCart className="w-4 h-4" />
+                  <MorphIcon icon={LucideIcons.ShoppingCart} size={16} />
                 </div>
                 <span>PDV Caixa</span>
               </NavLink>
@@ -334,7 +317,7 @@ export const Navbar: React.FC = () => {
                 }
               >
                 <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                  <Package className="w-4 h-4" />
+                  <MorphIcon icon={LucideIcons.Package} size={16} />
                 </div>
                 <span>Catálogo</span>
               </NavLink>
@@ -351,7 +334,7 @@ export const Navbar: React.FC = () => {
                 }
               >
                 <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                  <Users className="w-4 h-4" />
+                  <MorphIcon icon={LucideIcons.Users} size={16} />
                 </div>
                 <span>Clientes</span>
               </NavLink>
@@ -368,7 +351,7 @@ export const Navbar: React.FC = () => {
                 }
               >
                 <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  <Receipt className="w-4 h-4" />
+                  <MorphIcon icon={LucideIcons.Receipt} size={16} />
                 </div>
                 <span>Vendas</span>
               </NavLink>
@@ -386,7 +369,7 @@ export const Navbar: React.FC = () => {
                   }
                 >
                   <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
-                    <BarChart3 className="w-4 h-4" />
+                    <MorphIcon icon={LucideIcons.BarChart3} size={16} />
                   </div>
                   <span>Dashboard</span>
                 </NavLink>
@@ -406,7 +389,7 @@ export const Navbar: React.FC = () => {
                     }
                   >
                     <div className="p-1.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                      <UserCheck className="w-4 h-4" />
+                      <MorphIcon icon={LucideIcons.UserCheck} size={16} />
                     </div>
                     <span>Equipe</span>
                   </NavLink>
@@ -423,7 +406,7 @@ export const Navbar: React.FC = () => {
                     }
                   >
                     <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                      <Settings className="w-4 h-4" />
+                      <MorphIcon icon={LucideIcons.Settings} size={16} />
                     </div>
                     <span>Empresa</span>
                   </NavLink>
@@ -437,7 +420,7 @@ export const Navbar: React.FC = () => {
                 onClick={handleLogout}
                 className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors"
               >
-                <LogOut className="w-4 h-4" />
+                <MorphIcon icon={LucideIcons.LogOut} size={16} />
                 Encerrar Sessão
               </button>
             </div>
@@ -455,7 +438,7 @@ export const Navbar: React.FC = () => {
             }`
           }
         >
-          <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <MorphIcon icon={LucideIcons.ShoppingCart} size={16} className="text-emerald-600 dark:text-emerald-400" />
           <span>PDV</span>
         </NavLink>
 
@@ -467,7 +450,7 @@ export const Navbar: React.FC = () => {
             }`
           }
         >
-          <Package className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          <MorphIcon icon={LucideIcons.Package} size={16} className="text-indigo-600 dark:text-indigo-400" />
           <span>Catálogo</span>
         </NavLink>
 
@@ -479,7 +462,7 @@ export const Navbar: React.FC = () => {
             }`
           }
         >
-          <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <MorphIcon icon={LucideIcons.Users} size={16} className="text-blue-600 dark:text-blue-400" />
           <span>Clientes</span>
         </NavLink>
 
@@ -491,7 +474,7 @@ export const Navbar: React.FC = () => {
             }`
           }
         >
-          <Receipt className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <MorphIcon icon={LucideIcons.Receipt} size={16} className="text-amber-600 dark:text-amber-400" />
           <span>Vendas</span>
         </NavLink>
 
@@ -504,7 +487,7 @@ export const Navbar: React.FC = () => {
               }`
             }
           >
-            <BarChart3 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <MorphIcon icon={LucideIcons.BarChart3} size={16} className="text-teal-600 dark:text-teal-400" />
             <span>Dash</span>
           </NavLink>
         )}

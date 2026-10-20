@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Sparkles,
-  Monitor,
-  Smartphone,
-  Maximize2,
-  RotateCcw,
-  ArrowLeft,
-} from 'lucide-react';
+import { MorphIcon, LucideIcons } from '../components/MorphIcon';
 import { NavLink } from 'react-router-dom';
 
 const CENAS_PITCH = [
@@ -30,6 +23,8 @@ const CENAS_PITCH = [
 export const PitchMotionPage: React.FC = () => {
   const [aspectVertical, setAspectVertical] = useState<boolean>(false);
   const [cenaAtiva, setCenaAtiva] = useState<number>(1);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const toggleFullscreen = () => {
     const iframe = document.getElementById('motion-player-frame') as HTMLIFrameElement;
@@ -47,11 +42,36 @@ export const PitchMotionPage: React.FC = () => {
     }
   };
 
+  const togglePlayPause = () => {
+    const novoEstado = !isPlaying;
+    setIsPlaying(novoEstado);
+    const iframe = document.getElementById('motion-player-frame') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ tipo: 'TOGGLE_PLAY', tocando: novoEstado }, '*');
+      const win = iframe.contentWindow as any;
+      if (typeof win.togglePlay === 'function') {
+        win.togglePlay();
+      }
+    }
+  };
+
+  const toggleMute = () => {
+    const novoMudo = !isMuted;
+    setIsMuted(novoMudo);
+    const iframe = document.getElementById('motion-player-frame') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ tipo: 'TOGGLE_MUTE', mudo: novoMudo }, '*');
+      const win = iframe.contentWindow as any;
+      if (typeof win.toggleMute === 'function') {
+        win.toggleMute();
+      }
+    }
+  };
+
   const saltarParaCena = (num: number) => {
     setCenaAtiva(num);
     const iframe = document.getElementById('motion-player-frame') as HTMLIFrameElement;
     if (iframe && iframe.contentWindow) {
-      // Dispara evento ou chama irParaCena
       iframe.contentWindow.postMessage({ tipo: 'IR_PARA_CENA', cena: num }, '*');
       const win = iframe.contentWindow as any;
       if (typeof win.irParaCena === 'function') {
@@ -69,7 +89,7 @@ export const PitchMotionPage: React.FC = () => {
             to="/pdv"
             className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white transition-all flex items-center gap-1.5 text-xs font-bold"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <MorphIcon icon={LucideIcons.ArrowLeft} size={16} />
             <span>Voltar ao PDV [Alt+1]</span>
           </NavLink>
           <div>
@@ -77,18 +97,50 @@ export const PitchMotionPage: React.FC = () => {
               <span className="text-sm sm:text-base font-extrabold bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent">
                 Sprint 6 · Motion Design Pitch (15 Apresentações)
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                <MorphIcon icon={LucideIcons.Sparkles} size={12} className="text-amber-400" />
                 Gabarito Firjan SENAI
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Player em código com relógio determinístico <code className="text-amber-400 font-mono">render(t)</code>, áudio neural e atalhos de palco
+              Player com relógio determinístico <code className="text-amber-400 font-mono">render(t)</code>, áudio neural ElevenLabs e ícones com física de mola (Morphicons)
             </p>
           </div>
         </div>
 
-        {/* Ações e Alternadores de Proporção */}
+        {/* Ações e Alternadores de Proporção com Morphicons */}
         <div className="flex items-center gap-2 self-start lg:self-auto flex-wrap">
+          {/* Botão Play / Pause Morphing */}
+          <button
+            onClick={togglePlayPause}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/40 text-amber-400 text-xs font-bold transition-all shadow-xs"
+            title="Play / Pause [ESPAÇO]"
+          >
+            <MorphIcon
+              icon={isPlaying ? LucideIcons.Pause : LucideIcons.Play}
+              size={16}
+              spring="bouncy"
+            />
+            <span>{isPlaying ? 'Pausar' : 'Reproduzir'}</span>
+          </button>
+
+          {/* Botão Mudo / Áudio Morphing */}
+          <button
+            onClick={toggleMute}
+            className={`p-2 rounded-xl bg-slate-900 border transition-all ${
+              isMuted
+                ? 'border-rose-500/40 text-rose-400'
+                : 'border-slate-800 text-slate-300 hover:text-white'
+            }`}
+            title="Ativar/Desativar Som [M]"
+          >
+            <MorphIcon
+              icon={isMuted ? LucideIcons.VolumeX : LucideIcons.Volume2}
+              size={16}
+              spring="snappy"
+            />
+          </button>
+
           {/* Toggle 16:9 vs 9:16 */}
           <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold">
             <button
@@ -99,7 +151,7 @@ export const PitchMotionPage: React.FC = () => {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Monitor className="w-3.5 h-3.5" />
+              <MorphIcon icon={LucideIcons.Monitor} size={14} />
               <span>16:9 Cinema</span>
             </button>
             <button
@@ -110,7 +162,7 @@ export const PitchMotionPage: React.FC = () => {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5" />
+              <MorphIcon icon={LucideIcons.Smartphone} size={14} />
               <span>9:16 Reels</span>
             </button>
           </div>
@@ -120,7 +172,7 @@ export const PitchMotionPage: React.FC = () => {
             className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all"
             title="Reiniciar Apresentação (3-2-1)"
           >
-            <RotateCcw className="w-4 h-4" />
+            <MorphIcon icon={LucideIcons.RotateCcw} size={16} spring="bouncy" />
           </button>
 
           <button
@@ -128,7 +180,7 @@ export const PitchMotionPage: React.FC = () => {
             className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all"
             title="Modo Tela Cheia [F]"
           >
-            <Maximize2 className="w-4 h-4" />
+            <MorphIcon icon={LucideIcons.Maximize2} size={16} spring="snappy" />
           </button>
         </div>
       </div>
@@ -189,7 +241,7 @@ export const PitchMotionPage: React.FC = () => {
           rel="noopener noreferrer"
           className="text-amber-400 hover:underline font-bold flex items-center gap-1.5 shrink-0"
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <MorphIcon icon={LucideIcons.Sparkles} size={14} className="text-amber-400" />
           <span>Abrir Player Standalone em Nova Aba</span>
         </a>
       </div>
