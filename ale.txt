@@ -1,0 +1,4 @@
+implemente o cadastro de produtos mais detalhado, podendo colocar 1 ou mais imagens, cores, tipos, tamanhos, detalhes e informaçoes.
+cada produto tendo seu codigo separado, gere imagens com google banana pro mais recente para os produtos.
+melhore ainda mais a dashboard e deixe-a mais intuitiva, animada, efeitos, com mais coisas e detalhes para facilitar a visualização do dia.
+adicione um calendario na dashboard para alguma função futura.
