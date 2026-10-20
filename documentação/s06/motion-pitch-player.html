@@ -4,23 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MS² Vestuário — Apresentação em Motion Design (Sprint 6)</title>
-  
-  <!-- Google Fonts: Space Grotesk + Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+  
   <style>
+    :root {
+      --bg: #03060d;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --gold: #d4af37;
+      --gold-light: #fef08a;
+      --gold-dark: #854d0e;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+      --red: #ef4444;
+      --indigo: #6366f1;
+      --indigo-glow: rgba(99, 102, 241, 0.35);
+      --card-bg: rgba(15, 23, 42, 0.72);
+      --card-border: rgba(255, 255, 255, 0.12);
+    }
+
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
       user-select: none;
     }
 
     body {
-      background: #03060d;
-      color: #f8fafc;
+      background: #000000;
+      color: var(--text);
       font-family: 'Inter', sans-serif;
       overflow: hidden;
       width: 100vw;
@@ -30,165 +44,423 @@
       justify-content: center;
     }
 
-    body.playing {
+    body.hide-cursor {
       cursor: none;
     }
 
-    /* Contêiner de Escalonamento Automático */
+    /* Container e Palco Escalado */
+    #viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+    }
+
     #stage-container {
       position: relative;
-      background: #000;
-      box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
-      overflow: hidden;
-      transform-origin: center center;
-      transition: width 0.3s ease, height 0.3s ease;
-    }
-
-    /* Palco com Resolução Nativa Interna */
-    #stage {
-      position: absolute;
-      top: 0;
-      left: 0;
       width: 1920px;
       height: 1080px;
+      transform-origin: center center;
+      background: var(--bg);
+      box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
       overflow: hidden;
-      background: radial-gradient(circle at 50% 30%, #0d1527 0%, #060913 60%, #020408 100%);
+      border-radius: 20px;
+      transition: width 0.4s ease, height 0.4s ease;
     }
 
-    /* Formato Vertical 9:16 (quando ativo) */
-    #stage-container.aspect-vertical {
-      width: 1080px !important;
-      height: 1920px !important;
-    }
-    #stage-container.aspect-vertical #stage {
+    #stage-container.aspect-916 {
       width: 1080px;
       height: 1920px;
+      border-radius: 36px;
     }
 
-    /* Fundo Vivo com Glows e Partículas */
+    /* Iluminação e Efeitos de Fundo */
     .ambient-glow {
       position: absolute;
       border-radius: 50%;
-      filter: blur(120px);
+      filter: blur(140px);
       pointer-events: none;
-      opacity: 0.35;
-      mix-blend-mode: screen;
-      will-change: transform, opacity;
+      opacity: 0.45;
+      transition: transform 0.2s linear;
+      will-change: transform;
     }
+
     .glow-gold {
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(212, 175, 55, 0.5) 0%, transparent 70%);
-      top: -200px;
-      right: -100px;
-    }
-    .glow-indigo {
       width: 900px;
       height: 900px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, transparent 70%);
-      bottom: -300px;
-      left: -200px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, transparent 70%);
+      top: -250px;
+      left: 10%;
     }
+
+    .glow-indigo {
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      bottom: -200px;
+      right: 5%;
+    }
+
     .glow-emerald {
       width: 700px;
       height: 700px;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, transparent 70%);
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+      top: 35%;
+      left: 45%;
     }
 
-    /* Grid de Fundo Sutil */
-    .grid-overlay {
+    .grid-mesh {
       position: absolute;
       inset: 0;
       background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 80px 80px;
       pointer-events: none;
+      opacity: 0.6;
     }
 
-    .vignette {
+    .cinematic-vignette {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, transparent 40%, rgba(2, 4, 8, 0.85) 100%);
+      background: radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.75) 100%);
       pointer-events: none;
+      z-index: 15;
     }
 
-    /* Câmera e Camada de Cena */
+    .backdrop-photo {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      filter: brightness(0.28) contrast(1.15) saturate(0.9);
+      transition: opacity 0.8s ease, transform 1.2s ease;
+      transform: scale(1.05);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .backdrop-photo.active {
+      opacity: 0.45;
+      transform: scale(1);
+    }
+
+    /* Câmera Cinemática de Movimento Contínuo */
     #camera {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform-origin: center center;
+      will-change: transform;
+      z-index: 10;
+    }
+
+    /* Cenas Individuais */
+    .scene {
       position: absolute;
       inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 80px 100px;
-      transform-origin: center center;
-      will-change: transform;
+      padding: 60px 120px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      will-change: opacity, transform;
     }
 
-    /* Elementos de Interface do Player */
-    .timecode-badge {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+    /* Tipografia e Palavras */
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
       border-radius: 9999px;
-      padding: 6px 14px;
-      font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
       font-weight: 700;
-      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.6);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .badge-pill svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .badge-gold {
+      color: var(--gold);
+      border-color: rgba(212, 175, 55, 0.4);
+      background: rgba(212, 175, 55, 0.12);
+    }
+    .badge-emerald {
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.12);
+    }
+    .badge-red {
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.12);
+    }
+    .badge-indigo {
+      color: #a5b4fc;
+      border-color: rgba(99, 102, 241, 0.4);
+      background: rgba(99, 102, 241, 0.12);
+    }
+
+    .scene-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 58px;
+      font-weight: 800;
+      line-height: 1.15;
+      text-align: center;
+      max-width: 1450px;
+      margin-bottom: 32px;
+      letter-spacing: -0.02em;
+    }
+
+    .word {
+      display: inline-block;
+      margin: 0 7px;
+      opacity: 0.18;
+      transform: translateY(14px);
+      filter: blur(4px);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+    }
+
+    .word.active {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    .word.highlight-gold {
+      background: linear-gradient(135deg, #ffffff 10%, #d4af37 60%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
+      font-weight: 800;
+    }
+
+    .word.highlight-emerald {
+      color: #34d399;
+      text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+    }
+
+    .word.highlight-red {
+      color: #f87171;
+      text-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+    }
+
+    .word.highlight-indigo {
+      color: #a5b4fc;
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Container Bento e Cards Visuais */
+    .bento-container {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 1440px;
+      margin-top: 10px;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    }
+
+    /* Logo Livre Dourada */
+    .logo-free {
+      max-height: 130px;
+      width: auto;
+      object-contain: contain;
+      filter: drop-shadow(0 0 35px rgba(212, 175, 55, 0.45));
+      margin-bottom: 24px;
+      animation: floatLogo 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatLogo {
+      0% { transform: translateY(0px) scale(1); }
+      100% { transform: translateY(-8px) scale(1.02); }
+    }
+
+    /* Code Window Real */
+    .code-window {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+      width: 100%;
+    }
+
+    .code-header {
+      background: rgba(15, 23, 42, 0.9);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .code-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .code-body {
+      padding: 20px 24px;
+      color: #cbd5e1;
+      overflow-x: auto;
+    }
+
+    .code-keyword { color: #f43f5e; font-weight: 700; }
+    .code-func { color: #60a5fa; font-weight: 600; }
+    .code-string { color: #34d399; }
+    .code-num { color: #fbbf24; }
+    .code-comment { color: #64748b; font-style: italic; }
+    .code-gold { color: #d4af37; font-weight: 700; }
+
+    /* Barra Superior Global de Progresso */
+    #progress-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
       z-index: 100;
+      cursor: pointer;
+    }
+
+    #progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #d4af37, #f59e0b, #10b981);
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.8);
+      transition: width 0.1s linear;
+    }
+
+    /* HUD Timecode & Indicadores */
+    .hud-top-right {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .hud-pill {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 8px;
+      backdrop-filter: blur(12px);
     }
-    .timecode-dot {
+
+    .hud-audio-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: #10b981;
-      box-shadow: 0 0 10px #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseDot 1.5s infinite;
     }
 
-    .hud-controls {
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* HUD Inferior de Atalhos */
+    .hud-bottom-bar {
       position: absolute;
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
-      padding: 8px 18px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
+      padding: 8px 20px;
+      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 11px;
+      color: #94a3b8;
       backdrop-filter: blur(16px);
       z-index: 100;
       transition: opacity 0.3s ease;
-      font-size: 12px;
-      color: #94a3b8;
-    }
-    .hud-controls kbd {
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 6px;
-      padding: 2px 7px;
-      color: #f1f5f9;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
     }
 
-    /* Tela de Início / Play */
+    .hud-bottom-bar kbd {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f1f5f9;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Overlays de Início e Contagem */
     #start-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(4, 7, 15, 0.95);
+      background: rgba(3, 6, 13, 0.92);
       backdrop-filter: blur(20px);
       display: flex;
       flex-direction: column;
@@ -197,9 +469,9 @@
       z-index: 200;
       cursor: pointer;
       text-align: center;
-      padding: 40px;
     }
-    .play-circle {
+
+    .play-btn-circle {
       width: 110px;
       height: 110px;
       border-radius: 50%;
@@ -207,377 +479,350 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 28px;
-      box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+      box-shadow: 0 0 60px rgba(212, 175, 55, 0.5);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    #start-overlay:hover .play-circle {
-      transform: scale(1.08);
-      box-shadow: 0 0 70px rgba(212, 175, 55, 0.7);
-    }
-    .play-arrow {
-      width: 0;
-      height: 0;
-      border-top: 18px solid transparent;
-      border-bottom: 18px solid transparent;
-      border-left: 28px solid #000;
-      margin-left: 6px;
+      margin-bottom: 24px;
     }
 
-    /* Contagem Regressiva 3-2-1 */
+    .play-btn-circle:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 80px rgba(212, 175, 55, 0.7);
+    }
+
+    .play-btn-circle svg {
+      width: 44px;
+      height: 44px;
+      fill: #03060d;
+      margin-left: 4px;
+    }
+
     #countdown-overlay {
       position: absolute;
       inset: 0;
-      display: flex;
+      background: rgba(3, 6, 13, 0.88);
+      backdrop-filter: blur(25px);
+      display: none;
       align-items: center;
       justify-content: center;
-      z-index: 190;
+      z-index: 210;
       pointer-events: none;
-      background: rgba(3, 6, 13, 0.85);
     }
-    .countdown-number {
+
+    #countdown-digit {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 220px;
+      font-size: 240px;
       font-weight: 800;
       background: linear-gradient(135deg, #ffffff, #d4af37);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 80px rgba(212, 175, 55, 0.5);
-      transform: scale(0.6);
+      text-shadow: 0 0 90px rgba(212, 175, 55, 0.6);
+      transform: scale(0.7);
       opacity: 0;
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
     }
 
-    /* Componentes Tipográficos das Cenas */
-    .scene {
+    /* Modal de Inspeção de Código (Tecla C) */
+    #code-inspector-modal {
       position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 90px 140px;
-      opacity: 0;
-      pointer-events: none;
-      will-change: opacity, transform;
-    }
-
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      border-radius: 9999px;
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-    }
-    .badge-red {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-    .badge-gold {
-      background: rgba(212, 175, 55, 0.15);
-      color: #fbbf24;
-      border-color: rgba(212, 175, 55, 0.3);
-    }
-    .badge-emerald {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-    .badge-indigo {
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
-      border-color: rgba(99, 102, 241, 0.3);
-    }
-
-    .scene-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 72px;
-      font-weight: 800;
-      line-height: 1.1;
-      text-align: center;
-      max-width: 1400px;
-      margin-bottom: 36px;
-      letter-spacing: -0.02em;
-    }
-
-    .word {
-      display: inline-block;
-      margin: 0 8px;
-      opacity: 0.15;
-      transform: translateY(15px);
-      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
-      filter: blur(4px);
-    }
-    .word.active {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
-    .word.highlight-gold {
-      background: linear-gradient(135deg, #fff, #d4af37, #f59e0b);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
-      font-weight: 800;
-    }
-    .word.highlight-red {
-      color: #f87171;
-      text-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
-    }
-    .word.highlight-emerald {
-      color: #34d399;
-      text-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
-    }
-
-    /* Cards e Elementos Gráficos das Cenas */
-    .visual-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 32px;
-      width: 100%;
-      max-width: 1350px;
-      margin-top: 20px;
-    }
-
-    .glass-box {
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      inset: 40px;
+      background: rgba(9, 13, 22, 0.96);
+      border: 1px solid rgba(212, 175, 55, 0.4);
       border-radius: 24px;
-      padding: 32px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      position: relative;
+      box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(30px);
+      z-index: 250;
+      display: none;
+      flex-direction: column;
       overflow: hidden;
     }
 
-    /* Elementos Específicos das Cenas */
-    /* Cena 1: Caos do Varejo */
-    .metric-card-danger {
-      border-color: rgba(239, 68, 68, 0.3);
-      background: rgba(239, 68, 68, 0.08);
-      text-align: center;
-      flex: 1;
-    }
-
-    /* Cena 2: Logo MS² Livre */
-    .logo-hero {
-      height: 180px;
-      width: auto;
-      object-fit: contain;
-      filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.6));
-      margin-bottom: 20px;
-      animation: float 4s ease-in-out infinite;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    /* Cena 3: PDV & Bipe Sub-300ms */
-    .barcode-scanner-box {
+    #code-inspector-modal.open {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      background: rgba(2, 6, 23, 0.85);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      border-radius: 20px;
-      padding: 24px 36px;
-      box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
-    }
-    .pulse-laser {
-      height: 3px;
-      background: linear-gradient(90deg, transparent, #10b981, transparent);
-      box-shadow: 0 0 15px #10b981;
-      width: 100%;
     }
 
-    /* Cena 4: Alçada Gerencial Âmbar */
-    .alcada-box {
-      border: 2px solid rgba(245, 158, 11, 0.5);
-      background: rgba(245, 158, 11, 0.08);
-      box-shadow: 0 0 50px rgba(245, 158, 11, 0.25);
+    /* Modo 9:16 Vertical */
+    #stage-container.aspect-916 .scene {
+      padding: 120px 48px;
     }
 
-    /* Cena 5: Cupom Térmico NFC-e */
-    .receipt-paper {
-      background: #fdfbf7;
-      color: #0f172a;
-      font-family: 'JetBrains Mono', monospace;
-      padding: 28px;
-      border-radius: 12px;
-      width: 440px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
-      border-top: 4px solid #d4af37;
+    #stage-container.aspect-916 .scene-title {
+      font-size: 42px;
+      margin-bottom: 24px;
     }
 
-    /* Cena 6: Selo Homologação */
-    .seal-badge {
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #f59e0b 0%, #b45309 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 60px rgba(245, 158, 11, 0.6);
-      border: 4px solid #fef3c7;
+    #stage-container.aspect-916 .bento-container {
+      flex-direction: column;
+      gap: 16px;
     }
 
-    /* Barra de Progresso Inferior */
-    #progress-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #d4af37, #10b981);
-      width: 0%;
-      z-index: 150;
-      box-shadow: 0 0 12px #d4af37;
+    #stage-container.aspect-916 .hud-bottom-bar {
+      font-size: 9px;
+      padding: 6px 14px;
+      gap: 8px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Palco Escalado Dinamicamente -->
-  <div id="stage-container">
-    <div id="stage">
+  <div id="viewport">
+    <div id="stage-container">
       
-      <!-- Fundo Vivo e Mesh Luminosa -->
-      <div class="ambient-glow glow-gold" id="ambient-gold"></div>
-      <div class="ambient-glow glow-indigo" id="ambient-indigo"></div>
-      <div class="ambient-glow glow-emerald" id="ambient-emerald"></div>
-      <div class="grid-overlay"></div>
-      <div class="vignette"></div>
+      <!-- Fundo Luminoso e Malha Dinâmica -->
+      <div class="ambient-glow glow-gold" id="fx-glow-gold"></div>
+      <div class="ambient-glow glow-indigo" id="fx-glow-indigo"></div>
+      <div class="ambient-glow glow-emerald" id="fx-glow-emerald"></div>
+      <div class="grid-mesh"></div>
+      <div class="cinematic-vignette"></div>
 
-      <!-- Barra de Progresso Global -->
-      <div id="progress-bar"></div>
+      <!-- Fotos de Fundo Temáticas (Fade-in Inteligente) -->
+      <div class="backdrop-photo" id="bg-boutique" style="background-image: url('/pitch/img/boutique.jpg');"></div>
+      <div class="backdrop-photo" id="bg-queue" style="background-image: url('/pitch/img/queue.jpg');"></div>
+      <div class="backdrop-photo" id="bg-rack" style="background-image: url('/pitch/img/rack.jpg');"></div>
+      <div class="backdrop-photo" id="bg-scanner" style="background-image: url('/pitch/img/scanner.jpg');"></div>
+      <div class="backdrop-photo" id="bg-manager" style="background-image: url('/pitch/img/manager.jpg');"></div>
+      <div class="backdrop-photo" id="bg-silk" style="background-image: url('/pitch/img/silk.jpg');"></div>
 
-      <!-- Timecode HUD -->
-      <div class="timecode-badge" id="hud-timecode">
-        <div class="timecode-dot"></div>
-        <span id="timecode-text">00:00.0 / 00:55.0</span>
+      <!-- Barra Superior de Progresso -->
+      <div id="progress-track" title="Clique para saltar no tempo">
+        <div id="progress-fill"></div>
       </div>
 
-      <!-- Atalhos HUD -->
-      <div class="hud-controls" id="hud-controls">
+      <!-- HUD Superior -->
+      <div class="hud-top-right">
+        <div class="hud-pill" id="hud-audio-status">
+          <div class="hud-audio-dot" id="audio-dot"></div>
+          <span id="audio-label">Voz Neural PT-BR</span>
+        </div>
+        <div class="hud-pill" id="hud-timecode">
+          <span id="timecode-display" style="font-family: 'JetBrains Mono', monospace; color: var(--gold-light);">00:00.0 / 02:45.0</span>
+        </div>
+      </div>
+
+      <!-- HUD Inferior de Atalhos -->
+      <div class="hud-bottom-bar">
         <span><kbd>ESPAÇO</kbd> Play/Pause</span>
-        <span><kbd>R</kbd> Reiniciar</span>
+        <span><kbd>R</kbd> 3-2-1</span>
         <span><kbd>←</kbd> <kbd>→</kbd> Cenas</span>
+        <span><kbd>1..9</kbd> Pular</span>
+        <span><kbd>M</kbd> Mudo</span>
+        <span><kbd>C</kbd> Código</span>
         <span><kbd>F</kbd> Tela Cheia</span>
         <span><kbd>A</kbd> 16:9 / 9:16</span>
       </div>
 
-      <!-- Câmera do Vídeo (Zoom e Movimento Contínuo) -->
+      <!-- Câmera do Vídeo -->
       <div id="camera">
 
-        <!-- ======================================================== -->
-        <!-- CENA 1: O GARGALO DO VAREJO [0.0s – 7.5s] -->
-        <!-- ======================================================== -->
+        <!-- ========================================================== -->
+        <!-- CENA 01 · ABERTURA & IDENTIDADE DE MARCA                  -->
+        <!-- ========================================================== -->
         <div class="scene" id="scene-1">
-          <div class="badge-pill badge-red">
-            <span>● Gargalo Operacional do Varejo</span>
+          <div class="badge-pill badge-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span>MS² Vestuário • Sprint 6 • Gabarito Firjan SENAI</span>
           </div>
-          
+
+          <img src="/logo.png" alt="MS² Vestuário" class="logo-free">
+
           <h1 class="scene-title">
-            <span class="word">No</span>
-            <span class="word">varejo</span>
-            <span class="word">de</span>
-            <span class="word">moda,</span>
-            <span class="word highlight-red">filas</span>
-            <span class="word highlight-red">lentas,</span>
-            <span class="word highlight-red">descontos</span>
-            <span class="word highlight-red">sem</span>
-            <span class="word highlight-red">controle</span>
+            <span class="word">Moda</span>
+            <span class="word">é</span>
+            <span class="word highlight-gold">emoção,</span>
+            <span class="word">estilo</span>
             <span class="word">e</span>
-            <span class="word">erros</span>
+            <span class="word highlight-gold">identidade.</span>
+            <span class="word">Mas</span>
+            <span class="word">por</span>
+            <span class="word">trás</span>
             <span class="word">de</span>
-            <span class="word">estoque</span>
-            <span class="word highlight-gold">custam</span>
+            <span class="word">cada</span>
+            <span class="word">vitrine,</span>
+            <span class="word">existe</span>
+            <span class="word">uma</span>
+            <span class="word highlight-emerald">operação</span>
+            <span class="word">que</span>
+            <span class="word highlight-red">não</span>
+            <span class="word highlight-red">pode</span>
+            <span class="word highlight-red">parar.</span>
+          </h1>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 02 · O GARGALO OPERACIONAL DO VAREJO                 -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-2">
+          <div class="badge-pill badge-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Dores Críticas do Varejo Físico</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word highlight-red">Filas</span>
+            <span class="word highlight-red">lentas</span>
+            <span class="word">no</span>
+            <span class="word">pico,</span>
+            <span class="word highlight-red">descontos</span>
+            <span class="word">sem</span>
+            <span class="word highlight-red">controle,</span>
+            <span class="word">cadastros</span>
+            <span class="word highlight-red">duplicados</span>
+            <span class="word">e</span>
+            <span class="word">notas</span>
+            <span class="word highlight-red">rejeitadas</span>
+            <span class="word">custam</span>
             <span class="word highlight-gold">milhares.</span>
           </h1>
 
-          <div class="visual-container">
-            <div class="glass-box metric-card-danger" id="c1-card-1">
-              <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">TEMPO DE ESPERA</div>
-              <div style="font-size: 48px; font-weight: 800; font-family: 'Space Grotesk'; color: #fff;">+18 min</div>
-              <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Filas travadas por falta de código ou cliente</p>
+          <div class="bento-container">
+            <div class="glass-card" style="flex: 1; border-color: rgba(239, 68, 68, 0.4);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:700; color:#ef4444; letter-spacing:0.1em;">FILAS EM PICO</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div style="font-size:52px; font-weight:800; font-family:'Space Grotesk'; color:#fff; margin:14px 0;">+18 min</div>
+              <p style="font-size:13px; color:#94a3b8;">Travamento do caixa por digitação manual ou busca demorada de código.</p>
             </div>
 
-            <div class="glass-box metric-card-danger" id="c1-card-2">
-              <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">PERDA DE MARGEM</div>
-              <div style="font-size: 48px; font-weight: 800; font-family: 'Space Grotesk'; color: #f87171;">-32.4%</div>
-              <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Descontos abusivos aplicados sem alçada gerencial</p>
+            <div class="glass-card" style="flex: 1; border-color: rgba(239, 68, 68, 0.4);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:700; color:#ef4444; letter-spacing:0.1em;">PERDA DE MARGEM</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              </div>
+              <div style="font-size:52px; font-weight:800; font-family:'Space Grotesk'; color:#f87171; margin:14px 0;">-32.4%</div>
+              <p style="font-size:13px; color:#94a3b8;">Descontos abusivos aplicados diretamente no PDV sem autorização de gerente.</p>
             </div>
 
-            <div class="glass-box metric-card-danger" id="c1-card-3">
-              <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">INSEGURANÇA FISCAL</div>
-              <div style="font-size: 48px; font-weight: 800; font-family: 'Space Grotesk'; color: #fbbf24;">ERRO 409</div>
-              <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Cadastros duplicados e rejeição na SEFAZ</p>
+            <div class="glass-card" style="flex: 1; border-color: rgba(245, 158, 11, 0.4);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:700; color:#fbbf24; letter-spacing:0.1em;">INSEGURANÇA FISCAL</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div style="font-size:52px; font-weight:800; font-family:'Space Grotesk'; color:#fbbf24; margin:14px 0;">ERRO 409</div>
+              <p style="font-size:13px; color:#94a3b8;">CPFs inválidos, duplicidades no banco e rejeições perante a SEFAZ.</p>
             </div>
           </div>
         </div>
 
-        <!-- ======================================================== -->
-        <!-- CENA 2: REVELAÇÃO - MS² VESTUÁRIO [7.5s – 16.0s] -->
-        <!-- ======================================================== -->
-        <div class="scene" id="scene-2">
+        <!-- ========================================================== -->
+        <!-- CENA 03 · A REVELAÇÃO DO ECOSSISTEMA                     -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-3">
           <div class="badge-pill badge-gold">
-            <span>★ Nova Geração de Gestão Comercial</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>A Resposta Definitiva</span>
           </div>
 
-          <!-- Logo Oficial Livre -->
-          <img src="/logo.png" alt="MS² Vestuário" class="logo-hero" id="c2-logo" onerror="this.src='/favicon.png'">
+          <img src="/logo.png" alt="MS² Vestuário" class="logo-free" style="max-height:100px;">
 
           <h1 class="scene-title">
-            <span class="word">Apresentamos</span>
+            <span class="word">Por</span>
+            <span class="word">isso</span>
+            <span class="word">nasceu</span>
             <span class="word">o</span>
             <span class="word highlight-gold">MS²</span>
             <span class="word highlight-gold">Vestuário:</span>
-            <span class="word">um</span>
-            <span class="word">ecossistema</span>
-            <span class="word">completo</span>
-            <span class="word">de</span>
-            <span class="word highlight-emerald">altíssima</span>
+            <span class="word">do</span>
+            <span class="word">primeiro</span>
+            <span class="word">pixel</span>
+            <span class="word">ao</span>
+            <span class="word">último</span>
+            <span class="word">byte,</span>
+            <span class="word">feito</span>
+            <span class="word">para</span>
+            <span class="word highlight-emerald">alta</span>
             <span class="word highlight-emerald">performance.</span>
           </h1>
 
-          <div class="visual-container">
-            <div class="glass-box" style="flex: 1; text-align: center; border-color: rgba(212, 175, 55, 0.4);">
-              <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
-              <div style="font-size: 18px; font-weight: 800; color: #d4af37;">PDV Ultrarrápido</div>
-              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Bipagem & carrinho sub-300ms</p>
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4); text-align:center;">
+              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(212, 175, 55, 0.15); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div style="font-size:20px; font-weight:800; color:#d4af37;">PDV Ultrarrápido</div>
+              <p style="font-size:13px; color:#94a3b8; margin-top:8px;">Bipagem instantânea sub-300ms e catálogo fotográfico de vestuário.</p>
             </div>
 
-            <div class="glass-box" style="flex: 1; text-align: center; border-color: rgba(99, 102, 241, 0.4);">
-              <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
-              <div style="font-size: 18px; font-weight: 800; color: #818cf8;">Governança RBAC</div>
-              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Alçadas gerenciais e auditoria</p>
+            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4); text-align:center;">
+              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(99, 102, 241, 0.15); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div style="font-size:20px; font-weight:800; color:#818cf8;">Governança RBAC</div>
+              <p style="font-size:13px; color:#94a3b8; margin-top:8px;">Alçadas de desconto (RN-02), cancelamento formal (RN-03) e auditoria.</p>
             </div>
 
-            <div class="glass-box" style="flex: 1; text-align: center; border-color: rgba(16, 185, 129, 0.4);">
-              <div style="font-size: 32px; margin-bottom: 8px;">📜</div>
-              <div style="font-size: 18px; font-weight: 800; color: #34d399;">Conformidade SEFAZ</div>
-              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">NFC-e / SAT e exportação contábil</p>
+            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4); text-align:center;">
+              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div style="font-size:20px; font-weight:800; color:#34d399;">Conformidade Fiscal</div>
+              <p style="font-size:13px; color:#94a3b8; margin-top:8px;">Emissão de NFC-e (Mod 65) / SAT, Lei da Transparência e exportações.</p>
             </div>
           </div>
         </div>
 
-        <!-- ======================================================== -->
-        <!-- CENA 3: PROVA - VELOCIDADE E MÓDULO 11 [16.0s – 26.5s] -->
-        <!-- ======================================================== -->
-        <div class="scene" id="scene-3">
+        <!-- ========================================================== -->
+        <!-- CENA 04 · ENGENHARIA DE ARQUITETURA                      -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-4">
+          <div class="badge-pill badge-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Arquitetura Limpa & Transacional</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">React</span>
+            <span class="word">com</span>
+            <span class="word highlight-indigo">TypeScript,</span>
+            <span class="word">API</span>
+            <span class="word">em</span>
+            <span class="word highlight-indigo">Node</span>
+            <span class="word">e</span>
+            <span class="word">Express,</span>
+            <span class="word highlight-gold">validação</span>
+            <span class="word">com</span>
+            <span class="word highlight-gold">Zod,</span>
+            <span class="word">JWT</span>
+            <span class="word">e</span>
+            <span class="word highlight-emerald">transações</span>
+            <span class="word highlight-emerald">ACID.</span>
+          </h1>
+
+          <div class="code-window" style="max-width: 1200px;">
+            <div class="code-header">
+              <div class="code-dots">
+                <div class="code-dot dot-red"></div>
+                <div class="code-dot dot-yellow"></div>
+                <div class="code-dot dot-green"></div>
+              </div>
+              <span style="font-size:11px; color:#94a3b8; font-weight:700;">backend/src/services/VendaService.ts (Transação ACID & Snapshot)</span>
+              <span style="font-size:10px; color:#34d399; font-weight:700;">TypeScript 5.7</span>
+            </div>
+            <div class="code-body">
+              <span class="code-keyword">export class</span> <span class="code-gold">VendaService</span> {<br>
+              &nbsp;&nbsp;<span class="code-keyword">static async</span> <span class="code-func">criar</span>(dados: <span class="code-gold">VendaCriacaoInput</span>, operadorId: <span class="code-num">number</span>, cargo: <span class="code-gold">CargoUsuario</span>) {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// 1. Transação Atômica ACID: Reserva estoque, grava cabeçalho e snapshot de preços</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> conexao = <span class="code-keyword">await</span> db.<span class="code-func">getConnection</span>();<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> conexao.<span class="code-func">beginTransaction</span>();<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">try</span> {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> subtotal = dados.itens.<span class="code-func">reduce</span>((acc, i) =&gt; acc + (i.preco_unitario * i.quantidade), <span class="code-num">0</span>);<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> (dados.desconto &gt; subtotal * <span class="code-num">0.10</span> &amp;&amp; cargo === <span class="code-string">'CAIXA'</span>) {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> AuthService.<span class="code-func">validarCredenciaisGerente</span>(dados.gerente_email, dados.gerente_senha);<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> conexao.<span class="code-func">commit</span>(); <span class="code-comment">// Persistência segura garantida</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;} <span class="code-keyword">catch</span> (err) { <span class="code-keyword">await</span> conexao.<span class="code-func">rollback</span>(); <span class="code-keyword">throw</span> err; }<br>
+              &nbsp;&nbsp;}<br>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 05 · PDV AO VIVO: BIPAGEM SUB-300MS                 -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-5">
           <div class="badge-pill badge-emerald">
-            <span>✓ Velocidade & Rigor Cadastral</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>Velocidade de Caixa Express</span>
           </div>
 
           <h1 class="scene-title">
@@ -585,290 +830,666 @@
             <span class="word">instantânea</span>
             <span class="word">em</span>
             <span class="word highlight-emerald">menos</span>
-            <span class="word highlight-emerald">de</span>
+            <span class="word">de</span>
             <span class="word highlight-emerald">300ms,</span>
             <span class="word">catálogo</span>
-            <span class="word">com</span>
-            <span class="word">fotos</span>
+            <span class="word">fotográfico</span>
             <span class="word">e</span>
-            <span class="word highlight-gold">validação</span>
-            <span class="word highlight-gold">oficial</span>
-            <span class="word highlight-gold">de</span>
-            <span class="word highlight-gold">CPF.</span>
+            <span class="word highlight-gold">atalhos</span>
+            <span class="word">operacionais.</span>
           </h1>
 
-          <div class="visual-container">
-            <!-- Simulação de Leitor de Barras -->
-            <div class="barcode-scanner-box" style="flex: 2;">
-              <div>
-                <div style="font-size: 11px; font-weight: 700; color: #10b981; letter-spacing: 0.1em; text-transform: uppercase;">Leitor Express Ativo</div>
-                <div style="font-size: 24px; font-weight: 800; color: #fff; margin-top: 4px; font-family: 'Space Grotesk';">Bip: 103 — Calça Jeans Slim</div>
-                <div style="font-size: 12px; color: #94a3b8; font-family: 'JetBrains Mono'; margin-top: 4px;">Preço: R$ 159,90 • Subtotal: R$ 159,90</div>
-              </div>
-              <div style="text-align: right;">
-                <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; font-weight: 800; font-size: 16px; padding: 6px 16px; border-radius: 9999px;">
-                  182 ms
+          <div class="bento-container">
+            <!-- Box Leitor Laser -->
+            <div class="glass-card" style="flex:1.4; border-color: rgba(16, 185, 129, 0.5);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:700; color:#34d399; letter-spacing:0.1em;">LEITOR LASER ATIVO [F2]</span>
+                <span style="background:rgba(16, 185, 129, 0.2); border:1px solid #10b981; color:#34d399; font-weight:800; font-size:14px; padding:4px 14px; border-radius:9999px;">
+                  ⚡ 182 ms
                 </span>
+              </div>
+              <div style="margin:16px 0; display:flex; gap:16px; align-items:center;">
+                <img src="/products/103.jpg" alt="Calça Jeans Slim" style="width:72px; height:72px; border-radius:14px; object-fit:cover; border:1px solid rgba(255,255,255,0.15);">
+                <div>
+                  <div style="font-size:22px; font-weight:800; font-family:'Space Grotesk'; color:#fff;">Calça Jeans Slim Azul Escuro 40</div>
+                  <div style="font-size:13px; color:#94a3b8; font-family:'JetBrains Mono'; margin-top:4px;">Código: 103 • Vestuário Masculino</div>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:#10b981; border-top:1px solid rgba(255,255,255,0.1); pt:12px; margin-top:auto;">
+                <span>Subtotal da Peça:</span>
+                <span style="font-family:'JetBrains Mono';">R$ 159,90</span>
               </div>
             </div>
 
-            <!-- Validador Módulo 11 -->
-            <div class="glass-box" style="flex: 1; border-color: rgba(16, 185, 129, 0.5);">
-              <div style="font-size: 12px; font-weight: 700; color: #34d399; margin-bottom: 6px;">MÓDULO 11 RECEITA FEDERAL</div>
-              <div style="font-size: 20px; font-weight: 800; font-family: 'JetBrains Mono'; color: #fff;">064.514.702-87</div>
-              <div style="display: flex; align-items: center; gap: 6px; margin-top: 8px; color: #10b981; font-size: 12px; font-weight: 700;">
-                <span>✓ CPF Autêntico & Sem Duplicata</span>
+            <!-- Box Teclas de Atalho de Caixa -->
+            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#d4af37; letter-spacing:0.1em; margin-bottom:12px;">ATALHOS OPERACIONAIS</div>
+              <div style="display:flex; flex-direction:column; gap:10px; font-size:12px;">
+                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Bipar Produto:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#fbbf24; font-family:monospace;">F2</kbd></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Identificar Cliente:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#fbbf24; font-family:monospace;">F4</kbd></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Desconto & Alçada:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#fbbf24; font-family:monospace;">F8</kbd></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Finalizar Pagamento:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#34d399; font-family:monospace;">F9</kbd></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Limpar Carrinho:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#f87171; font-family:monospace;">F12</kbd></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ======================================================== -->
-        <!-- CENA 4: GOVERNANÇA - ALÇADAS GERENCIAIS [26.5s – 37.0s] -->
-        <!-- ======================================================== -->
-        <div class="scene" id="scene-4">
+        <!-- ========================================================== -->
+        <!-- CENA 06 · CÓDIGO AO VIVO: RN-01 MÓDULO 11 (CPF)           -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-6">
           <div class="badge-pill badge-gold">
-            <span>🛡️ Segurança & Auditoria Imutável</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>RN-01 • Validação Oficial Módulo 11</span>
           </div>
 
           <h1 class="scene-title">
-            <span class="word">Chega</span>
-            <span class="word">de</span>
-            <span class="word">fraudes.</span>
-            <span class="word highlight-gold">Descontos</span>
-            <span class="word highlight-gold">&gt;</span>
-            <span class="word highlight-gold">10%</span>
-            <span class="word">exigem</span>
-            <span class="word highlight-gold">autorização</span>
-            <span class="word highlight-gold">gerencial,</span>
-            <span class="word">e</span>
-            <span class="word">preços</span>
-            <span class="word highlight-emerald">ficam</span>
-            <span class="word highlight-emerald">gravados</span>
-            <span class="word highlight-emerald">para</span>
-            <span class="word highlight-emerald">sempre.</span>
+            <span class="word">Algoritmo</span>
+            <span class="word">oficial</span>
+            <span class="word">da</span>
+            <span class="word highlight-gold">Receita</span>
+            <span class="word highlight-gold">Federal:</span>
+            <span class="word">cálculo</span>
+            <span class="word">dos</span>
+            <span class="word">dois</span>
+            <span class="word highlight-emerald">dígitos</span>
+            <span class="word highlight-emerald">verificadores.</span>
           </h1>
 
-          <div class="visual-container">
-            <div class="glass-box alcada-box" style="flex: 1.5;">
-              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 12px; margin-bottom: 16px;">
-                <span style="font-weight: 800; color: #fbbf24; font-size: 16px;">⚠️ AUTORIZAÇÃO DE ALÇADA (RN-02)</span>
-                <span style="font-size: 12px; font-weight: 700; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 4px 10px; border-radius: 8px;">Desconto 36.4%</span>
-              </div>
-              <p style="font-size: 13px; color: #fde68a;">Desconto acima de 10% aprovado pelo Gerente: <strong>Carlos Mendes (ID #1)</strong></p>
-              <div style="margin-top: 14px; background: rgba(0, 0, 0, 0.4); padding: 10px 14px; border-radius: 10px; font-family: 'JetBrains Mono'; font-size: 12px; color: #a3e635;">
-                ✓ Chave Criptográfica Gerencial Validada
-              </div>
+          <div class="code-window" style="max-width: 1250px;">
+            <div class="code-header">
+              <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
+              <span style="font-size:11px; color:#94a3b8;">backend/src/utils/cpf-validator.ts (Módulo 11)</span>
+              <span style="font-size:11px; color:#fbbf24; font-weight:700;">Simulação: 064.514.702-87 → VÁLIDO</span>
             </div>
-
-            <div class="glass-box" style="flex: 1; border-color: rgba(99, 102, 241, 0.4);">
-              <div style="font-size: 12px; font-weight: 700; color: #818cf8; margin-bottom: 6px;">SNAPSHOT HISTÓRICO (RN-04)</div>
-              <div style="font-size: 18px; font-weight: 800; color: #fff;">Imutabilidade Contábil</div>
-              <p style="font-size: 12px; color: #94a3b8; margin-top: 6px;">Alterações de preço no catálogo não alteram vendas já faturadas no passado.</p>
+            <div class="code-body">
+              <span class="code-keyword">export function</span> <span class="code-func">validarCPF</span>(cpf: <span class="code-num">string</span>): <span class="code-num">boolean</span> {<br>
+              &nbsp;&nbsp;<span class="code-keyword">const</span> limpo = cpf.<span class="code-func">replace</span>(<span class="code-string">/\D/g</span>, <span class="code-string">''</span>);<br>
+              &nbsp;&nbsp;<span class="code-keyword">if</span> (limpo.length !== <span class="code-num">11</span> || <span class="code-string">/^(\d)\1{10}$/</span>.<span class="code-func">test</span>(limpo)) <span class="code-keyword">return false</span>;<br>
+              <br>
+              &nbsp;&nbsp;<span class="code-comment">// Cálculo do 1º DV (Pesos 10 a 2)</span><br>
+              &nbsp;&nbsp;<span class="code-keyword">let</span> soma = <span class="code-num">0</span>;<br>
+              &nbsp;&nbsp;<span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-num">0</span>; i &lt; <span class="code-num">9</span>; i++) soma += <span class="code-func">parseInt</span>(limpo[i]) * (<span class="code-num">10</span> - i);<br>
+              &nbsp;&nbsp;<span class="code-keyword">let</span> dv1 = (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>)) &gt;= <span class="code-num">10</span> ? <span class="code-num">0</span> : (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>));<br>
+              &nbsp;&nbsp;<span class="code-keyword">if</span> (dv1 !== <span class="code-func">parseInt</span>(limpo[<span class="code-num">9</span>])) <span class="code-keyword">return false</span>;<br>
+              <br>
+              &nbsp;&nbsp;<span class="code-comment">// Cálculo do 2º DV (Pesos 11 a 2)</span><br>
+              &nbsp;&nbsp;soma = <span class="code-num">0</span>;<br>
+              &nbsp;&nbsp;<span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-num">0</span>; i &lt; <span class="code-num">10</span>; i++) soma += <span class="code-func">parseInt</span>(limpo[i]) * (<span class="code-num">11</span> - i);<br>
+              &nbsp;&nbsp;<span class="code-keyword">let</span> dv2 = (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>)) &gt;= <span class="code-num">10</span> ? <span class="code-num">0</span> : (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>));<br>
+              &nbsp;&nbsp;<span class="code-keyword">return</span> dv2 === <span class="code-func">parseInt</span>(limpo[<span class="code-num">10</span>]); <span class="code-comment">// 100% Homologado</span><br>
+              }
             </div>
           </div>
         </div>
 
-        <!-- ======================================================== -->
-        <!-- CENA 5: INTELIGÊNCIA FISCAL & E-NOTA [37.0s – 46.5s] -->
-        <!-- ======================================================== -->
-        <div class="scene" id="scene-5">
+        <!-- ========================================================== -->
+        <!-- CENA 07 · GESTÃO DE CLIENTES & FIDELIZAÇÃO (RN-06)         -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-7">
+          <div class="badge-pill badge-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>RN-06 • Flexibilidade no Balcão</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Consumidor</span>
+            <span class="word highlight-emerald">Final,</span>
+            <span class="word">busca</span>
+            <span class="word">por</span>
+            <span class="word highlight-gold">CPF</span>
+            <span class="word">ou</span>
+            <span class="word highlight-indigo">cadastro</span>
+            <span class="word highlight-indigo">rápido</span>
+            <span class="word">sem</span>
+            <span class="word">sair</span>
+            <span class="word">da</span>
+            <span class="word">venda.</span>
+          </h1>
+
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1; border-color: rgba(148, 163, 184, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#94a3b8;">OPÇÃO 1</div>
+              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Consumidor Final</div>
+              <p style="font-size:13px; color:#94a3b8;">Venda anônima e instantânea sem exigência de CPF para o cliente casual.</p>
+              <div style="margin-top:14px; font-size:11px; color:#38bdf8; font-weight:700;">Zero Atrito no Caixa</div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#818cf8;">OPÇÃO 2</div>
+              <div style="font-size:22px; font-weight:800; color:#818cf8; margin:10px 0;">Cliente Fidelizado</div>
+              <p style="font-size:13px; color:#94a3b8;">Busca instantânea por CPF formatado com histórico de compras e pontuação.</p>
+              <div style="margin-top:14px; font-size:11px; color:#a5b4fc; font-weight:700;">Atalho [F4] Integrado</div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#34d399;">OPÇÃO 3</div>
+              <div style="font-size:22px; font-weight:800; color:#34d399; margin:10px 0;">Cadastro Express</div>
+              <p style="font-size:13px; color:#94a3b8;">Caixa, Gerente e Admin adicionam novos clientes diretamente no modal do PDV.</p>
+              <div style="margin-top:14px; font-size:11px; color:#6ee7b7; font-weight:700;">Validação Módulo 11 Ativa</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 08 · PERFIS DE ACESSO RBAC                          -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-8">
           <div class="badge-pill badge-indigo">
-            <span>⚖️ Módulo Fiscal & Relatórios Executivos</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Matriz Granular de Segurança</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Controle</span>
+            <span class="word">hierárquico</span>
+            <span class="word">por</span>
+            <span class="word highlight-indigo">papéis:</span>
+            <span class="word">Caixa,</span>
+            <span class="word highlight-gold">Gerente</span>
+            <span class="word">e</span>
+            <span class="word highlight-emerald">Administrador.</span>
+          </h1>
+
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#34d399;">PERFIL OPERACIONAL</div>
+              <div style="font-size:24px; font-weight:800; color:#fff; margin:8px 0;">Caixa</div>
+              <p style="font-size:13px; color:#94a3b8;">Opera PDV, bipagem de produtos, registro de clientes e fechamento de vendas.</p>
+              <div style="margin-top:12px; padding:6px 10px; background:rgba(16,185,129,0.1); border-radius:8px; font-size:11px; color:#34d399; font-weight:700;">Desconto Autônomo &le; 10%</div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#fbbf24;">PERFIL GESTOR</div>
+              <div style="font-size:24px; font-weight:800; color:#fbbf24; margin:8px 0;">Gerente</div>
+              <p style="font-size:13px; color:#94a3b8;">Aprova alçadas de desconto (RN-02), autoriza estornos formais e acessa Dashboard.</p>
+              <div style="margin-top:12px; padding:6px 10px; background:rgba(212,175,55,0.1); border-radius:8px; font-size:11px; color:#fbbf24; font-weight:700;">Autorizador Criptográfico</div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#818cf8;">PERFIL DIRETORIA</div>
+              <div style="font-size:24px; font-weight:800; color:#818cf8; margin:8px 0;">Administrador</div>
+              <p style="font-size:13px; color:#94a3b8;">Controle total de equipe, exclusões definitivas, configuração de CNPJ e dados fiscais.</p>
+              <div style="margin-top:12px; padding:6px 10px; background:rgba(99,102,241,0.1); border-radius:8px; font-size:11px; color:#a5b4fc; font-weight:700;">Gestão Corporativa Integral</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 09 · CÓDIGO AO VIVO: RN-02 ALÇADA DE DESCONTO        -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-9">
+          <div class="badge-pill badge-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>RN-02 • Alçada Gerencial de Desconto</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Desconto</span>
+            <span class="word highlight-gold">&gt;</span>
+            <span class="word highlight-gold">10%</span>
+            <span class="word highlight-red">bloqueia</span>
+            <span class="word">o</span>
+            <span class="word">caixa:</span>
+            <span class="word">exige</span>
+            <span class="word highlight-emerald">credencial</span>
+            <span class="word">do</span>
+            <span class="word highlight-emerald">gerente.</span>
+          </h1>
+
+          <div class="bento-container">
+            <div class="code-window" style="flex:1.3;">
+              <div class="code-header">
+                <span style="font-size:11px; color:#94a3b8;">backend/src/services/VendaService.ts</span>
+                <span style="font-size:10px; color:#f87171; font-weight:700;">403 Forbidden se não autorizado</span>
+              </div>
+              <div class="code-body">
+                <span class="code-keyword">const</span> percentual = (desconto / subtotal) * <span class="code-num">100</span>;<br>
+                <span class="code-keyword">if</span> (percentual &gt; <span class="code-num">10.0</span> &amp;&amp; operadorCargo === <span class="code-string">'CAIXA'</span>) {<br>
+                &nbsp;&nbsp;<span class="code-keyword">if</span> (!dados.gerente_aprovador) {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">throw new</span> <span class="code-gold">AppError</span>(<span class="code-string">'Desconto acima de 10% exige autorização gerencial (RN-02)'</span>, <span class="code-num">403</span>);<br>
+                &nbsp;&nbsp;}<br>
+                &nbsp;&nbsp;<span class="code-keyword">const</span> gerente = <span class="code-keyword">await</span> AuthService.<span class="code-func">validarCredenciaisGerente</span>(<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;dados.gerente_aprovador.email, dados.gerente_aprovador.senha<br>
+                &nbsp;&nbsp;);<br>
+                &nbsp;&nbsp;gerenteAprovadorId = gerente.id; <span class="code-comment">// Gravado no BD para auditoria</span><br>
+                }
+              </div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(245, 158, 11, 0.5);">
+              <div style="font-size:12px; font-weight:700; color:#fbbf24;">MODAL DE ALÇADA EM TEMPO REAL</div>
+              <div style="margin:14px 0; padding:12px; background:rgba(245,158,11,0.1); border-radius:12px; border:1px solid rgba(245,158,11,0.3);">
+                <div style="font-size:11px; color:#fde68a;">Desconto Aplicado: <strong>36.4% (R$ 58,20)</strong></div>
+                <div style="font-size:11px; color:#fde68a; margin-top:4px;">Operador: <strong>Lucas Silva (Caixa #3)</strong></div>
+              </div>
+              <div style="margin-top:auto; font-size:11px; color:#34d399; font-weight:700;">
+                ✓ Aprovado por: Carlos Mendes (Gerente Geral)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 10 · HISTÓRICO IMUTÁVEL & SNAPSHOT (RN-03/04)        -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-10">
+          <div class="badge-pill badge-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>RN-04 • Imutabilidade Financeira</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Preços</span>
+            <span class="word highlight-emerald">congelados</span>
+            <span class="word">no</span>
+            <span class="word">momento</span>
+            <span class="word">da</span>
+            <span class="word highlight-gold">venda:</span>
+            <span class="word">auditoria</span>
+            <span class="word">contábil</span>
+            <span class="word highlight-emerald">100%</span>
+            <span class="word highlight-emerald">imutável.</span>
+          </h1>
+
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#818cf8;">SNAPSHOT HISTÓRICO (RN-04)</div>
+              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Tabela itens_venda</div>
+              <p style="font-size:13px; color:#94a3b8;">Grava o preço unitário praticado na transação. Futuros reajustes no cadastro de produtos não afetam relatórios passados.</p>
+              <div style="margin-top:14px; font-size:11px; font-family:'JetBrains Mono'; color:#34d399;">preco_unitario_historico: DECIMAL(10,2)</div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(239, 68, 68, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#f87171;">ESTORNO COM MOTIVO (RN-03)</div>
+              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Cancelamento Formal</div>
+              <p style="font-size:13px; color:#94a3b8;">Cancelamento exige justificativa formal e validação de login e senha do Gerente, mantendo trilha de auditoria.</p>
+              <div style="margin-top:14px; font-size:11px; font-family:'JetBrains Mono'; color:#f87171;">motivo_cancelamento &bull; gerente_id</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 11 · DASHBOARD EXECUTIVO & BUSINESS INTELLIGENCE     -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-11">
+          <div class="badge-pill badge-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Métricas em Tempo Real</span>
+          </div>
+
+          <h1 class="scene-title">
+            <span class="word">Dashboard</span>
+            <span class="word highlight-gold">executivo:</span>
+            <span class="word">faturamento,</span>
+            <span class="word highlight-emerald">ticket</span>
+            <span class="word highlight-emerald">médio</span>
+            <span class="word">e</span>
+            <span class="word">ranking</span>
+            <span class="word">de</span>
+            <span class="word">produtos.</span>
+          </h1>
+
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
+              <span style="font-size:12px; font-weight:700; color:#34d399;">FATURAMENTO DO DIA</span>
+              <div style="font-size:42px; font-weight:800; font-family:'Space Grotesk'; color:#fff; margin:10px 0;">R$ 14.890</div>
+              <div style="font-size:11px; color:#34d399; font-weight:700;">+24.6% em relação a ontem</div>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
+              <span style="font-size:12px; font-weight:700; color:#818cf8;">TICKET MÉDIO</span>
+              <div style="font-size:42px; font-weight:800; font-family:'Space Grotesk'; color:#fff; margin:10px 0;">R$ 186,12</div>
+              <div style="font-size:11px; color:#818cf8; font-weight:700;">80 vendas liquidadas</div>
+            </div>
+
+            <div class="glass-card" style="flex:1.2; border-color: rgba(212, 175, 55, 0.4);">
+              <span style="font-size:12px; font-weight:700; color:#fbbf24;">DISTRIBUIÇÃO DE PAGAMENTO</span>
+              <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px; font-size:12px;">
+                <div style="display:flex; justify-content:space-between;"><span>PIX Instantâneo</span> <strong style="color:#34d399;">52%</strong></div>
+                <div style="display:flex; justify-content:space-between;"><span>Cartão de Crédito</span> <strong style="color:#60a5fa;">36%</strong></div>
+                <div style="display:flex; justify-content:space-between;"><span>Dinheiro Físico</span> <strong style="color:#fbbf24;">12%</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 12 · MÓDULO FISCAL: NFC-E / SAT                      -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-12">
+          <div class="badge-pill badge-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Documentos Fiscais Eletrônicos</span>
           </div>
 
           <h1 class="scene-title">
             <span class="word">Emissão</span>
             <span class="word">de</span>
             <span class="word highlight-gold">NFC-e</span>
-            <span class="word">com</span>
-            <span class="word highlight-gold">44</span>
-            <span class="word highlight-gold">dígitos,</span>
-            <span class="word">tributos</span>
-            <span class="word">da</span>
-            <span class="word">Lei</span>
-            <span class="word">da</span>
-            <span class="word">Transparência</span>
+            <span class="word highlight-gold">Mod.</span>
+            <span class="word highlight-gold">65,</span>
+            <span class="word">chave</span>
+            <span class="word">de</span>
+            <span class="word highlight-emerald">44</span>
+            <span class="word highlight-emerald">dígitos</span>
             <span class="word">e</span>
-            <span class="word highlight-emerald">relatórios</span>
-            <span class="word highlight-emerald">em</span>
-            <span class="word highlight-emerald">Excel</span>
-            <span class="word highlight-emerald">e</span>
-            <span class="word highlight-emerald">PDF.</span>
+            <span class="word highlight-indigo">QR</span>
+            <span class="word highlight-indigo">Code</span>
+            <span class="word">SEFAZ.</span>
           </h1>
 
-          <div class="visual-container">
-            <!-- Mini Cupom DANFE -->
-            <div class="receipt-paper">
-              <div style="text-align: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
-                <div style="font-weight: 900; font-size: 13px;">MS² VESTUÁRIO LTDA</div>
-                <div style="font-size: 9px; color: #64748b;">CNPJ: 12.345.678/0001-90</div>
-                <div style="font-size: 10px; font-weight: 700; margin-top: 4px;">DANFE NFC-e (MODELO 65)</div>
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1.2; background:rgba(255,255,255,0.95); color:#0f172a; border-color:#e2e8f0; font-family:'JetBrains Mono',monospace;">
+              <div style="text-align:center; border-bottom:1px dashed #94a3b8; padding-bottom:8px; margin-bottom:10px;">
+                <div style="font-weight:900; font-size:14px; font-family:'Space Grotesk';">MS² VESTUÁRIO LTDA</div>
+                <div style="font-size:10px; color:#64748b;">CNPJ: 12.345.678/0001-90 • IE: 87.654.321</div>
+                <div style="font-size:11px; font-weight:800; color:#d97706; margin-top:2px;">DANFE NFC-e (MODELO 65)</div>
               </div>
-              <div style="font-size: 10px; display: flex; justify-content: space-between; margin: 4px 0;">
-                <span>VALOR TOTAL:</span>
-                <span style="font-weight: 900; color: #047857;">R$ 239,90</span>
+              <div style="font-size:11px; display:flex; justify-content:space-between; margin:4px 0;">
+                <span>VALOR TOTAL:</span> <span style="font-weight:900; color:#047857;">R$ 239,90</span>
               </div>
-              <div style="font-size: 8px; color: #64748b; margin-top: 8px; word-break: break-all;">
-                CHAVE DE ACESSO: 33261012345678000190650010000000241987654321
+              <div style="font-size:9px; color:#475569; margin-top:8px; word-break:break-all;">
+                CHAVE DE ACESSO:<br>
+                <strong>3326 1012 3456 7800 0190 6500 1000 0000 2419 8765 4321</strong>
+              </div>
+              <div style="font-size:9px; color:#64748b; margin-top:6px; border-top:1px dashed #cbd5e1; pt:4px;">
+                Tributos Aprox. (Lei 12.741/2012): R$ 38,42 (Fed) • R$ 28,78 (Est)
               </div>
             </div>
 
-            <!-- Botões de Exportação -->
-            <div style="display: flex; flex-direction: column; gap: 14px; flex: 1;">
-              <div class="glass-box" style="display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-color: rgba(16, 185, 129, 0.4);">
-                <div style="font-size: 28px;">📊</div>
-                <div>
-                  <div style="font-weight: 800; font-size: 16px; color: #34d399;">Exportação Excel (.xlsx)</div>
-                  <div style="font-size: 12px; color: #94a3b8;">Planilha formatada com fórmulas de totais</div>
-                </div>
-              </div>
-
-              <div class="glass-box" style="display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-color: rgba(239, 68, 68, 0.4);">
-                <div style="font-size: 28px;">📄</div>
-                <div>
-                  <div style="font-weight: 800; font-size: 16px; color: #f87171;">Relatório PDF Executivo A4</div>
-                  <div style="font-size: 12px; color: #94a3b8;">Logotipo oficial, carimbo e paginação</div>
-                </div>
-              </div>
+            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
+              <div style="font-size:12px; font-weight:700; color:#34d399;">LEI DA TRANSPARÊNCIA</div>
+              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Protocolo SEFAZ</div>
+              <p style="font-size:13px; color:#94a3b8;">Geração automática do XML de lote, assinatura digital com carimbo de tempo e consulta pública via QR Code.</p>
+              <div style="margin-top:auto; font-size:11px; color:#10b981; font-weight:700;">✓ SEFAZ Homologação Concluída</div>
             </div>
           </div>
         </div>
 
-        <!-- ======================================================== -->
-        <!-- CENA 6: HOMOLOGAÇÃO & CTA FINAL [46.5s – 55.0s] -->
-        <!-- ======================================================== -->
-        <div class="scene" id="scene-6">
-          <div class="seal-badge" id="c6-seal">
-            <span style="font-size: 48px;">🏆</span>
-          </div>
-
-          <div class="badge-pill badge-gold" style="margin-top: 24px;">
-            <span>★ Homologação Concluída — Gabarito Firjan SENAI</span>
+        <!-- ========================================================== -->
+        <!-- CENA 13 · RELATÓRIOS EXECUTIVOS & EXPORTAÇÃO CONTÁBIL      -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-13">
+          <div class="badge-pill badge-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Auditoria & Exportação Contábil</span>
           </div>
 
           <h1 class="scene-title">
-            <span class="word highlight-emerald">100%</span>
-            <span class="word">dos</span>
-            <span class="word highlight-emerald">18</span>
-            <span class="word highlight-emerald">testes</span>
-            <span class="word highlight-emerald">aprovados.</span>
-            <span class="word">MS²</span>
-            <span class="word">Vestuário:</span>
-            <span class="word highlight-gold">moda,</span>
-            <span class="word highlight-gold">estilo</span>
-            <span class="word highlight-gold">e</span>
-            <span class="word highlight-gold">você.</span>
+            <span class="word">Relatórios</span>
+            <span class="word highlight-gold">executivos</span>
+            <span class="word">em</span>
+            <span class="word highlight-emerald">Excel,</span>
+            <span class="word highlight-indigo">CSV</span>
+            <span class="word">UTF-8</span>
+            <span class="word">e</span>
+            <span class="word highlight-gold">PDF</span>
+            <span class="word">corporativo.</span>
           </h1>
 
-          <div class="visual-container" style="justify-content: center; gap: 20px;">
-            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 14px 28px; border-radius: 9999px; font-weight: 800; font-size: 18px; color: #34d399; display: flex; align-items: center; gap: 10px;">
-              <span>✓</span> 18/18 Testes E2E Aprovados
+          <div class="bento-container">
+            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4); text-align:center;">
+              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+              </div>
+              <div style="font-size:20px; font-weight:800; color:#34d399;">Planilha Excel</div>
+              <p style="font-size:12px; color:#94a3b8; margin-top:6px;">Arquivos .xlsx com cabeçalhos estilizados, linhas de total e tipos numéricos.</p>
             </div>
-            <div style="background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.4); padding: 14px 28px; border-radius: 9999px; font-weight: 800; font-size: 18px; color: #fbbf24; display: flex; align-items: center; gap: 10px;">
-              <span>⭐</span> Pronto para Produção & Live Demo
+
+            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4); text-align:center;">
+              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(99,102,241,0.15); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div style="font-size:20px; font-weight:800; color:#818cf8;">CSV UTF-8 BOM</div>
+              <p style="font-size:12px; color:#94a3b8; margin-top:6px;">Compatibilidade total com Power BI e Excel sem corrupção de caracteres em português.</p>
+            </div>
+
+            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4); text-align:center;">
+              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(212,175,55,0.15); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              </div>
+              <div style="font-size:20px; font-weight:800; color:#d4af37;">PDF Executivo A4</div>
+              <p style="font-size:12px; color:#94a3b8; margin-top:6px;">Impressão com logotipo oficial livre, cabeçalho da empresa e carimbo de autenticidade.</p>
             </div>
           </div>
         </div>
 
-      </div> <!-- /camera -->
-    </div> <!-- /stage -->
-  </div> <!-- /stage-container -->
+        <!-- ========================================================== -->
+        <!-- CENA 14 · ENGENHARIA DE QUALIDADE: 18/18 E2E              -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-14">
+          <div class="badge-pill badge-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Garantia de Qualidade & CI/CD</span>
+          </div>
 
-  <!-- Overlay Inicial para Iniciar Reprodução -->
-  <div id="start-overlay">
-    <div class="play-circle">
-      <div class="play-arrow"></div>
-    </div>
-    <h2 style="font-family: 'Space Grotesk'; font-size: 42px; font-weight: 800; margin-bottom: 12px;">
-      MS² Vestuário · Motion Pitch
-    </h2>
-    <p style="font-size: 18px; color: #94a3b8; max-width: 600px; margin-bottom: 24px;">
-      Apresentação técnica e dinâmica da Sprint 6 (Gabarito Firjan SENAI).
-    </p>
-    <div style="font-family: 'JetBrains Mono'; font-size: 14px; background: rgba(255,255,255,0.08); padding: 10px 22px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.15);">
-      Clique ou aperte <strong style="color: #d4af37;">ESPAÇO</strong> para iniciar com contagem 3-2-1
-    </div>
-  </div>
+          <h1 class="scene-title">
+            <span class="word">Qualidade</span>
+            <span class="word">é</span>
+            <span class="word highlight-gold">evidência:</span>
+            <span class="word highlight-emerald">18</span>
+            <span class="word">de</span>
+            <span class="word highlight-emerald">18</span>
+            <span class="word">testes</span>
+            <span class="word">aprovados</span>
+            <span class="word">e</span>
+            <span class="word highlight-gold">zero</span>
+            <span class="word highlight-gold">falhas.</span>
+          </h1>
 
-  <!-- Contagem Regressiva 3-2-1 -->
-  <div id="countdown-overlay" style="display: none;">
-    <div class="countdown-number" id="countdown-num">3</div>
+          <div class="code-window" style="max-width: 1200px;">
+            <div class="code-header">
+              <span style="font-size:11px; color:#94a3b8;">Terminal de Homologação E2E (Sprint 5/6)</span>
+              <span style="font-size:11px; color:#34d399; font-weight:800;">18 / 18 PASS (100%)</span>
+            </div>
+            <div class="code-body" style="font-size:12px;">
+              <span style="color:#34d399;">✓ [01/18] Healthcheck & Conexão com Banco de Dados</span><br>
+              <span style="color:#34d399;">✓ [06/18] Validação Oficial de CPF Módulo 11 (Receita Federal)</span><br>
+              <span style="color:#34d399;">✓ [11/18] Venda Normal com Desconto &le; 10% (Autonomia do Caixa)</span><br>
+              <span style="color:#34d399;">✓ [12/18] Bloqueio Desconto &gt; 10% Sem Gerente (403 Forbidden RN-02)</span><br>
+              <span style="color:#34d399;">✓ [13/18] Venda com Desconto Alto Aprovada por Gerente (RN-02)</span><br>
+              <span style="color:#34d399;">✓ [15/18] Cancelamento de Venda com Alçada e Motivo Formal (RN-03)</span><br>
+              <span style="color:#34d399;">✓ [17/18] Emissão de NFC-e com Chave de 44 Dígitos e Protocolo SEFAZ</span><br>
+              <span style="color:#34d399;">✓ [18/18] Exportação de Relatórios Executivos em Excel e PDF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- CENA 15 · ENCERRAMENTO TRIUNFAL & FIRJAN SENAI            -->
+        <!-- ========================================================== -->
+        <div class="scene" id="scene-15">
+          <div class="badge-pill badge-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span>Projeto Integrador • Firjan SENAI</span>
+          </div>
+
+          <img src="/logo.png" alt="MS² Vestuário" class="logo-free" style="max-height:140px;">
+
+          <h1 class="scene-title" style="font-size:64px;">
+            <span class="word highlight-gold">MS²</span>
+            <span class="word highlight-gold">Vestuário.</span>
+            <br>
+            <span class="word">Moda,</span>
+            <span class="word highlight-gold">estilo</span>
+            <span class="word">e</span>
+            <span class="word highlight-emerald">você.</span>
+          </h1>
+
+          <div class="bento-container" style="max-width: 900px;">
+            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.6); text-align:center; padding:24px;">
+              <div style="font-size:14px; font-weight:800; color:#fbbf24; letter-spacing:0.15em;">HOMOLOGAÇÃO 100% CONFORME</div>
+              <p style="font-size:13px; color:#cbd5e1; margin-top:8px;">Desenvolvido com excelência técnica para avaliação de banca do SENAI Moda.</p>
+              <div style="margin-top:16px; display:flex; justify-content:center; gap:12px;">
+                <span style="padding:6px 14px; background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.4); border-radius:9999px; font-size:11px; font-weight:700; color:#fbbf24;">Sprints 1 a 6 Concluídas</span>
+                <span style="padding:6px 14px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); border-radius:9999px; font-size:11px; font-weight:700; color:#34d399;">Pronto para Produção</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- Fim da #camera -->
+
+      <!-- Overlay de Abertura / Play -->
+      <div id="start-overlay" onclick="iniciarApresentacao()">
+        <img src="/logo.png" alt="MS² Vestuário" class="logo-free" style="max-height:110px; margin-bottom:16px;">
+        <div class="play-btn-circle">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <h2 style="font-family:'Space Grotesk'; font-size:32px; font-weight:800; margin-bottom:8px;">
+          Iniciar Apresentação em Motion Design
+        </h2>
+        <p style="font-size:14px; color:#94a3b8; max-width:540px;">
+          15 apresentações sincronizadas em código puro com áudio neural e atalhos de palco.
+        </p>
+        <div style="margin-top:20px; font-size:12px; color:#d4af37; font-family:'JetBrains Mono'; font-weight:700;">
+          Clique ou pressione ESPAÇO para começar
+        </div>
+      </div>
+
+      <!-- Overlay de Contagem Regressiva 3-2-1 -->
+      <div id="countdown-overlay">
+        <div id="countdown-digit">3</div>
+      </div>
+
+    </div>
   </div>
 
   <script>
     // ========================================================================
-    // MOTOR DE MOTION DESIGN DETERMINÍSTICO (Função render(t))
-    // Conforme o guia oficial de Motion Design em Código
+    // CRONOGRAMA DAS 15 APRESENTAÇÕES (TIMESTAMPS DETERMINÍSTICOS)
     // ========================================================================
-
-    const DURACOES_CENAS = [
-      { id: 1, inicio: 0.0, fim: 7.5 },
-      { id: 2, inicio: 7.5, fim: 16.0 },
-      { id: 3, inicio: 16.0, fim: 26.5 },
-      { id: 4, inicio: 26.5, fim: 37.0 },
-      { id: 5, inicio: 37.0, fim: 46.5 },
-      { id: 6, inicio: 46.5, fim: 55.0 }
+    const CENAS = [
+      { id: 1,  bg: 'bg-boutique', inicio: 0.0,   fim: 10.0,  titulo: 'Abertura Cinemática' },
+      { id: 2,  bg: 'bg-queue',    inicio: 10.0,  fim: 21.0,  titulo: 'O Gargalo do Varejo' },
+      { id: 3,  bg: 'bg-rack',     inicio: 21.0,  fim: 31.0,  titulo: 'A Solução MS²' },
+      { id: 4,  bg: 'bg-silk',     inicio: 31.0,  fim: 43.0,  titulo: 'Engenharia & Arquitetura' },
+      { id: 5,  bg: 'bg-scanner',  inicio: 43.0,  fim: 56.0,  titulo: 'PDV Sub-300ms' },
+      { id: 6,  bg: null,          inicio: 56.0,  fim: 68.0,  titulo: 'Código RN-01 Módulo 11' },
+      { id: 7,  bg: null,          inicio: 68.0,  fim: 78.0,  titulo: 'Gestão de Clientes' },
+      { id: 8,  bg: null,          inicio: 78.0,  fim: 90.0,  titulo: 'Matriz de Segurança RBAC' },
+      { id: 9,  bg: null,          inicio: 90.0,  fim: 102.0, titulo: 'Código RN-02 Alçadas' },
+      { id: 10, bg: null,          inicio: 102.0, fim: 114.0, titulo: 'Histórico Imutável RN-04' },
+      { id: 11, bg: 'bg-manager',  inicio: 114.0, fim: 125.0, titulo: 'Dashboard Executivo' },
+      { id: 12, bg: null,          inicio: 125.0, fim: 137.0, titulo: 'Emissão Fiscal NFC-e' },
+      { id: 13, bg: null,          inicio: 137.0, fim: 147.0, titulo: 'Exportação Contábil' },
+      { id: 14, bg: null,          inicio: 147.0, fim: 158.0, titulo: '18/18 Testes E2E' },
+      { id: 15, bg: 'bg-boutique', inicio: 158.0, fim: 169.0, titulo: 'Encerramento Firjan' }
     ];
 
-    const DURACAO_TOTAL = 55.0;
+    const DURACAO_TOTAL = 169.0;
 
-    // Estado da Timeline
+    // Estado Geral do Player
     let tempoAtual = 0;
     let executando = false;
     let emContagem = false;
     let valorContagem = 3;
-    let ultimoFrame = performance.now();
-    let audioCtx = null;
+    let ultimoTimestamp = performance.now();
+    let audioMutado = false;
     let proporcaoVertical = false;
+    let audioCtx = null;
+    let narradorNativo = window.speechSynthesis || null;
+    let vozPtBr = null;
+    let ultimaCenaFalada = 0;
 
     // Elementos DOM
     const stageContainer = document.getElementById('stage-container');
     const startOverlay = document.getElementById('start-overlay');
     const countdownOverlay = document.getElementById('countdown-overlay');
-    const countdownNum = document.getElementById('countdown-num');
-    const timecodeText = document.getElementById('timecode-text');
-    const progressBar = document.getElementById('progress-bar');
+    const countdownDigit = document.getElementById('countdown-digit');
+    const progressFill = document.getElementById('progress-fill');
+    const timecodeDisplay = document.getElementById('timecode-display');
     const camera = document.getElementById('camera');
-    const hudTimecode = document.getElementById('hud-timecode');
-    const hudControls = document.getElementById('hud-controls');
+    const audioLabel = document.getElementById('audio-label');
+    const audioDot = document.getElementById('audio-dot');
 
-    // Inicialização da Escala e Redimensionamento de Janela
-    function redimensionarPalco() {
-      const larguraBase = proporcaoVertical ? 1080 : 1920;
-      const alturaBase = proporcaoVertical ? 1920 : 1080;
-
-      const escalaX = window.innerWidth / larguraBase;
-      const escalaY = window.innerHeight / alturaBase;
-      const escala = Math.min(escalaX, escalaY) * 0.96;
-
-      stageContainer.style.width = larguraBase + 'px';
-      stageContainer.style.height = alturaBase + 'px';
-      stageContainer.style.transform = `scale(${escala})`;
+    // Inicialização da Voz Neural
+    function carregarVozes() {
+      if (!narradorNativo) return;
+      const vozes = narradorNativo.getVoices();
+      vozPtBr = vozes.find(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR') || v.lang.includes('pt')) || vozes[0];
+    }
+    if (narradorNativo) {
+      carregarVozes();
+      narradorNativo.onvoiceschanged = carregarVozes;
     }
 
-    window.addEventListener('resize', redimensionarPalco);
-    redimensionarPalco();
+    // Dimensionamento Fluido e Escala
+    function ajustarEscala() {
+      const baseW = proporcaoVertical ? 1080 : 1920;
+      const baseH = proporcaoVertical ? 1920 : 1080;
+      const scaleX = window.innerWidth / baseW;
+      const scaleY = window.innerHeight / baseH;
+      const scale = Math.min(scaleX, scaleY) * 0.96;
 
-    // Síntese Sonora Web Audio API (Bips profissionais de contagem)
-    function playBeep(freq = 440, duracao = 0.1, tipo = 'sine') {
+      stageContainer.style.width = baseW + 'px';
+      stageContainer.style.height = baseH + 'px';
+      stageContainer.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('resize', ajustarEscala);
+    ajustarEscala();
+
+    // Síntese Web Audio (SFX de Alta Fidelidade)
+    function tocarSfx(freq = 440, dur = 0.12, tipo = 'sine') {
+      if (audioMutado) return;
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = tipo;
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duracao);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + duracao);
+        osc.stop(audioCtx.currentTime + dur);
       } catch (e) {}
     }
 
+    // Narração Inteligente por Cena
+    const TEXTOS_NARRACAO = {
+      1: "Moda é emoção. Mas, por trás de cada vitrine, existe uma operação que não pode parar.",
+      2: "Filas que travam no horário de pico. Descontos aplicados sem controle. Cadastros duplicados e notas rejeitadas. Cada minuto de caixa parado é venda perdida.",
+      3: "Por isso nasceu o MS² Vestuário: um sistema de PDV e gestão comercial pensado, do primeiro pixel ao último byte, para o varejo de moda.",
+      4: "A arquitetura é moderna e segura: React com TypeScript no front-end, uma API REST em Node e Express, validação com Zod, autenticação JWT e banco relacional com transações ACID.",
+      5: "No caixa, a velocidade é absoluta. O produto é bipado e entra no carrinho em menos de trezentos milissegundos. O total é recalculado em centavos, e cada ação tem a sua tecla de atalho.",
+      6: "A identificação do cliente segue o algoritmo oficial da Receita Federal. O Módulo onze calcula os dois dígitos verificadores e bloqueia qualquer CPF inválido ou duplicado.",
+      7: "O operador decide em segundos: seleciona um cliente fidelizado, cadastra um novo sem sair da venda, ou segue como consumidor final.",
+      8: "Cada perfil tem o seu poder. O caixa opera o PDV, o gerente autoriza alçadas, e o administrador controla equipe, empresa e dados fiscais. Tudo protegido por middleware de acesso.",
+      9: "Desconto acima de dez por cento? O sistema bloqueia a venda e exige a senha do gerente. A aprovação fica gravada, com nome, data e valor, pronta para auditoria.",
+      10: "E o histórico é imutável. O preço de cada item é congelado no momento da venda, e um estorno só acontece com motivo formal e autorização gerencial.",
+      11: "Para a gestão, um painel em tempo real: faturamento, ticket médio, ranking de produtos e formas de pagamento, atualizados a cada venda.",
+      12: "No fiscal, a NFC-e modelo sessenta e cinco é gerada com chave de quarenta e quatro dígitos, QR Code de consulta pública e os tributos da Lei da Transparência.",
+      13: "Relatórios executivos saem com um clique: PDF com identidade visual, planilha Excel formatada e CSV pronto para qualquer ferramenta de análise.",
+      14: "Qualidade não é promessa, é evidência. Dezoito testes de ponta a ponta aprovados, build sem erros e todas as regras de negócio homologadas.",
+      15: "MS² Vestuário. Moda, estilo e você, com a tecnologia que o seu varejo merece. Projeto Integrador Firjan SENAI."
+    };
+
+    function narrarCena(cenaId) {
+      if (audioMutado || !narradorNativo) return;
+      if (ultimaCenaFalada === cenaId) return;
+      ultimaCenaFalada = cenaId;
+
+      // 1. Tentar áudio MP3 local gerado
+      const audioLocal = new Audio(`/pitch/audio/cena-${String(cenaId).padStart(2, '0')}.mp3`);
+      audioLocal.play().catch(() => {
+        // Fallback: Sintetizador Web Speech
+        narradorNativo.cancel();
+        const texto = TEXTOS_NARRACAO[cenaId];
+        if (!texto) return;
+        const utter = new SpeechSynthesisUtterance(texto);
+        if (vozPtBr) utter.voice = vozPtBr;
+        utter.rate = 1.05;
+        utter.pitch = 1.0;
+        narradorNativo.speak(utter);
+      });
+    }
+
     // Contagem Regressiva 3-2-1
-    function iniciarContagem() {
+    function iniciarApresentacao() {
       emContagem = true;
       executando = false;
       tempoAtual = 0;
@@ -876,137 +1497,127 @@
       countdownOverlay.style.display = 'flex';
       valorContagem = 3;
 
-      function step() {
+      function tick() {
         if (valorContagem > 0) {
-          countdownNum.textContent = valorContagem;
-          countdownNum.style.transform = 'scale(1.2)';
-          countdownNum.style.opacity = '1';
-          playBeep(valorContagem === 1 ? 880 : 520, 0.15);
+          countdownDigit.textContent = valorContagem;
+          countdownDigit.style.transform = 'scale(1.25)';
+          countdownDigit.style.opacity = '1';
+          tocarSfx(valorContagem === 1 ? 880 : 540, 0.16);
 
           setTimeout(() => {
-            countdownNum.style.transform = 'scale(0.8)';
-            countdownNum.style.opacity = '0';
+            countdownDigit.style.transform = 'scale(0.8)';
+            countdownDigit.style.opacity = '0';
           }, 650);
 
           valorContagem--;
-          setTimeout(step, 1000);
+          setTimeout(tick, 1000);
         } else {
           countdownOverlay.style.display = 'none';
           emContagem = false;
           executando = true;
-          document.body.classList.add('playing');
-          playBeep(1046, 0.35, 'triangle'); // C6 - Início triunfal
-          ultimoFrame = performance.now();
+          document.body.classList.add('hide-cursor');
+          tocarSfx(1046, 0.4, 'triangle'); // C6 acorde de largada
+          ultimoTimestamp = performance.now();
           requestAnimationFrame(loop);
         }
       }
-      step();
+      tick();
     }
 
     // ========================================================================
-    // FUNÇÃO MASTER RENDER(T)
-    // Calcula o estado de todos os elementos para qualquer t em segundos
+    // MOTOR DETERMINÍSTICO DE ANIMAÇÃO RENDER(T)
     // ========================================================================
     function render(t) {
       // 1. Barra de Progresso
       const pct = Math.min(100, Math.max(0, (t / DURACAO_TOTAL) * 100));
-      progressBar.style.width = pct + '%';
+      progressFill.style.width = pct + '%';
 
-      // 2. Timecode HUD
-      const minutos = Math.floor(t / 60);
-      const segs = Math.floor(t % 60);
-      const decs = Math.floor((t % 1) * 10);
-      timecodeText.textContent = `${String(minutos).padStart(2,'0')}:${String(segs).padStart(2,'0')}.${decs} / 00:55.0`;
+      // 2. HUD Timecode
+      const min = Math.floor(t / 60);
+      const seg = Math.floor(t % 60);
+      const dec = Math.floor((t % 1) * 10);
+      timecodeDisplay.textContent = `${String(min).padStart(2,'0')}:${String(seg).padStart(2,'0')}.${dec} / 02:49.0`;
 
-      // 3. Fundo Vivo com Movimento Suave
-      const ambientGold = document.getElementById('ambient-gold');
-      const ambientIndigo = document.getElementById('ambient-indigo');
-      const ambientEmerald = document.getElementById('ambient-emerald');
-      if (ambientGold) ambientGold.style.transform = `translate(${Math.sin(t * 0.4) * 60}px, ${Math.cos(t * 0.3) * 40}px)`;
-      if (ambientIndigo) ambientIndigo.style.transform = `translate(${Math.cos(t * 0.35) * 50}px, ${Math.sin(t * 0.45) * 50}px)`;
-      if (ambientEmerald) ambientEmerald.style.transform = `translate(-50%, -50%) scale(${1 + Math.sin(t * 0.5) * 0.15})`;
+      // 3. Ambient Glow Movement
+      const glowGold = document.getElementById('fx-glow-gold');
+      const glowIndigo = document.getElementById('fx-glow-indigo');
+      const glowEmerald = document.getElementById('fx-glow-emerald');
+      if (glowGold) glowGold.style.transform = `translate(${Math.sin(t * 0.35) * 70}px, ${Math.cos(t * 0.25) * 50}px)`;
+      if (glowIndigo) glowIndigo.style.transform = `translate(${Math.cos(t * 0.3) * 60}px, ${Math.sin(t * 0.4) * 60}px)`;
+      if (glowEmerald) glowEmerald.style.transform = `translate(-50%, -50%) scale(${1 + Math.sin(t * 0.45) * 0.18})`;
 
       // 4. Renderização por Cena
-      DURACOES_CENAS.forEach(cena => {
-        const elCena = document.getElementById(`scene-${cena.id}`);
-        if (!elCena) return;
+      CENAS.forEach(cena => {
+        const el = document.getElementById(`scene-${cena.id}`);
+        if (!el) return;
 
         const ativa = t >= cena.inicio && t < cena.fim;
         const tempoNaCena = t - cena.inicio;
         const duracaoCena = cena.fim - cena.inicio;
 
         if (ativa) {
-          // Fade-in e Fade-out cinematográfico e ágil
-          let opacidade = 1;
-          const margemFade = 0.25;
-          if (tempoNaCena < margemFade) {
-            opacidade = Math.max(0.3, tempoNaCena / margemFade);
-          } else if (cena.fim - t < margemFade && cena.id !== 6) {
-            opacidade = Math.max(0.2, (cena.fim - t) / margemFade);
+          // Fade-in e Fade-out ágil
+          let op = 1;
+          const fade = 0.3;
+          if (tempoNaCena < fade) {
+            op = Math.max(0.25, tempoNaCena / fade);
+          } else if (cena.fim - t < fade && cena.id !== 15) {
+            op = Math.max(0.2, (cena.fim - t) / fade);
           }
 
-          elCena.style.opacity = opacidade;
-          elCena.style.pointerEvents = 'auto';
+          el.style.opacity = op;
+          el.style.pointerEvents = 'auto';
 
-          // Movimento de Câmera Suave (Push contínuo de 1.0 a 1.07)
-          const zoomCamera = 1.0 + (tempoNaCena / duracaoCena) * 0.07;
-          camera.style.transform = `scale(${zoomCamera})`;
+          // Movimento de Câmera Push Lento (1.00 a 1.06)
+          const zoom = 1.0 + (tempoNaCena / duracaoCena) * 0.06;
+          camera.style.transform = `scale(${zoom})`;
 
           // Entrada Palavra por Palavra
-          const words = elCena.querySelectorAll('.word');
+          const words = el.querySelectorAll('.word');
           const totalWords = words.length;
-          const duracaoTexto = Math.min(duracaoCena * 0.75, totalWords * 0.28);
+          const tempoTexto = Math.min(duracaoCena * 0.78, totalWords * 0.28);
 
           words.forEach((w, idx) => {
-            const momentoPalavra = (idx / totalWords) * duracaoTexto;
-            if (tempoNaCena >= momentoPalavra) {
+            const pontoEntrada = (idx / totalWords) * tempoTexto;
+            if (tempoNaCena >= pontoEntrada) {
               w.classList.add('active');
             } else {
               w.classList.remove('active');
             }
           });
 
-          // Elementos Gráficos Específicos
-          if (cena.id === 1) {
-            const cards = [document.getElementById('c1-card-1'), document.getElementById('c1-card-2'), document.getElementById('c1-card-3')];
-            cards.forEach((card, i) => {
-              if (card) {
-                const atraso = 1.2 + i * 0.8;
-                card.style.opacity = tempoNaCena >= atraso ? 1 : 0;
-                card.style.transform = tempoNaCena >= atraso ? 'translateY(0)' : 'translateY(30px)';
-                card.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-              }
-            });
+          // Disparar Narração se estiver tocando
+          if (executando) {
+            narrarCena(cena.id);
           }
 
-          if (cena.id === 6) {
-            const seal = document.getElementById('c6-seal');
-            if (seal) {
-              const scaleSeal = Math.min(1.1, 0.8 + (tempoNaCena * 0.05));
-              seal.style.transform = `scale(${scaleSeal})`;
-            }
+          // Ativar Foto de Fundo correspondente
+          document.querySelectorAll('.backdrop-photo').forEach(b => b.classList.remove('active'));
+          if (cena.bg) {
+            const bgEl = document.getElementById(cena.bg);
+            if (bgEl) bgEl.classList.add('active');
           }
 
         } else {
-          elCena.style.opacity = 0;
-          elCena.style.pointerEvents = 'none';
+          el.style.opacity = 0;
+          el.style.pointerEvents = 'none';
         }
       });
     }
 
-    // Loop Principal de Animação
+    // Loop Principal
     function loop(agora) {
       if (!executando) return;
 
-      const delta = (agora - ultimoFrame) / 1000;
-      ultimoFrame = agora;
+      const delta = (agora - ultimoTimestamp) / 1000;
+      ultimoTimestamp = agora;
 
       tempoAtual += delta;
 
       if (tempoAtual >= DURACAO_TOTAL) {
         tempoAtual = DURACAO_TOTAL;
         executando = false;
-        document.body.classList.remove('playing');
+        document.body.classList.remove('hide-cursor');
         render(tempoAtual);
         return;
       }
@@ -1016,83 +1627,127 @@
     }
 
     // ========================================================================
-    // CONTROLES DE INTERAÇÃO & ATALHOS DE TECLADO
+    // ATALHOS DE TECLADO E CONTROLES DE PALCO
     // ========================================================================
     function togglePlay() {
       if (emContagem) return;
-
       if (!executando) {
+        if (tempoAtual >= DURACAO_TOTAL) tempoAtual = 0;
         if (tempoAtual === 0) {
-          iniciarContagem();
+          iniciarApresentacao();
         } else {
           executando = true;
-          document.body.classList.add('playing');
-          ultimoFrame = performance.now();
+          document.body.classList.add('hide-cursor');
+          ultimoTimestamp = performance.now();
           requestAnimationFrame(loop);
         }
       } else {
         executando = false;
-        document.body.classList.remove('playing');
+        document.body.classList.remove('hide-cursor');
+        if (narradorNativo) narradorNativo.pause();
       }
     }
 
-    function pularCena(deltaCena) {
-      const cenaAtualIndex = DURACOES_CENAS.findIndex(c => tempoAtual >= c.inicio && tempoAtual < c.fim);
-      let novoIndex = (cenaAtualIndex === -1 ? 0 : cenaAtualIndex) + deltaCena;
-      if (novoIndex < 0) novoIndex = 0;
-      if (novoIndex >= DURACOES_CENAS.length) novoIndex = DURACOES_CENAS.length - 1;
-      
-      tempoAtual = DURACOES_CENAS[novoIndex].inicio + 0.8;
+    function pularCena(delta) {
+      const idx = CENAS.findIndex(c => tempoAtual >= c.inicio && tempoAtual < c.fim);
+      let novo = (idx === -1 ? 0 : idx) + delta;
+      if (novo < 0) novo = 0;
+      if (novo >= CENAS.length) novo = CENAS.length - 1;
+
+      tempoAtual = CENAS[novo].inicio + 0.5;
+      ultimaCenaFalada = 0;
+      tocarSfx(750, 0.08);
       render(tempoAtual);
     }
 
-    function alternarProporcao() {
+    function irParaCena(num) {
+      if (num < 1 || num > CENAS.length) return;
+      tempoAtual = CENAS[num - 1].inicio + 0.5;
+      ultimaCenaFalada = 0;
+      tocarSfx(800, 0.08);
+      render(tempoAtual);
+    }
+
+    function toggleAudio() {
+      audioMutado = !audioMutado;
+      if (audioMutado) {
+        audioLabel.textContent = 'Áudio Mudo';
+        audioDot.style.background = '#ef4444';
+        audioDot.style.boxShadow = '0 0 8px #ef4444';
+        if (narradorNativo) narradorNativo.cancel();
+      } else {
+        audioLabel.textContent = 'Voz Neural PT-BR';
+        audioDot.style.background = '#10b981';
+        audioDot.style.boxShadow = '0 0 8px #10b981';
+        tocarSfx(660, 0.15);
+      }
+    }
+
+    function toggleAspecto() {
       proporcaoVertical = !proporcaoVertical;
       if (proporcaoVertical) {
-        stageContainer.classList.add('aspect-vertical');
+        stageContainer.classList.add('aspect-916');
       } else {
-        stageContainer.classList.remove('aspect-vertical');
+        stageContainer.classList.remove('aspect-916');
       }
-      redimensionarPalco();
-      render(tempoAtual);
+      ajustarEscala();
     }
 
-    function alternarFullscreen() {
+    function toggleFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
       } else {
-        if (document.exitFullscreen) document.exitFullscreen();
+        document.exitFullscreen().catch(() => {});
       }
     }
 
-    // Eventos de Teclado
+    // Listener Global de Teclas
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
         e.preventDefault();
         togglePlay();
       } else if (e.key === 'r' || e.key === 'R') {
         e.preventDefault();
-        iniciarContagem();
-      } else if (e.code === 'ArrowRight') {
+        if (narradorNativo) narradorNativo.cancel();
+        iniciarApresentacao();
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         pularCena(1);
-      } else if (e.code === 'ArrowLeft') {
+      } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         pularCena(-1);
-      } else if (e.key === 't' || e.key === 'T') {
-        hudTimecode.style.display = hudTimecode.style.display === 'none' ? 'flex' : 'none';
+      } else if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        irParaCena(parseInt(e.key));
+      } else if (e.key === '0') {
+        e.preventDefault();
+        irParaCena(10);
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        toggleAudio();
       } else if (e.key === 'f' || e.key === 'F') {
-        alternarFullscreen();
+        e.preventDefault();
+        toggleFullscreen();
       } else if (e.key === 'a' || e.key === 'A') {
-        alternarProporcao();
+        e.preventDefault();
+        toggleAspecto();
+      } else if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        const hud = document.getElementById('hud-timecode');
+        if (hud) hud.style.display = hud.style.display === 'none' ? 'flex' : 'none';
       }
     });
 
-    startOverlay.addEventListener('click', () => {
-      iniciarContagem();
+    // Pular no tempo ao clicar na barra de progresso
+    document.getElementById('progress-track').addEventListener('click', (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      tempoAtual = pos * DURACAO_TOTAL;
+      ultimaCenaFalada = 0;
+      render(tempoAtual);
     });
 
-    // Render Inicial Estático
+    // Render Inicial
     render(0);
   </script>
 </body>

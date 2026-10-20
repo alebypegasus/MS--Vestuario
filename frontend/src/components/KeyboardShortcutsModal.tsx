@@ -5,9 +5,7 @@ import {
   Command,
   ShoppingCart,
   Video,
-  Monitor,
   Sparkles,
-  Zap,
 } from 'lucide-react';
 
 interface IKeyboardShortcutsModalProps {
