@@ -1,23 +1,89 @@
-import { Database } from 'bun:sqlite';
 import path from 'path';
 import fs from 'fs';
+
+export interface SqliteDbInterface {
+  run(sql: string, ...params: any[]): { changes: number; lastInsertRowid: number | bigint };
+  query(sql: string): {
+    all(...params: any[]): any[];
+    get(...params: any[]): any;
+    run(...params: any[]): { changes: number; lastInsertRowid: number | bigint };
+  };
+  prepare(sql: string): {
+    all(...params: any[]): any[];
+    get(...params: any[]): any;
+    run(...params: any[]): { changes: number; lastInsertRowid: number | bigint };
+  };
+  close(): void;
+}
+
+function createSqliteInstance(filePath: string): SqliteDbInterface {
+  if (typeof (process.versions as any)?.bun !== 'undefined' || typeof (globalThis as any).Bun !== 'undefined') {
+    try {
+      const { Database } = require('bun:sqlite');
+      return new Database(filePath, { create: true });
+    } catch (e) {}
+  }
+
+  try {
+    const { DatabaseSync } = require('node:sqlite');
+    const nodeDb = new DatabaseSync(filePath);
+    return {
+      run(sql: string, ...params: any[]) {
+        if (params.length === 0) {
+          nodeDb.exec(sql);
+          return { changes: 0, lastInsertRowid: 0 };
+        }
+        const stmt = nodeDb.prepare(sql);
+        const res = stmt.run(...params);
+        return { changes: res.changes, lastInsertRowid: res.lastInsertRowid };
+      },
+      query(sql: string) {
+        const stmt = nodeDb.prepare(sql);
+        return {
+          all: (...p: any[]) => stmt.all(...p),
+          get: (...p: any[]) => stmt.get(...p),
+          run: (...p: any[]) => {
+            const res = stmt.run(...p);
+            return { changes: res.changes, lastInsertRowid: res.lastInsertRowid };
+          }
+        };
+      },
+      prepare(sql: string) {
+        const stmt = nodeDb.prepare(sql);
+        return {
+          all: (...p: any[]) => stmt.all(...p),
+          get: (...p: any[]) => stmt.get(...p),
+          run: (...p: any[]) => {
+            const res = stmt.run(...p);
+            return { changes: res.changes, lastInsertRowid: res.lastInsertRowid };
+          }
+        };
+      },
+      close() {
+        nodeDb.close();
+      }
+    };
+  } catch (err: any) {
+    throw new Error(`[SQLite] Nenhum motor SQLite disponível (bun:sqlite ou node:sqlite). ${err.message}`);
+  }
+}
 
 // Arquivo do banco de dados local SQLite para persistência entre reinicializações
 const DB_PATH = path.resolve(__dirname, '../../varejo-erp-local.sqlite');
 
 export class LocalDbAdapter {
-  private static instance: Database | null = null;
+  private static instance: SqliteDbInterface | null = null;
   private static inTransaction = false;
 
-  public static getDb(): Database {
+  public static getDb(): SqliteDbInterface {
     if (!this.instance) {
-      this.instance = new Database(DB_PATH, { create: true });
+      this.instance = createSqliteInstance(DB_PATH);
       this.initSchemaAndSeeds(this.instance);
     }
     return this.instance;
   }
 
-  private static initSchemaAndSeeds(db: Database) {
+  private static initSchemaAndSeeds(db: SqliteDbInterface) {
     db.run(`PRAGMA foreign_keys = ON;`);
 
     // 1. Tabela usuarios

@@ -2,28 +2,29 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MS² Vestuário — Apresentação em Motion Design (Sprint 6)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MS² Vestuário — Motion Design Reels (9:16)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
-  <script src="/pitch/morphicons.bundle.js"></script>
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+
   <style>
+    /* ==========================================================
+       PADRÃO MOTION DESIGN DO GUIA (PALCO FIXO 1080x1920 PX)
+       Baseado no Guia @fabiowinck_: Vídeos em Motion com IA
+       ========================================================== */
     :root {
-      --bg: #03060d;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --gold: #d4af37;
-      --gold-light: #fef08a;
-      --gold-dark: #854d0e;
-      --emerald: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.4);
-      --red: #ef4444;
-      --indigo: #6366f1;
-      --indigo-glow: rgba(99, 102, 241, 0.35);
-      --card-bg: rgba(15, 23, 42, 0.72);
-      --card-border: rgba(255, 255, 255, 0.12);
+      --bg: #070913;
+      --bg-card: rgba(15, 23, 42, 0.78);
+      --border-card: rgba(255, 255, 255, 0.12);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --highlight: #FACC15; /* Cor de destaque forte (Dourado/Amarelo Ouro) */
+      --highlight-glow: rgba(250, 204, 21, 0.45);
+      --emerald: #10B981;
+      --rose: #F43F5E;
+      --blue: #3B82F6;
+      --scale: 0.5;
     }
 
     * {
@@ -31,6 +32,7 @@
       padding: 0;
       box-sizing: border-box;
       user-select: none;
+      -webkit-font-smoothing: antialiased;
     }
 
     body {
@@ -45,76 +47,80 @@
       justify-content: center;
     }
 
-    body.hide-cursor {
+    body.playing {
       cursor: none;
     }
 
-    /* Container e Palco Escalado */
-    #viewport {
+    /* Container de centralização e proporção */
+    #viewport-container {
       position: relative;
       width: 100vw;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #000;
+      background: #000000;
       overflow: hidden;
     }
 
-    #stage-container {
-      position: relative;
-      width: 1920px;
-      height: 1080px;
-      transform-origin: center center;
-      background: var(--bg);
-      box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
-      overflow: hidden;
-      border-radius: 20px;
-      transition: width 0.4s ease, height 0.4s ease;
-    }
-
-    #stage-container.aspect-916 {
+    /* PALCO FIXO EXATO DE 1080x1920 PX ESCALADO PARA A JANELA */
+    #stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
       width: 1080px;
       height: 1920px;
-      border-radius: 36px;
+      transform-origin: center center;
+      transform: translate(-50%, -50%) scale(var(--scale));
+      background: var(--bg);
+      overflow: hidden;
+      box-shadow: 0 0 140px rgba(0, 0, 0, 0.95);
+      border-radius: 40px;
     }
 
-    /* Iluminação e Efeitos de Fundo */
+    /* FUNDO VIVO: MANCHAS DE LUZ NAS CORES DA MARCA + VINHETA */
     .ambient-glow {
       position: absolute;
       border-radius: 50%;
-      filter: blur(140px);
+      filter: blur(160px);
       pointer-events: none;
-      opacity: 0.45;
-      transition: transform 0.2s linear;
+      opacity: 0.4;
       will-change: transform;
     }
 
     .glow-gold {
-      width: 900px;
-      height: 900px;
-      background: radial-gradient(circle, rgba(212, 175, 55, 0.35) 0%, transparent 70%);
-      top: -250px;
+      width: 750px;
+      height: 750px;
+      background: radial-gradient(circle, rgba(250, 204, 21, 0.35) 0%, transparent 70%);
+      top: 15%;
       left: 10%;
     }
 
-    .glow-indigo {
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
-      bottom: -200px;
+    .glow-blue {
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+      bottom: 20%;
       right: 5%;
     }
 
     .glow-emerald {
-      width: 700px;
-      height: 700px;
+      width: 600px;
+      height: 600px;
       background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
-      top: 35%;
-      left: 45%;
+      top: 50%;
+      left: 35%;
     }
 
-    .grid-mesh {
+    .vignette-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .grid-lines {
       position: absolute;
       inset: 0;
       background-image: 
@@ -122,1875 +128,3158 @@
         linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
       background-size: 80px 80px;
       pointer-events: none;
-      opacity: 0.6;
+      opacity: 0.7;
     }
 
-    .cinematic-vignette {
+    /* CÂMERA DINÂMICA (SLOW PUSH-IN CONTÍNUO) */
+    #camera-rig {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.75) 100%);
-      pointer-events: none;
-      z-index: 15;
-    }
-
-    .backdrop-photo {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      filter: brightness(0.28) contrast(1.15) saturate(0.9);
-      transition: opacity 0.8s ease, transform 1.2s ease;
-      transform: scale(1.05);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .backdrop-photo.active {
-      opacity: 0.45;
-      transform: scale(1);
-    }
-
-    /* Câmera Cinemática de Movimento Contínuo */
-    #camera {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
       transform-origin: center center;
       will-change: transform;
-      z-index: 10;
     }
 
-    /* Cenas Individuais */
-    .scene {
+    /* ÁREA SEGURA DO REELS: 
+       Nenhum texto acima de y = 280px nem abaixo de y = 1350px.
+       Margem lateral mínima de 70px.
+    */
+    .safe-zone {
       position: absolute;
-      inset: 0;
+      top: 300px;
+      bottom: 400px;
+      left: 80px;
+      right: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      z-index: 20;
+    }
+
+    /* BADGE DE CENA SUPERIOR */
+    .scene-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 24px;
+      border-radius: 9999px;
+      background: rgba(250, 204, 21, 0.12);
+      border: 2px solid rgba(250, 204, 21, 0.35);
+      color: var(--highlight);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 0 0 25px rgba(250, 204, 21, 0.2);
+    }
+
+    .scene-badge-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 12px var(--emerald);
+    }
+
+    /* TÍTULO / NARRAÇÃO EM TEXTO GRANDE (90px A 120px) PALAVRA POR PALAVRA */
+    .narration-container {
+      width: 100%;
+      min-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .narration-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 82px;
+      font-weight: 900;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      text-wrap: balance;
+    }
+
+    /* PALAVRAS ENTRANDO COM EASE-OUT EXPONENCIAL E ALTO CONTRASTE (ZERO BLUR) */
+    .word {
+      display: inline-block;
+      margin: 0 10px 8px 10px;
+      opacity: 0.38;
+      transform: translateY(14px);
+      filter: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  color 0.2s ease,
+                  text-shadow 0.2s ease;
+      will-change: transform, opacity;
+    }
+
+    .word.entered {
+      opacity: 1;
+      transform: translateY(0);
+      color: #FFFFFF;
+    }
+
+    .word.highlight {
+      color: var(--highlight);
+      text-shadow: 0 0 35px var(--highlight-glow);
+      font-weight: 900;
+    }
+
+    .word.active-word {
+      transform: scale(1.1) translateY(-2px);
+      text-shadow: 0 0 45px rgba(250, 204, 21, 0.95);
+      color: #FFFBEB;
+      font-weight: 900;
+    }
+
+    /* ELEMENTO VISUAL CENTRAL POR CENA */
+    .visual-stage {
+      width: 100%;
+      height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* CARDS VISUAIS MODERNOS */
+    .v-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-card);
+      border-radius: 32px;
+      backdrop-filter: blur(20px);
+      padding: 40px;
+      width: 100%;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+      transform: translateY(30px);
+      opacity: 0;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+    }
+
+    .v-card.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* CENAS ESPECÍFICAS */
+    .brand-hero {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 60px 120px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-      will-change: opacity, transform;
+      gap: 24px;
     }
 
-    /* Tipografia e Palavras */
-    .badge-pill {
-      display: inline-flex;
+    .brand-logo-crest {
+      width: 220px;
+      height: 220px;
+      border-radius: 48px;
+      background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(15, 23, 42, 0.9));
+      border: 3px solid rgba(250, 204, 21, 0.5);
+      display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 20px;
-      border-radius: 9999px;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      background: rgba(15, 23, 42, 0.6);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      justify-content: center;
+      box-shadow: 0 0 80px rgba(250, 204, 21, 0.4);
+      position: relative;
     }
 
-    .badge-pill svg {
-      width: 16px;
-      height: 16px;
+    .brand-logo-img {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.6));
     }
 
-    .badge-gold {
-      color: var(--gold);
-      border-color: rgba(212, 175, 55, 0.4);
-      background: rgba(212, 175, 55, 0.12);
-    }
-    .badge-emerald {
-      color: #34d399;
-      border-color: rgba(16, 185, 129, 0.4);
-      background: rgba(16, 185, 129, 0.12);
-    }
-    .badge-red {
-      color: #f87171;
-      border-color: rgba(239, 68, 68, 0.4);
-      background: rgba(239, 68, 68, 0.12);
-    }
-    .badge-indigo {
-      color: #a5b4fc;
-      border-color: rgba(99, 102, 241, 0.4);
-      background: rgba(99, 102, 241, 0.12);
-    }
-
-    .scene-title {
+    .hero-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 58px;
-      font-weight: 800;
-      line-height: 1.15;
-      text-align: center;
-      max-width: 1450px;
-      margin-bottom: 32px;
+      font-size: 54px;
+      font-weight: 900;
       letter-spacing: -0.02em;
     }
 
-    .word {
-      display: inline-block;
-      margin: 0 7px;
-      opacity: 0.18;
-      transform: translateY(14px);
-      filter: blur(4px);
-      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
-    }
-
-    .word.active {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
-
-    .word.highlight-gold {
-      background: linear-gradient(135deg, #ffffff 10%, #d4af37 60%, #f59e0b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
-      font-weight: 800;
-    }
-
-    .word.highlight-emerald {
-      color: #34d399;
-      text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
-    }
-
-    .word.highlight-red {
-      color: #f87171;
-      text-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
-    }
-
-    .word.highlight-indigo {
-      color: #a5b4fc;
-      text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
-    }
-
-    /* Container Bento e Cards Visuais */
-    .bento-container {
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
+    /* GRID DE DORES (CENA 2) */
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
       width: 100%;
-      max-width: 1440px;
-      margin-top: 10px;
     }
 
-    .glass-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 28px;
-      backdrop-filter: blur(24px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-    }
-
-    /* Logo Livre Dourada */
-    .logo-free {
-      max-height: 130px;
-      width: auto;
-      object-contain: contain;
-      filter: drop-shadow(0 0 35px rgba(212, 175, 55, 0.45));
-      margin-bottom: 24px;
-      animation: floatLogo 4s ease-in-out infinite alternate;
-    }
-
-    @keyframes floatLogo {
-      0% { transform: translateY(0px) scale(1); }
-      100% { transform: translateY(-8px) scale(1.02); }
-    }
-
-    /* Code Window Real */
-    .code-window {
-      background: #090d16;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 18px;
-      overflow: hidden;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      line-height: 1.6;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
-      width: 100%;
-    }
-
-    .code-header {
-      background: rgba(15, 23, 42, 0.9);
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .code-dots {
-      display: flex;
-      gap: 6px;
-    }
-    .code-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .dot-red { background: #ef4444; }
-    .dot-yellow { background: #f59e0b; }
-    .dot-green { background: #10b981; }
-
-    .code-body {
-      padding: 20px 24px;
-      color: #cbd5e1;
-      overflow-x: auto;
-    }
-
-    .code-keyword { color: #f43f5e; font-weight: 700; }
-    .code-func { color: #60a5fa; font-weight: 600; }
-    .code-string { color: #34d399; }
-    .code-num { color: #fbbf24; }
-    .code-comment { color: #64748b; font-style: italic; }
-    .code-gold { color: #d4af37; font-weight: 700; }
-
-    /* Barra Superior Global de Progresso */
-    #progress-track {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.1);
-      z-index: 100;
-      cursor: pointer;
-    }
-
-    #progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #d4af37, #f59e0b, #10b981);
-      box-shadow: 0 0 16px rgba(212, 175, 55, 0.8);
-      transition: width 0.1s linear;
-    }
-
-    /* HUD Timecode & Indicadores */
-    .hud-top-right {
-      position: absolute;
-      top: 24px;
-      right: 32px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 100;
-    }
-
-    .hud-pill {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(12px);
-    }
-
-    .hud-audio-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulseDot 1.5s infinite;
-    }
-
-    @keyframes pulseDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
-    /* HUD Inferior de Atalhos */
-    .hud-bottom-bar {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 8px 20px;
-      border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      font-size: 11px;
-      color: #94a3b8;
-      backdrop-filter: blur(16px);
-      z-index: 100;
-      transition: opacity 0.3s ease;
-    }
-
-    .hud-bottom-bar kbd {
-      background: rgba(255, 255, 255, 0.12);
-      color: #f1f5f9;
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    /* Overlays de Início e Contagem */
-    #start-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(3, 6, 13, 0.92);
-      backdrop-filter: blur(20px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      cursor: pointer;
+    .pain-box {
+      background: rgba(244, 63, 94, 0.1);
+      border: 2px solid rgba(244, 63, 94, 0.4);
+      border-radius: 24px;
+      padding: 24px 18px;
       text-align: center;
     }
 
-    .play-btn-circle {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #d4af37, #f59e0b);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 60px rgba(212, 175, 55, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      margin-bottom: 24px;
-    }
-
-    .play-btn-circle:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 80px rgba(212, 175, 55, 0.7);
-    }
-
-    .play-btn-circle svg {
-      width: 44px;
-      height: 44px;
-      fill: #03060d;
-      margin-left: 4px;
-    }
-
-    #countdown-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(3, 6, 13, 0.88);
-      backdrop-filter: blur(25px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 210;
-      pointer-events: none;
-    }
-
-    #countdown-digit {
+    .pain-stat {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 240px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffffff, #d4af37);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 90px rgba(212, 175, 55, 0.6);
-      transform: scale(0.7);
-      opacity: 0;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--rose);
+      margin-bottom: 8px;
     }
 
-    /* Modal de Inspeção de Código (Tecla C) */
-    #code-inspector-modal {
-      position: absolute;
-      inset: 40px;
-      background: rgba(9, 13, 22, 0.96);
-      border: 1px solid rgba(212, 175, 55, 0.4);
+    .pain-desc {
+      font-size: 24px;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+
+    /* PILARES (CENA 3) */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+
+    .pillar-box {
+      background: rgba(16, 185, 129, 0.1);
+      border: 2px solid rgba(16, 185, 129, 0.4);
       border-radius: 24px;
-      box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(30px);
-      z-index: 250;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
+      padding: 28px 20px;
+      text-align: center;
     }
 
-    #code-inspector-modal.open {
-      display: flex;
-    }
-
-    /* Modo 9:16 Vertical */
-    #stage-container.aspect-916 .scene {
-      padding: 120px 48px;
-    }
-
-    #stage-container.aspect-916 .scene-title {
+    .pillar-icon {
       font-size: 42px;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
     }
 
-    #stage-container.aspect-916 .bento-container {
+    .pillar-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--emerald);
+    }
+
+    /* FLUXO ARQUITETURA (CENA 4) */
+    .arch-stack {
+      display: flex;
       flex-direction: column;
       gap: 16px;
+      width: 100%;
     }
 
-    #stage-container.aspect-916 .hud-bottom-bar {
-      font-size: 9px;
-      padding: 6px 14px;
-      gap: 8px;
+    .arch-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      padding: 20px 28px;
+      border-radius: 20px;
     }
 
-    /* Barra Flutuante de Controle com Morphicons */
-    .floating-controls-bar {
-      position: absolute;
-      bottom: 44px;
-      left: 50%;
-      transform: translateX(-50%);
+    .arch-tag {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--highlight);
+    }
+
+    .arch-tech {
+      font-size: 28px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    /* TERMINAL PDV SUB-300MS (CENA 5) */
+    .pdv-screen {
+      width: 100%;
+      background: #020617;
+      border: 3px solid rgba(16, 185, 129, 0.6);
+      border-radius: 28px;
+      padding: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: left;
+    }
+
+    .pdv-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--emerald);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .pdv-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 30px;
+      font-weight: 800;
+      color: #F8FAFC;
+      margin-bottom: 12px;
+    }
+
+    .pdv-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--highlight);
+      border-top: 2px solid rgba(255, 255, 255, 0.15);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    /* CENA FINAL: CTA COM COMENTÁRIO SIMULADO (REQUISITO DA PÁGINA 7 DO PDF!) */
+    .cta-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+      width: 100%;
+    }
+
+    .cta-giant-word {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 150px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(90deg, #FACC15 0%, #FFFFFF 50%, #FACC15 100%);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      animation: shine 2.5s linear infinite;
+      text-shadow: 0 0 60px rgba(250, 204, 21, 0.6);
+    }
+
+    @keyframes shine {
+      to {
+        background-position: 200% center;
+      }
+    }
+
+    .comment-simulator {
+      width: 100%;
+      background: rgba(30, 41, 59, 0.95);
+      border: 3px solid rgba(250, 204, 21, 0.5);
+      border-radius: 32px;
+      padding: 28px 36px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(212, 175, 55, 0.35);
-      border-radius: 9999px;
-      padding: 6px 18px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-      z-index: 220;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      gap: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
     }
 
-    .floating-controls-bar button {
-      background: transparent;
-      border: none;
-      color: #f8fafc;
-      cursor: pointer;
+    .comment-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FACC15, #F59E0B);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 6px;
-      border-radius: 50%;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .floating-controls-bar button:hover {
-      color: var(--gold);
-      transform: scale(1.18);
-    }
-
-    .floating-controls-bar .btn-primary-morph {
-      background: linear-gradient(135deg, #d4af37, #f59e0b);
-      color: #03060d;
-      width: 42px;
-      height: 42px;
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-    }
-
-    .floating-controls-bar .btn-primary-morph:hover {
+      font-size: 32px;
+      font-weight: 900;
       color: #000;
-      box-shadow: 0 0 30px rgba(212, 175, 55, 0.8);
-      transform: scale(1.12);
     }
 
-    .floating-controls-bar .bar-separator {
-      width: 1px;
-      height: 22px;
-      background: rgba(255, 255, 255, 0.18);
-      margin: 0 2px;
+    .comment-input {
+      flex: 1;
+      font-size: 34px;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-align: left;
     }
 
-    #stage-container.aspect-916 .floating-controls-bar {
-      bottom: 60px;
-      padding: 6px 14px;
-      gap: 8px;
-      transform: translateX(-50%) scale(0.92);
+    .cursor-blink {
+      display: inline-block;
+      width: 4px;
+      height: 38px;
+      background: var(--highlight);
+      margin-left: 6px;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* CONTADOR 3-2-1 AO INICIAR (REQUISITO DA PÁGINA 6 DO PDF!) */
+    #start-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    #countdown-display {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 260px;
+      font-weight: 900;
+      color: var(--highlight);
+      text-shadow: 0 0 100px var(--highlight-glow);
+      display: none;
+    }
+
+    .start-prompt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      text-align: center;
+    }
+
+    .start-btn-icon {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: var(--highlight);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 60px var(--highlight-glow);
+      transition: transform 0.2s ease;
+    }
+
+    .start-btn-icon:hover {
+      transform: scale(1.08);
+    }
+
+    .start-btn-icon svg {
+      width: 60px;
+      height: 60px;
+      fill: #000000;
+      margin-left: 8px;
+    }
+
+    .start-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 46px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .start-sub {
+      font-size: 28px;
+      color: var(--text-muted);
+    }
+
+    .start-badge-key {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 16px;
+      border-radius: 12px;
+      color: #FFFFFF;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* TIMECODE NO CANTO (ATALHO T DO PDF) */
+    #timecode-corner {
+      position: absolute;
+      top: 36px;
+      right: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      z-index: 500;
+      display: none; /* Escondido por padrão, aperta T para mostrar */
+    }
+
+    /* BARRA INFERIOR DE CONTROLES DO REELS */
+    #hud-footer {
+      position: absolute;
+      bottom: 40px;
+      left: 60px;
+      right: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .scene-counter {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--highlight);
     }
   </style>
 </head>
 <body>
 
-  <div id="viewport">
-    <div id="stage-container">
+  <div id="viewport-container">
+    <div id="stage">
       
-      <!-- Fundo Luminoso e Malha Dinâmica -->
-      <div class="ambient-glow glow-gold" id="fx-glow-gold"></div>
-      <div class="ambient-glow glow-indigo" id="fx-glow-indigo"></div>
-      <div class="ambient-glow glow-emerald" id="fx-glow-emerald"></div>
-      <div class="grid-mesh"></div>
-      <div class="cinematic-vignette"></div>
+      <!-- Fundo Vivo Dinâmico -->
+      <div class="ambient-glow glow-gold"></div>
+      <div class="ambient-glow glow-blue"></div>
+      <div class="ambient-glow glow-emerald"></div>
+      <div class="grid-lines"></div>
+      <div class="vignette-overlay"></div>
 
-      <!-- Fotos de Fundo Temáticas (Fade-in Inteligente) -->
-      <div class="backdrop-photo" id="bg-boutique" style="background-image: url('/pitch/img/boutique.jpg');"></div>
-      <div class="backdrop-photo" id="bg-queue" style="background-image: url('/pitch/img/queue.jpg');"></div>
-      <div class="backdrop-photo" id="bg-rack" style="background-image: url('/pitch/img/rack.jpg');"></div>
-      <div class="backdrop-photo" id="bg-scanner" style="background-image: url('/pitch/img/scanner.jpg');"></div>
-      <div class="backdrop-photo" id="bg-manager" style="background-image: url('/pitch/img/manager.jpg');"></div>
-      <div class="backdrop-photo" id="bg-silk" style="background-image: url('/pitch/img/silk.jpg');"></div>
+      <!-- Timecode no Canto (Atalho T) -->
+      <div id="timecode-corner">00:00.0 / CENA 01</div>
 
-      <!-- Barra Superior de Progresso -->
-      <div id="progress-track" title="Clique para saltar no tempo">
-        <div id="progress-fill"></div>
-      </div>
-
-      <!-- HUD Superior -->
-      <div class="hud-top-right">
-        <div class="hud-pill" id="hud-audio-status">
-          <div class="hud-audio-dot" id="audio-dot"></div>
-          <span id="audio-label">Voz Neural PT-BR</span>
-        </div>
-        <div class="hud-pill" id="hud-timecode">
-          <span id="timecode-display" style="font-family: 'JetBrains Mono', monospace; color: var(--gold-light);">00:00.0 / 02:45.0</span>
-        </div>
-      </div>
-
-      <!-- Barra Flutuante de Controle com Morphicons -->
-      <div id="player-floating-bar" class="floating-controls-bar">
-        <button id="btn-player-prev" onclick="pularCena(-1)" title="Cena Anterior [←]">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button id="btn-player-play" class="btn-primary-morph" onclick="togglePlay()" title="Play / Pause [ESPAÇO]">
-          <morph-icon id="icon-morph-play" size="22"></morph-icon>
-        </button>
-        <button id="btn-player-next" onclick="pularCena(1)" title="Próxima Cena [→]">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-        <div class="bar-separator"></div>
-        <button id="btn-player-mute" onclick="toggleAudio()" title="Ativar / Desativar Som [M]">
-          <morph-icon id="icon-morph-mute" size="18"></morph-icon>
-        </button>
-        <button id="btn-player-aspect" onclick="toggleAspecto()" title="Alternar 16:9 / 9:16 [A]">
-          <morph-icon id="icon-morph-aspect" size="18"></morph-icon>
-        </button>
-        <button id="btn-player-fs" onclick="toggleFullscreen()" title="Modo Tela Cheia [F]">
-          <morph-icon id="icon-morph-fs" size="18"></morph-icon>
-        </button>
-      </div>
-
-      <!-- HUD Inferior de Atalhos -->
-      <div class="hud-bottom-bar">
-        <span><kbd>ESPAÇO</kbd> Play/Pause</span>
-        <span><kbd>R</kbd> 3-2-1</span>
-        <span><kbd>←</kbd> <kbd>→</kbd> Cenas</span>
-        <span><kbd>1..9</kbd> Pular</span>
-        <span><kbd>M</kbd> Mudo</span>
-        <span><kbd>C</kbd> Código</span>
-        <span><kbd>F</kbd> Tela Cheia</span>
-        <span><kbd>A</kbd> 16:9 / 9:16</span>
-      </div>
-
-      <!-- Câmera do Vídeo -->
-      <div id="camera">
-
-        <!-- ========================================================== -->
-        <!-- CENA 01 · ABERTURA & IDENTIDADE DE MARCA                  -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-1">
-          <div class="badge-pill badge-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span>MS² Vestuário • Sprint 6 • Gabarito Firjan SENAI</span>
+      <!-- Câmera com Slow Push-in -->
+      <div id="camera-rig">
+        <div class="safe-zone">
+          
+          <!-- Topo da Cena: Badge Temático -->
+          <div class="scene-badge" id="scene-badge">
+            <span class="scene-badge-dot"></span>
+            <span id="badge-text">MS² VESTUÁRIO · SPRINT 6</span>
           </div>
 
-          <img src="/logo.png" alt="MS² Vestuário" class="logo-free">
-
-          <h1 class="scene-title">
-            <span class="word">Moda</span>
-            <span class="word">é</span>
-            <span class="word highlight-gold">emoção,</span>
-            <span class="word">estilo</span>
-            <span class="word">e</span>
-            <span class="word highlight-gold">identidade.</span>
-            <span class="word">Mas</span>
-            <span class="word">por</span>
-            <span class="word">trás</span>
-            <span class="word">de</span>
-            <span class="word">cada</span>
-            <span class="word">vitrine,</span>
-            <span class="word">existe</span>
-            <span class="word">uma</span>
-            <span class="word highlight-emerald">operação</span>
-            <span class="word">que</span>
-            <span class="word highlight-red">não</span>
-            <span class="word highlight-red">pode</span>
-            <span class="word highlight-red">parar.</span>
-          </h1>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 02 · O GARGALO OPERACIONAL DO VAREJO                 -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-2">
-          <div class="badge-pill badge-red">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>Dores Críticas do Varejo Físico</span>
+          <!-- Centro: Narração Palavra por Palavra com Tipografia Gigante -->
+          <div class="narration-container">
+            <h1 class="narration-headline" id="headline">
+              <!-- As palavras são renderizadas dinamicamente via render(t) -->
+            </h1>
           </div>
 
-          <h1 class="scene-title">
-            <span class="word highlight-red">Filas</span>
-            <span class="word highlight-red">lentas</span>
-            <span class="word">no</span>
-            <span class="word">pico,</span>
-            <span class="word highlight-red">descontos</span>
-            <span class="word">sem</span>
-            <span class="word highlight-red">controle,</span>
-            <span class="word">cadastros</span>
-            <span class="word highlight-red">duplicados</span>
-            <span class="word">e</span>
-            <span class="word">notas</span>
-            <span class="word highlight-red">rejeitadas</span>
-            <span class="word">custam</span>
-            <span class="word highlight-gold">milhares.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex: 1; border-color: rgba(239, 68, 68, 0.4);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:12px; font-weight:700; color:#ef4444; letter-spacing:0.1em;">FILAS EM PICO</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
-              <div style="font-size:52px; font-weight:800; font-family:'Space Grotesk'; color:#fff; margin:14px 0;">+18 min</div>
-              <p style="font-size:13px; color:#94a3b8;">Travamento do caixa por digitação manual ou busca demorada de código.</p>
-            </div>
-
-            <div class="glass-card" style="flex: 1; border-color: rgba(239, 68, 68, 0.4);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:12px; font-weight:700; color:#ef4444; letter-spacing:0.1em;">PERDA DE MARGEM</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
-              </div>
-              <div style="font-size:52px; font-weight:800; font-family:'Space Grotesk'; color:#f87171; margin:14px 0;">-32.4%</div>
-              <p style="font-size:13px; color:#94a3b8;">Descontos abusivos aplicados diretamente no PDV sem autorização de gerente.</p>
-            </div>
-
-            <div class="glass-card" style="flex: 1; border-color: rgba(245, 158, 11, 0.4);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:12px; font-weight:700; color:#fbbf24; letter-spacing:0.1em;">INSEGURANÇA FISCAL</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div style="font-size:52px; font-weight:800; font-family:'Space Grotesk'; color:#fbbf24; margin:14px 0;">ERRO 409</div>
-              <p style="font-size:13px; color:#94a3b8;">CPFs inválidos, duplicidades no banco e rejeições perante a SEFAZ.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 03 · A REVELAÇÃO DO ECOSSISTEMA                     -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-3">
-          <div class="badge-pill badge-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <span>A Resposta Definitiva</span>
+          <!-- Base: Elemento Visual da Cena -->
+          <div class="visual-stage" id="visual-stage">
+            <!-- Cards ou Gráficos em HTML/SVG -->
           </div>
 
-          <img src="/logo.png" alt="MS² Vestuário" class="logo-free" style="max-height:100px;">
-
-          <h1 class="scene-title">
-            <span class="word">Por</span>
-            <span class="word">isso</span>
-            <span class="word">nasceu</span>
-            <span class="word">o</span>
-            <span class="word highlight-gold">MS²</span>
-            <span class="word highlight-gold">Vestuário:</span>
-            <span class="word">do</span>
-            <span class="word">primeiro</span>
-            <span class="word">pixel</span>
-            <span class="word">ao</span>
-            <span class="word">último</span>
-            <span class="word">byte,</span>
-            <span class="word">feito</span>
-            <span class="word">para</span>
-            <span class="word highlight-emerald">alta</span>
-            <span class="word highlight-emerald">performance.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4); text-align:center;">
-              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(212, 175, 55, 0.15); display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              </div>
-              <div style="font-size:20px; font-weight:800; color:#d4af37;">PDV Ultrarrápido</div>
-              <p style="font-size:13px; color:#94a3b8; margin-top:8px;">Bipagem instantânea sub-300ms e catálogo fotográfico de vestuário.</p>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4); text-align:center;">
-              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(99, 102, 241, 0.15); display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <div style="font-size:20px; font-weight:800; color:#818cf8;">Governança RBAC</div>
-              <p style="font-size:13px; color:#94a3b8; margin-top:8px;">Alçadas de desconto (RN-02), cancelamento formal (RN-03) e auditoria.</p>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4); text-align:center;">
-              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <div style="font-size:20px; font-weight:800; color:#34d399;">Conformidade Fiscal</div>
-              <p style="font-size:13px; color:#94a3b8; margin-top:8px;">Emissão de NFC-e (Mod 65) / SAT, Lei da Transparência e exportações.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 04 · ENGENHARIA DE ARQUITETURA                      -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-4">
-          <div class="badge-pill badge-indigo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            <span>Arquitetura Limpa & Transacional</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">React</span>
-            <span class="word">com</span>
-            <span class="word highlight-indigo">TypeScript,</span>
-            <span class="word">API</span>
-            <span class="word">em</span>
-            <span class="word highlight-indigo">Node</span>
-            <span class="word">e</span>
-            <span class="word">Express,</span>
-            <span class="word highlight-gold">validação</span>
-            <span class="word">com</span>
-            <span class="word highlight-gold">Zod,</span>
-            <span class="word">JWT</span>
-            <span class="word">e</span>
-            <span class="word highlight-emerald">transações</span>
-            <span class="word highlight-emerald">ACID.</span>
-          </h1>
-
-          <div class="code-window" style="max-width: 1200px;">
-            <div class="code-header">
-              <div class="code-dots">
-                <div class="code-dot dot-red"></div>
-                <div class="code-dot dot-yellow"></div>
-                <div class="code-dot dot-green"></div>
-              </div>
-              <span style="font-size:11px; color:#94a3b8; font-weight:700;">backend/src/services/VendaService.ts (Transação ACID & Snapshot)</span>
-              <span style="font-size:10px; color:#34d399; font-weight:700;">TypeScript 5.7</span>
-            </div>
-            <div class="code-body">
-              <span class="code-keyword">export class</span> <span class="code-gold">VendaService</span> {<br>
-              &nbsp;&nbsp;<span class="code-keyword">static async</span> <span class="code-func">criar</span>(dados: <span class="code-gold">VendaCriacaoInput</span>, operadorId: <span class="code-num">number</span>, cargo: <span class="code-gold">CargoUsuario</span>) {<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// 1. Transação Atômica ACID: Reserva estoque, grava cabeçalho e snapshot de preços</span><br>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> conexao = <span class="code-keyword">await</span> db.<span class="code-func">getConnection</span>();<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> conexao.<span class="code-func">beginTransaction</span>();<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">try</span> {<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> subtotal = dados.itens.<span class="code-func">reduce</span>((acc, i) =&gt; acc + (i.preco_unitario * i.quantidade), <span class="code-num">0</span>);<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> (dados.desconto &gt; subtotal * <span class="code-num">0.10</span> &amp;&amp; cargo === <span class="code-string">'CAIXA'</span>) {<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> AuthService.<span class="code-func">validarCredenciaisGerente</span>(dados.gerente_email, dados.gerente_senha);<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> conexao.<span class="code-func">commit</span>(); <span class="code-comment">// Persistência segura garantida</span><br>
-              &nbsp;&nbsp;&nbsp;&nbsp;} <span class="code-keyword">catch</span> (err) { <span class="code-keyword">await</span> conexao.<span class="code-func">rollback</span>(); <span class="code-keyword">throw</span> err; }<br>
-              &nbsp;&nbsp;}<br>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 05 · PDV AO VIVO: BIPAGEM SUB-300MS                 -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-5">
-          <div class="badge-pill badge-emerald">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            <span>Velocidade de Caixa Express</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Bipagem</span>
-            <span class="word">instantânea</span>
-            <span class="word">em</span>
-            <span class="word highlight-emerald">menos</span>
-            <span class="word">de</span>
-            <span class="word highlight-emerald">300ms,</span>
-            <span class="word">catálogo</span>
-            <span class="word">fotográfico</span>
-            <span class="word">e</span>
-            <span class="word highlight-gold">atalhos</span>
-            <span class="word">operacionais.</span>
-          </h1>
-
-          <div class="bento-container">
-            <!-- Box Leitor Laser -->
-            <div class="glass-card" style="flex:1.4; border-color: rgba(16, 185, 129, 0.5);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <morph-icon id="morph-icon-scanner" size="20" style="color:#34d399;"></morph-icon>
-                  <span style="font-size:12px; font-weight:700; color:#34d399; letter-spacing:0.1em;">LEITOR LASER ATIVO [F2]</span>
-                </div>
-                <span style="background:rgba(16, 185, 129, 0.2); border:1px solid #10b981; color:#34d399; font-weight:800; font-size:14px; padding:4px 14px; border-radius:9999px;">
-                  ⚡ 182 ms
-                </span>
-              </div>
-              <div style="margin:16px 0; display:flex; gap:16px; align-items:center;">
-                <img src="/products/103.jpg" alt="Calça Jeans Slim" style="width:72px; height:72px; border-radius:14px; object-fit:cover; border:1px solid rgba(255,255,255,0.15);">
-                <div>
-                  <div style="font-size:22px; font-weight:800; font-family:'Space Grotesk'; color:#fff;">Calça Jeans Slim Azul Escuro 40</div>
-                  <div style="font-size:13px; color:#94a3b8; font-family:'JetBrains Mono'; margin-top:4px;">Código: 103 • Vestuário Masculino</div>
-                </div>
-              </div>
-              <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:#10b981; border-top:1px solid rgba(255,255,255,0.1); pt:12px; margin-top:auto;">
-                <span>Subtotal da Peça:</span>
-                <span style="font-family:'JetBrains Mono';">R$ 159,90</span>
-              </div>
-            </div>
-
-            <!-- Box Teclas de Atalho de Caixa -->
-            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#d4af37; letter-spacing:0.1em; margin-bottom:12px;">ATALHOS OPERACIONAIS</div>
-              <div style="display:flex; flex-direction:column; gap:10px; font-size:12px;">
-                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Bipar Produto:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#fbbf24; font-family:monospace;">F2</kbd></div>
-                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Identificar Cliente:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#fbbf24; font-family:monospace;">F4</kbd></div>
-                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Desconto & Alçada:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#fbbf24; font-family:monospace;">F8</kbd></div>
-                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Finalizar Pagamento:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#34d399; font-family:monospace;">F9</kbd></div>
-                <div style="display:flex; justify-content:space-between;"><span style="color:#94a3b8;">Limpar Carrinho:</span> <kbd style="background:#1e293b; padding:2px 8px; border-radius:6px; color:#f87171; font-family:monospace;">F12</kbd></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 06 · CÓDIGO AO VIVO: RN-01 MÓDULO 11 (CPF)           -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-6">
-          <div class="badge-pill badge-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>RN-01 • Validação Oficial Módulo 11</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Algoritmo</span>
-            <span class="word">oficial</span>
-            <span class="word">da</span>
-            <span class="word highlight-gold">Receita</span>
-            <span class="word highlight-gold">Federal:</span>
-            <span class="word">cálculo</span>
-            <span class="word">dos</span>
-            <span class="word">dois</span>
-            <span class="word highlight-emerald">dígitos</span>
-            <span class="word highlight-emerald">verificadores.</span>
-          </h1>
-
-          <div class="code-window" style="max-width: 1250px;">
-            <div class="code-header">
-              <div class="code-dots"><div class="code-dot dot-red"></div><div class="code-dot dot-yellow"></div><div class="code-dot dot-green"></div></div>
-              <span style="font-size:11px; color:#94a3b8;">backend/src/utils/cpf-validator.ts (Módulo 11)</span>
-              <span style="font-size:11px; color:#fbbf24; font-weight:700;">Simulação: 064.514.702-87 → VÁLIDO</span>
-            </div>
-            <div class="code-body">
-              <span class="code-keyword">export function</span> <span class="code-func">validarCPF</span>(cpf: <span class="code-num">string</span>): <span class="code-num">boolean</span> {<br>
-              &nbsp;&nbsp;<span class="code-keyword">const</span> limpo = cpf.<span class="code-func">replace</span>(<span class="code-string">/\D/g</span>, <span class="code-string">''</span>);<br>
-              &nbsp;&nbsp;<span class="code-keyword">if</span> (limpo.length !== <span class="code-num">11</span> || <span class="code-string">/^(\d)\1{10}$/</span>.<span class="code-func">test</span>(limpo)) <span class="code-keyword">return false</span>;<br>
-              <br>
-              &nbsp;&nbsp;<span class="code-comment">// Cálculo do 1º DV (Pesos 10 a 2)</span><br>
-              &nbsp;&nbsp;<span class="code-keyword">let</span> soma = <span class="code-num">0</span>;<br>
-              &nbsp;&nbsp;<span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-num">0</span>; i &lt; <span class="code-num">9</span>; i++) soma += <span class="code-func">parseInt</span>(limpo[i]) * (<span class="code-num">10</span> - i);<br>
-              &nbsp;&nbsp;<span class="code-keyword">let</span> dv1 = (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>)) &gt;= <span class="code-num">10</span> ? <span class="code-num">0</span> : (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>));<br>
-              &nbsp;&nbsp;<span class="code-keyword">if</span> (dv1 !== <span class="code-func">parseInt</span>(limpo[<span class="code-num">9</span>])) <span class="code-keyword">return false</span>;<br>
-              <br>
-              &nbsp;&nbsp;<span class="code-comment">// Cálculo do 2º DV (Pesos 11 a 2)</span><br>
-              &nbsp;&nbsp;soma = <span class="code-num">0</span>;<br>
-              &nbsp;&nbsp;<span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-num">0</span>; i &lt; <span class="code-num">10</span>; i++) soma += <span class="code-func">parseInt</span>(limpo[i]) * (<span class="code-num">11</span> - i);<br>
-              &nbsp;&nbsp;<span class="code-keyword">let</span> dv2 = (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>)) &gt;= <span class="code-num">10</span> ? <span class="code-num">0</span> : (<span class="code-num">11</span> - (soma % <span class="code-num">11</span>));<br>
-              &nbsp;&nbsp;<span class="code-keyword">return</span> dv2 === <span class="code-func">parseInt</span>(limpo[<span class="code-num">10</span>]); <span class="code-comment">// 100% Homologado</span><br>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 07 · GESTÃO DE CLIENTES & FIDELIZAÇÃO (RN-06)         -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-7">
-          <div class="badge-pill badge-emerald">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>RN-06 • Flexibilidade no Balcão</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Consumidor</span>
-            <span class="word highlight-emerald">Final,</span>
-            <span class="word">busca</span>
-            <span class="word">por</span>
-            <span class="word highlight-gold">CPF</span>
-            <span class="word">ou</span>
-            <span class="word highlight-indigo">cadastro</span>
-            <span class="word highlight-indigo">rápido</span>
-            <span class="word">sem</span>
-            <span class="word">sair</span>
-            <span class="word">da</span>
-            <span class="word">venda.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1; border-color: rgba(148, 163, 184, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#94a3b8;">OPÇÃO 1</div>
-              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Consumidor Final</div>
-              <p style="font-size:13px; color:#94a3b8;">Venda anônima e instantânea sem exigência de CPF para o cliente casual.</p>
-              <div style="margin-top:14px; font-size:11px; color:#38bdf8; font-weight:700;">Zero Atrito no Caixa</div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#818cf8;">OPÇÃO 2</div>
-              <div style="font-size:22px; font-weight:800; color:#818cf8; margin:10px 0;">Cliente Fidelizado</div>
-              <p style="font-size:13px; color:#94a3b8;">Busca instantânea por CPF formatado com histórico de compras e pontuação.</p>
-              <div style="margin-top:14px; font-size:11px; color:#a5b4fc; font-weight:700;">Atalho [F4] Integrado</div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#34d399;">OPÇÃO 3</div>
-              <div style="font-size:22px; font-weight:800; color:#34d399; margin:10px 0;">Cadastro Express</div>
-              <p style="font-size:13px; color:#94a3b8;">Caixa, Gerente e Admin adicionam novos clientes diretamente no modal do PDV.</p>
-              <div style="margin-top:14px; font-size:11px; color:#6ee7b7; font-weight:700;">Validação Módulo 11 Ativa</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 08 · PERFIS DE ACESSO RBAC                          -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-8">
-          <div class="badge-pill badge-indigo">
-            <morph-icon id="morph-icon-rbac" size="18" style="color:#818cf8;"></morph-icon>
-            <span>Matriz Granular de Segurança</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Controle</span>
-            <span class="word">hierárquico</span>
-            <span class="word">por</span>
-            <span class="word highlight-indigo">papéis:</span>
-            <span class="word">Caixa,</span>
-            <span class="word highlight-gold">Gerente</span>
-            <span class="word">e</span>
-            <span class="word highlight-emerald">Administrador.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#34d399;">PERFIL OPERACIONAL</div>
-              <div style="font-size:24px; font-weight:800; color:#fff; margin:8px 0;">Caixa</div>
-              <p style="font-size:13px; color:#94a3b8;">Opera PDV, bipagem de produtos, registro de clientes e fechamento de vendas.</p>
-              <div style="margin-top:12px; padding:6px 10px; background:rgba(16,185,129,0.1); border-radius:8px; font-size:11px; color:#34d399; font-weight:700;">Desconto Autônomo &le; 10%</div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#fbbf24;">PERFIL GESTOR</div>
-              <div style="font-size:24px; font-weight:800; color:#fbbf24; margin:8px 0;">Gerente</div>
-              <p style="font-size:13px; color:#94a3b8;">Aprova alçadas de desconto (RN-02), autoriza estornos formais e acessa Dashboard.</p>
-              <div style="margin-top:12px; padding:6px 10px; background:rgba(212,175,55,0.1); border-radius:8px; font-size:11px; color:#fbbf24; font-weight:700;">Autorizador Criptográfico</div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#818cf8;">PERFIL DIRETORIA</div>
-              <div style="font-size:24px; font-weight:800; color:#818cf8; margin:8px 0;">Administrador</div>
-              <p style="font-size:13px; color:#94a3b8;">Controle total de equipe, exclusões definitivas, configuração de CNPJ e dados fiscais.</p>
-              <div style="margin-top:12px; padding:6px 10px; background:rgba(99,102,241,0.1); border-radius:8px; font-size:11px; color:#a5b4fc; font-weight:700;">Gestão Corporativa Integral</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 09 · CÓDIGO AO VIVO: RN-02 ALÇADA DE DESCONTO        -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-9">
-          <div class="badge-pill badge-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>RN-02 • Alçada Gerencial de Desconto</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Desconto</span>
-            <span class="word highlight-gold">&gt;</span>
-            <span class="word highlight-gold">10%</span>
-            <span class="word highlight-red">bloqueia</span>
-            <span class="word">o</span>
-            <span class="word">caixa:</span>
-            <span class="word">exige</span>
-            <span class="word highlight-emerald">credencial</span>
-            <span class="word">do</span>
-            <span class="word highlight-emerald">gerente.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="code-window" style="flex:1.3;">
-              <div class="code-header">
-                <span style="font-size:11px; color:#94a3b8;">backend/src/services/VendaService.ts</span>
-                <span style="font-size:10px; color:#f87171; font-weight:700;">403 Forbidden se não autorizado</span>
-              </div>
-              <div class="code-body">
-                <span class="code-keyword">const</span> percentual = (desconto / subtotal) * <span class="code-num">100</span>;<br>
-                <span class="code-keyword">if</span> (percentual &gt; <span class="code-num">10.0</span> &amp;&amp; operadorCargo === <span class="code-string">'CAIXA'</span>) {<br>
-                &nbsp;&nbsp;<span class="code-keyword">if</span> (!dados.gerente_aprovador) {<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">throw new</span> <span class="code-gold">AppError</span>(<span class="code-string">'Desconto acima de 10% exige autorização gerencial (RN-02)'</span>, <span class="code-num">403</span>);<br>
-                &nbsp;&nbsp;}<br>
-                &nbsp;&nbsp;<span class="code-keyword">const</span> gerente = <span class="code-keyword">await</span> AuthService.<span class="code-func">validarCredenciaisGerente</span>(<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;dados.gerente_aprovador.email, dados.gerente_aprovador.senha<br>
-                &nbsp;&nbsp;);<br>
-                &nbsp;&nbsp;gerenteAprovadorId = gerente.id; <span class="code-comment">// Gravado no BD para auditoria</span><br>
-                }
-              </div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(245, 158, 11, 0.5);">
-              <div style="font-size:12px; font-weight:700; color:#fbbf24;">MODAL DE ALÇADA EM TEMPO REAL</div>
-              <div style="margin:14px 0; padding:12px; background:rgba(245,158,11,0.1); border-radius:12px; border:1px solid rgba(245,158,11,0.3);">
-                <div style="font-size:11px; color:#fde68a;">Desconto Aplicado: <strong>36.4% (R$ 58,20)</strong></div>
-                <div style="font-size:11px; color:#fde68a; margin-top:4px;">Operador: <strong>Lucas Silva (Caixa #3)</strong></div>
-              </div>
-              <div style="margin-top:auto; font-size:11px; color:#34d399; font-weight:700;">
-                ✓ Aprovado por: Carlos Mendes (Gerente Geral)
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 10 · HISTÓRICO IMUTÁVEL & SNAPSHOT (RN-03/04)        -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-10">
-          <div class="badge-pill badge-emerald">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span>RN-04 • Imutabilidade Financeira</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Preços</span>
-            <span class="word highlight-emerald">congelados</span>
-            <span class="word">no</span>
-            <span class="word">momento</span>
-            <span class="word">da</span>
-            <span class="word highlight-gold">venda:</span>
-            <span class="word">auditoria</span>
-            <span class="word">contábil</span>
-            <span class="word highlight-emerald">100%</span>
-            <span class="word highlight-emerald">imutável.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#818cf8;">SNAPSHOT HISTÓRICO (RN-04)</div>
-              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Tabela itens_venda</div>
-              <p style="font-size:13px; color:#94a3b8;">Grava o preço unitário praticado na transação. Futuros reajustes no cadastro de produtos não afetam relatórios passados.</p>
-              <div style="margin-top:14px; font-size:11px; font-family:'JetBrains Mono'; color:#34d399;">preco_unitario_historico: DECIMAL(10,2)</div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(239, 68, 68, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#f87171;">ESTORNO COM MOTIVO (RN-03)</div>
-              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Cancelamento Formal</div>
-              <p style="font-size:13px; color:#94a3b8;">Cancelamento exige justificativa formal e validação de login e senha do Gerente, mantendo trilha de auditoria.</p>
-              <div style="margin-top:14px; font-size:11px; font-family:'JetBrains Mono'; color:#f87171;">motivo_cancelamento &bull; gerente_id</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 11 · DASHBOARD EXECUTIVO & BUSINESS INTELLIGENCE     -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-11">
-          <div class="badge-pill badge-gold">
-            <morph-icon id="morph-icon-dashboard" size="18" style="color:#fbbf24;"></morph-icon>
-            <span>Métricas em Tempo Real</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Dashboard</span>
-            <span class="word highlight-gold">executivo:</span>
-            <span class="word">faturamento,</span>
-            <span class="word highlight-emerald">ticket</span>
-            <span class="word highlight-emerald">médio</span>
-            <span class="word">e</span>
-            <span class="word">ranking</span>
-            <span class="word">de</span>
-            <span class="word">produtos.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
-              <span style="font-size:12px; font-weight:700; color:#34d399;">FATURAMENTO DO DIA</span>
-              <div style="font-size:42px; font-weight:800; font-family:'Space Grotesk'; color:#fff; margin:10px 0;">R$ 14.890</div>
-              <div style="font-size:11px; color:#34d399; font-weight:700;">+24.6% em relação a ontem</div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4);">
-              <span style="font-size:12px; font-weight:700; color:#818cf8;">TICKET MÉDIO</span>
-              <div style="font-size:42px; font-weight:800; font-family:'Space Grotesk'; color:#fff; margin:10px 0;">R$ 186,12</div>
-              <div style="font-size:11px; color:#818cf8; font-weight:700;">80 vendas liquidadas</div>
-            </div>
-
-            <div class="glass-card" style="flex:1.2; border-color: rgba(212, 175, 55, 0.4);">
-              <span style="font-size:12px; font-weight:700; color:#fbbf24;">DISTRIBUIÇÃO DE PAGAMENTO</span>
-              <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px; font-size:12px;">
-                <div style="display:flex; justify-content:space-between;"><span>PIX Instantâneo</span> <strong style="color:#34d399;">52%</strong></div>
-                <div style="display:flex; justify-content:space-between;"><span>Cartão de Crédito</span> <strong style="color:#60a5fa;">36%</strong></div>
-                <div style="display:flex; justify-content:space-between;"><span>Dinheiro Físico</span> <strong style="color:#fbbf24;">12%</strong></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 12 · MÓDULO FISCAL: NFC-E / SAT                      -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-12">
-          <div class="badge-pill badge-indigo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>Documentos Fiscais Eletrônicos</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Emissão</span>
-            <span class="word">de</span>
-            <span class="word highlight-gold">NFC-e</span>
-            <span class="word highlight-gold">Mod.</span>
-            <span class="word highlight-gold">65,</span>
-            <span class="word">chave</span>
-            <span class="word">de</span>
-            <span class="word highlight-emerald">44</span>
-            <span class="word highlight-emerald">dígitos</span>
-            <span class="word">e</span>
-            <span class="word highlight-indigo">QR</span>
-            <span class="word highlight-indigo">Code</span>
-            <span class="word">SEFAZ.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1.2; background:rgba(255,255,255,0.95); color:#0f172a; border-color:#e2e8f0; font-family:'JetBrains Mono',monospace;">
-              <div style="text-align:center; border-bottom:1px dashed #94a3b8; padding-bottom:8px; margin-bottom:10px;">
-                <div style="font-weight:900; font-size:14px; font-family:'Space Grotesk';">MS² VESTUÁRIO LTDA</div>
-                <div style="font-size:10px; color:#64748b;">CNPJ: 12.345.678/0001-90 • IE: 87.654.321</div>
-                <div style="font-size:11px; font-weight:800; color:#d97706; margin-top:2px;">DANFE NFC-e (MODELO 65)</div>
-              </div>
-              <div style="font-size:11px; display:flex; justify-content:space-between; margin:4px 0;">
-                <span>VALOR TOTAL:</span> <span style="font-weight:900; color:#047857;">R$ 239,90</span>
-              </div>
-              <div style="font-size:9px; color:#475569; margin-top:8px; word-break:break-all;">
-                CHAVE DE ACESSO:<br>
-                <strong>3326 1012 3456 7800 0190 6500 1000 0000 2419 8765 4321</strong>
-              </div>
-              <div style="font-size:9px; color:#64748b; margin-top:6px; border-top:1px dashed #cbd5e1; pt:4px;">
-                Tributos Aprox. (Lei 12.741/2012): R$ 38,42 (Fed) • R$ 28,78 (Est)
-              </div>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4);">
-              <div style="font-size:12px; font-weight:700; color:#34d399;">LEI DA TRANSPARÊNCIA</div>
-              <div style="font-size:22px; font-weight:800; color:#fff; margin:10px 0;">Protocolo SEFAZ</div>
-              <p style="font-size:13px; color:#94a3b8;">Geração automática do XML de lote, assinatura digital com carimbo de tempo e consulta pública via QR Code.</p>
-              <div style="margin-top:auto; font-size:11px; color:#10b981; font-weight:700;">✓ SEFAZ Homologação Concluída</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 13 · RELATÓRIOS EXECUTIVOS & EXPORTAÇÃO CONTÁBIL      -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-13">
-          <div class="badge-pill badge-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span>Auditoria & Exportação Contábil</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Relatórios</span>
-            <span class="word highlight-gold">executivos</span>
-            <span class="word">em</span>
-            <span class="word highlight-emerald">Excel,</span>
-            <span class="word highlight-indigo">CSV</span>
-            <span class="word">UTF-8</span>
-            <span class="word">e</span>
-            <span class="word highlight-gold">PDF</span>
-            <span class="word">corporativo.</span>
-          </h1>
-
-          <div class="bento-container">
-            <div class="glass-card" style="flex:1; border-color: rgba(16, 185, 129, 0.4); text-align:center;">
-              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-              </div>
-              <div style="font-size:20px; font-weight:800; color:#34d399;">Planilha Excel</div>
-              <p style="font-size:12px; color:#94a3b8; margin-top:6px;">Arquivos .xlsx com cabeçalhos estilizados, linhas de total e tipos numéricos.</p>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(99, 102, 241, 0.4); text-align:center;">
-              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(99,102,241,0.15); display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div style="font-size:20px; font-weight:800; color:#818cf8;">CSV UTF-8 BOM</div>
-              <p style="font-size:12px; color:#94a3b8; margin-top:6px;">Compatibilidade total com Power BI e Excel sem corrupção de caracteres em português.</p>
-            </div>
-
-            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.4); text-align:center;">
-              <div style="margin:0 auto 10px; width:48px; height:48px; border-radius:14px; background:rgba(212,175,55,0.15); display:flex; align-items:center; justify-content:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-              </div>
-              <div style="font-size:20px; font-weight:800; color:#d4af37;">PDF Executivo A4</div>
-              <p style="font-size:12px; color:#94a3b8; margin-top:6px;">Impressão com logotipo oficial livre, cabeçalho da empresa e carimbo de autenticidade.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 14 · ENGENHARIA DE QUALIDADE: 18/18 E2E              -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-14">
-          <div class="badge-pill badge-emerald">
-            <morph-icon id="morph-icon-tests" size="18" style="color:#34d399;"></morph-icon>
-            <span>Garantia de Qualidade & CI/CD</span>
-          </div>
-
-          <h1 class="scene-title">
-            <span class="word">Qualidade</span>
-            <span class="word">é</span>
-            <span class="word highlight-gold">evidência:</span>
-            <span class="word highlight-emerald">18</span>
-            <span class="word">de</span>
-            <span class="word highlight-emerald">18</span>
-            <span class="word">testes</span>
-            <span class="word">aprovados</span>
-            <span class="word">e</span>
-            <span class="word highlight-gold">zero</span>
-            <span class="word highlight-gold">falhas.</span>
-          </h1>
-
-          <div class="code-window" style="max-width: 1200px;">
-            <div class="code-header">
-              <span style="font-size:11px; color:#94a3b8;">Terminal de Homologação E2E (Sprint 5/6)</span>
-              <span style="font-size:11px; color:#34d399; font-weight:800;">18 / 18 PASS (100%)</span>
-            </div>
-            <div class="code-body" style="font-size:12px;">
-              <span style="color:#34d399;">✓ [01/18] Healthcheck & Conexão com Banco de Dados</span><br>
-              <span style="color:#34d399;">✓ [06/18] Validação Oficial de CPF Módulo 11 (Receita Federal)</span><br>
-              <span style="color:#34d399;">✓ [11/18] Venda Normal com Desconto &le; 10% (Autonomia do Caixa)</span><br>
-              <span style="color:#34d399;">✓ [12/18] Bloqueio Desconto &gt; 10% Sem Gerente (403 Forbidden RN-02)</span><br>
-              <span style="color:#34d399;">✓ [13/18] Venda com Desconto Alto Aprovada por Gerente (RN-02)</span><br>
-              <span style="color:#34d399;">✓ [15/18] Cancelamento de Venda com Alçada e Motivo Formal (RN-03)</span><br>
-              <span style="color:#34d399;">✓ [17/18] Emissão de NFC-e com Chave de 44 Dígitos e Protocolo SEFAZ</span><br>
-              <span style="color:#34d399;">✓ [18/18] Exportação de Relatórios Executivos em Excel e PDF</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================== -->
-        <!-- CENA 15 · ENCERRAMENTO TRIUNFAL & FIRJAN SENAI            -->
-        <!-- ========================================================== -->
-        <div class="scene" id="scene-15">
-          <div class="badge-pill badge-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span>Projeto Integrador • Firjan SENAI</span>
-          </div>
-
-          <img src="/logo.png" alt="MS² Vestuário" class="logo-free" style="max-height:140px;">
-
-          <h1 class="scene-title" style="font-size:64px;">
-            <span class="word highlight-gold">MS²</span>
-            <span class="word highlight-gold">Vestuário.</span>
-            <br>
-            <span class="word">Moda,</span>
-            <span class="word highlight-gold">estilo</span>
-            <span class="word">e</span>
-            <span class="word highlight-emerald">você.</span>
-          </h1>
-
-          <div class="bento-container" style="max-width: 900px;">
-            <div class="glass-card" style="flex:1; border-color: rgba(212, 175, 55, 0.6); text-align:center; padding:24px;">
-              <div style="font-size:14px; font-weight:800; color:#fbbf24; letter-spacing:0.15em;">HOMOLOGAÇÃO 100% CONFORME</div>
-              <p style="font-size:13px; color:#cbd5e1; margin-top:8px;">Desenvolvido com excelência técnica para avaliação de banca do SENAI Moda.</p>
-              <div style="margin-top:16px; display:flex; justify-content:center; gap:12px;">
-                <span style="padding:6px 14px; background:rgba(212,175,55,0.15); border:1px solid rgba(212,175,55,0.4); border-radius:9999px; font-size:11px; font-weight:700; color:#fbbf24;">Sprints 1 a 6 Concluídas</span>
-                <span style="padding:6px 14px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); border-radius:9999px; font-size:11px; font-weight:700; color:#34d399;">Pronto para Produção</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div> <!-- Fim da #camera -->
-
-      <!-- Overlay de Abertura / Play -->
-      <div id="start-overlay" onclick="iniciarApresentacao()">
-        <img src="/logo.png" alt="MS² Vestuário" class="logo-free" style="max-height:110px; margin-bottom:16px;">
-        <div class="play-btn-circle">
-          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        </div>
-        <h2 style="font-family:'Space Grotesk'; font-size:32px; font-weight:800; margin-bottom:8px;">
-          Iniciar Apresentação em Motion Design
-        </h2>
-        <p style="font-size:14px; color:#94a3b8; max-width:540px;">
-          15 apresentações sincronizadas em código puro com áudio neural e atalhos de palco.
-        </p>
-        <div style="margin-top:20px; font-size:12px; color:#d4af37; font-family:'JetBrains Mono'; font-weight:700;">
-          Clique ou pressione ESPAÇO para começar
         </div>
       </div>
 
-      <!-- Overlay de Contagem Regressiva 3-2-1 -->
-      <div id="countdown-overlay">
-        <div id="countdown-digit">3</div>
+      <!-- Barra de Controle Inferior (HUD) -->
+      <div id="hud-footer">
+        <span class="scene-counter" id="scene-counter">CENA 01 / 15</span>
+        <span>ATALHOS: [ESPAÇO] PLAY · [R] REINICIAR · [← →] CENAS · [T] TEMPO</span>
+      </div>
+
+      <!-- Overlay Inicial com Contagem 3-2-1 -->
+      <div id="start-overlay" onclick="iniciarComContagem()">
+        <div id="countdown-display">3</div>
+        <div class="start-prompt" id="start-prompt">
+          <div class="start-btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="start-title">Iniciar Gravação do Reels</div>
+          <div class="start-sub">
+            Clique na tela ou aperte <span class="start-badge-key">ESPAÇO</span> para começar com contagem 3-2-1
+          </div>
+        </div>
       </div>
 
     </div>
   </div>
 
+  <!-- Elemento de Áudio Opcional Sincronizado -->
+  <audio id="audio-player" preload="auto"></audio>
+
   <script>
-    // ========================================================================
-    // CRONOGRAMA DAS 15 APRESENTAÇÕES (TIMESTAMPS DETERMINÍSTICOS)
-    // ========================================================================
-    const CENAS = [
-      { id: 1,  bg: 'bg-boutique', inicio: 0.0,   fim: 10.0,  titulo: 'Abertura Cinemática' },
-      { id: 2,  bg: 'bg-queue',    inicio: 10.0,  fim: 21.0,  titulo: 'O Gargalo do Varejo' },
-      { id: 3,  bg: 'bg-rack',     inicio: 21.0,  fim: 31.0,  titulo: 'A Solução MS²' },
-      { id: 4,  bg: 'bg-silk',     inicio: 31.0,  fim: 43.0,  titulo: 'Engenharia & Arquitetura' },
-      { id: 5,  bg: 'bg-scanner',  inicio: 43.0,  fim: 56.0,  titulo: 'PDV Sub-300ms' },
-      { id: 6,  bg: null,          inicio: 56.0,  fim: 68.0,  titulo: 'Código RN-01 Módulo 11' },
-      { id: 7,  bg: null,          inicio: 68.0,  fim: 78.0,  titulo: 'Gestão de Clientes' },
-      { id: 8,  bg: null,          inicio: 78.0,  fim: 90.0,  titulo: 'Matriz de Segurança RBAC' },
-      { id: 9,  bg: null,          inicio: 90.0,  fim: 102.0, titulo: 'Código RN-02 Alçadas' },
-      { id: 10, bg: null,          inicio: 102.0, fim: 114.0, titulo: 'Histórico Imutável RN-04' },
-      { id: 11, bg: 'bg-manager',  inicio: 114.0, fim: 125.0, titulo: 'Dashboard Executivo' },
-      { id: 12, bg: null,          inicio: 125.0, fim: 137.0, titulo: 'Emissão Fiscal NFC-e' },
-      { id: 13, bg: null,          inicio: 137.0, fim: 147.0, titulo: 'Exportação Contábil' },
-      { id: 14, bg: null,          inicio: 147.0, fim: 158.0, titulo: '18/18 Testes E2E' },
-      { id: 15, bg: 'bg-boutique', inicio: 158.0, fim: 169.0, titulo: 'Encerramento Firjan' }
-    ];
+    // ==========================================================
+    // CRONOGRAMA DETERMINÍSTICO E DADOS DAS 15 CENAS
+    // ==========================================================
+    const CENAS_DATA = [
+  {
+    "id": 1,
+    "arquivo": "cena-01.mp3",
+    "audioUrl": "/pitch/audio/cena-01.mp3",
+    "rotulo": "Abertura",
+    "duracao": 6.8,
+    "palavras": [
+      {
+        "w": "Moda",
+        "s": 0,
+        "e": 0.32
+      },
+      {
+        "w": "é",
+        "s": 0.48,
+        "e": 0.64
+      },
+      {
+        "w": "emoção.",
+        "s": 0.72,
+        "e": 1.36
+      },
+      {
+        "w": "Mas,",
+        "s": 1.68,
+        "e": 2.48
+      },
+      {
+        "w": "por",
+        "s": 2.56,
+        "e": 2.72
+      },
+      {
+        "w": "trás",
+        "s": 2.8,
+        "e": 3.04
+      },
+      {
+        "w": "de",
+        "s": 3.16,
+        "e": 3.28
+      },
+      {
+        "w": "cada",
+        "s": 3.36,
+        "e": 3.52
+      },
+      {
+        "w": "vitrine,",
+        "s": 3.6,
+        "e": 4.24
+      },
+      {
+        "w": "existe",
+        "s": 4.32,
+        "e": 4.64
+      },
+      {
+        "w": "uma",
+        "s": 4.72,
+        "e": 4.8
+      },
+      {
+        "w": "operação",
+        "s": 4.88,
+        "e": 5.36
+      },
+      {
+        "w": "que",
+        "s": 5.44,
+        "e": 5.52
+      },
+      {
+        "w": "não",
+        "s": 5.68,
+        "e": 5.84
+      },
+      {
+        "w": "pode",
+        "s": 5.92,
+        "e": 6.16
+      },
+      {
+        "w": "parar.",
+        "s": 6.24,
+        "e": 6.8
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "arquivo": "cena-02.mp3",
+    "audioUrl": "/pitch/audio/cena-02.mp3",
+    "rotulo": "O Problema",
+    "duracao": 11.76,
+    "palavras": [
+      {
+        "w": "Filas",
+        "s": 0,
+        "e": 0.48
+      },
+      {
+        "w": "que",
+        "s": 0.56,
+        "e": 0.64
+      },
+      {
+        "w": "travam",
+        "s": 0.72,
+        "e": 1.12
+      },
+      {
+        "w": "no",
+        "s": 1.16,
+        "e": 1.2
+      },
+      {
+        "w": "horário",
+        "s": 1.28,
+        "e": 1.6
+      },
+      {
+        "w": "de",
+        "s": 1.68,
+        "e": 1.76
+      },
+      {
+        "w": "pico.",
+        "s": 1.8,
+        "e": 2.6
+      },
+      {
+        "w": "Descontos",
+        "s": 2.64,
+        "e": 3.28
+      },
+      {
+        "w": "aplicados",
+        "s": 3.36,
+        "e": 4
+      },
+      {
+        "w": "sem",
+        "s": 4.08,
+        "e": 4.16
+      },
+      {
+        "w": "controle.",
+        "s": 4.24,
+        "e": 5.16
+      },
+      {
+        "w": "Cadastros",
+        "s": 5.2,
+        "e": 5.84
+      },
+      {
+        "w": "duplicados",
+        "s": 6,
+        "e": 6.64
+      },
+      {
+        "w": "e",
+        "s": 6.72,
+        "e": 6.8
+      },
+      {
+        "w": "notas",
+        "s": 6.92,
+        "e": 7.2
+      },
+      {
+        "w": "rejeitadas.",
+        "s": 7.28,
+        "e": 8.44
+      },
+      {
+        "w": "Cada",
+        "s": 8.48,
+        "e": 8.72
+      },
+      {
+        "w": "minuto",
+        "s": 8.84,
+        "e": 9.12
+      },
+      {
+        "w": "de",
+        "s": 9.2,
+        "e": 9.28
+      },
+      {
+        "w": "caixa",
+        "s": 9.36,
+        "e": 9.68
+      },
+      {
+        "w": "parado",
+        "s": 9.8,
+        "e": 10.24
+      },
+      {
+        "w": "é",
+        "s": 10.32,
+        "e": 10.4
+      },
+      {
+        "w": "venda",
+        "s": 10.48,
+        "e": 10.72
+      },
+      {
+        "w": "perdida.",
+        "s": 10.8,
+        "e": 11.76
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "arquivo": "cena-03.mp3",
+    "audioUrl": "/pitch/audio/cena-03.mp3",
+    "rotulo": "A Solução",
+    "duracao": 10.56,
+    "palavras": [
+      {
+        "w": "Por",
+        "s": 0,
+        "e": 0.16
+      },
+      {
+        "w": "isso",
+        "s": 0.24,
+        "e": 0.48
+      },
+      {
+        "w": "nasceu",
+        "s": 0.56,
+        "e": 0.96
+      },
+      {
+        "w": "o",
+        "s": 1,
+        "e": 1.04
+      },
+      {
+        "w": "MS²",
+        "s": 1.2,
+        "e": 1.68
+      },
+      {
+        "w": "Vestuário:",
+        "s": 1.76,
+        "e": 3.24
+      },
+      {
+        "w": "um",
+        "s": 3.28,
+        "e": 3.36
+      },
+      {
+        "w": "sistema",
+        "s": 3.44,
+        "e": 3.84
+      },
+      {
+        "w": "de",
+        "s": 3.92,
+        "e": 4
+      },
+      {
+        "w": "PDV",
+        "s": 4.08,
+        "e": 4.64
+      },
+      {
+        "w": "e",
+        "s": 4.72,
+        "e": 4.76
+      },
+      {
+        "w": "gestão",
+        "s": 4.8,
+        "e": 5.2
+      },
+      {
+        "w": "comercial",
+        "s": 5.28,
+        "e": 5.76
+      },
+      {
+        "w": "pensado,",
+        "s": 5.84,
+        "e": 6.68
+      },
+      {
+        "w": "do",
+        "s": 6.72,
+        "e": 6.8
+      },
+      {
+        "w": "primeiro",
+        "s": 6.96,
+        "e": 7.28
+      },
+      {
+        "w": "pixel",
+        "s": 7.52,
+        "e": 7.76
+      },
+      {
+        "w": "ao",
+        "s": 7.84,
+        "e": 8
+      },
+      {
+        "w": "último",
+        "s": 8.04,
+        "e": 8.4
+      },
+      {
+        "w": "byte,",
+        "s": 8.64,
+        "e": 8.92
+      },
+      {
+        "w": "para",
+        "s": 8.96,
+        "e": 9.04
+      },
+      {
+        "w": "o",
+        "s": 9.08,
+        "e": 9.12
+      },
+      {
+        "w": "varejo",
+        "s": 9.16,
+        "e": 9.52
+      },
+      {
+        "w": "de",
+        "s": 9.6,
+        "e": 9.68
+      },
+      {
+        "w": "moda.",
+        "s": 9.8,
+        "e": 10.56
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "arquivo": "cena-04.mp3",
+    "audioUrl": "/pitch/audio/cena-04.mp3",
+    "rotulo": "Arquitetura",
+    "duracao": 14.4,
+    "palavras": [
+      {
+        "w": "A",
+        "s": 0,
+        "e": 0.08
+      },
+      {
+        "w": "arquitetura",
+        "s": 0.16,
+        "e": 0.8
+      },
+      {
+        "w": "é",
+        "s": 0.84,
+        "e": 0.88
+      },
+      {
+        "w": "moderna",
+        "s": 0.96,
+        "e": 1.44
+      },
+      {
+        "w": "e",
+        "s": 1.48,
+        "e": 1.52
+      },
+      {
+        "w": "segura:",
+        "s": 1.64,
+        "e": 2.48
+      },
+      {
+        "w": "React",
+        "s": 2.72,
+        "e": 2.96
+      },
+      {
+        "w": "com",
+        "s": 3.08,
+        "e": 3.2
+      },
+      {
+        "w": "TypeScript",
+        "s": 3.36,
+        "e": 3.84
+      },
+      {
+        "w": "no",
+        "s": 3.92,
+        "e": 4
+      },
+      {
+        "w": "front-end,",
+        "s": 4.16,
+        "e": 4.96
+      },
+      {
+        "w": "uma",
+        "s": 5.04,
+        "e": 5.28
+      },
+      {
+        "w": "API",
+        "s": 5.36,
+        "e": 5.76
+      },
+      {
+        "w": "REST",
+        "s": 5.84,
+        "e": 6.24
+      },
+      {
+        "w": "em",
+        "s": 6.36,
+        "e": 6.48
+      },
+      {
+        "w": "Node",
+        "s": 6.64,
+        "e": 6.8
+      },
+      {
+        "w": "e",
+        "s": 6.88,
+        "e": 6.92
+      },
+      {
+        "w": "Express,",
+        "s": 6.96,
+        "e": 8
+      },
+      {
+        "w": "validação",
+        "s": 8.08,
+        "e": 8.64
+      },
+      {
+        "w": "com",
+        "s": 8.76,
+        "e": 8.88
+      },
+      {
+        "w": "Zod,",
+        "s": 8.96,
+        "e": 9.48
+      },
+      {
+        "w": "autenticação",
+        "s": 9.52,
+        "e": 10.32
+      },
+      {
+        "w": "JWT",
+        "s": 10.4,
+        "e": 11.36
+      },
+      {
+        "w": "e",
+        "s": 11.44,
+        "e": 11.48
+      },
+      {
+        "w": "um",
+        "s": 11.52,
+        "e": 11.6
+      },
+      {
+        "w": "banco",
+        "s": 11.68,
+        "e": 11.92
+      },
+      {
+        "w": "relacional",
+        "s": 12,
+        "e": 12.56
+      },
+      {
+        "w": "com",
+        "s": 12.64,
+        "e": 12.72
+      },
+      {
+        "w": "transações",
+        "s": 12.84,
+        "e": 13.44
+      },
+      {
+        "w": "ACID.",
+        "s": 13.52,
+        "e": 14.4
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "arquivo": "cena-05.mp3",
+    "audioUrl": "/pitch/audio/cena-05.mp3",
+    "rotulo": "PDV ao Vivo",
+    "duracao": 13.28,
+    "palavras": [
+      {
+        "w": "No",
+        "s": 0,
+        "e": 0.16
+      },
+      {
+        "w": "caixa,",
+        "s": 0.24,
+        "e": 0.8
+      },
+      {
+        "w": "a",
+        "s": 0.84,
+        "e": 0.88
+      },
+      {
+        "w": "velocidade",
+        "s": 0.96,
+        "e": 1.52
+      },
+      {
+        "w": "é",
+        "s": 1.6,
+        "e": 1.68
+      },
+      {
+        "w": "absoluta.",
+        "s": 1.84,
+        "e": 2.8
+      },
+      {
+        "w": "O",
+        "s": 2.88,
+        "e": 2.92
+      },
+      {
+        "w": "produto",
+        "s": 2.96,
+        "e": 3.44
+      },
+      {
+        "w": "é",
+        "s": 3.52,
+        "e": 3.6
+      },
+      {
+        "w": "bipado",
+        "s": 3.707,
+        "e": 4.24
+      },
+      {
+        "w": "e",
+        "s": 4.32,
+        "e": 4.4
+      },
+      {
+        "w": "entra",
+        "s": 4.48,
+        "e": 4.72
+      },
+      {
+        "w": "no",
+        "s": 4.8,
+        "e": 4.88
+      },
+      {
+        "w": "carrinho",
+        "s": 4.96,
+        "e": 5.36
+      },
+      {
+        "w": "em",
+        "s": 5.44,
+        "e": 5.6
+      },
+      {
+        "w": "menos",
+        "s": 5.72,
+        "e": 5.92
+      },
+      {
+        "w": "de",
+        "s": 6,
+        "e": 6.08
+      },
+      {
+        "w": "trezentos",
+        "s": 6.16,
+        "e": 6.72
+      },
+      {
+        "w": "milissegundos.",
+        "s": 6.8,
+        "e": 7.96
+      },
+      {
+        "w": "O",
+        "s": 8,
+        "e": 8.08
+      },
+      {
+        "w": "total",
+        "s": 8.32,
+        "e": 8.56
+      },
+      {
+        "w": "é",
+        "s": 8.64,
+        "e": 8.72
+      },
+      {
+        "w": "recalculado",
+        "s": 8.84,
+        "e": 9.36
+      },
+      {
+        "w": "em",
+        "s": 9.44,
+        "e": 9.52
+      },
+      {
+        "w": "centavos,",
+        "s": 9.72,
+        "e": 10.44
+      },
+      {
+        "w": "e",
+        "s": 10.48,
+        "e": 10.64
+      },
+      {
+        "w": "cada",
+        "s": 10.68,
+        "e": 10.88
+      },
+      {
+        "w": "ação",
+        "s": 11.12,
+        "e": 11.36
+      },
+      {
+        "w": "tem",
+        "s": 11.44,
+        "e": 11.52
+      },
+      {
+        "w": "a",
+        "s": 11.6,
+        "e": 11.68
+      },
+      {
+        "w": "sua",
+        "s": 11.72,
+        "e": 11.92
+      },
+      {
+        "w": "tecla",
+        "s": 12,
+        "e": 12.24
+      },
+      {
+        "w": "de",
+        "s": 12.32,
+        "e": 12.453
+      },
+      {
+        "w": "atalho.",
+        "s": 12.587,
+        "e": 13.28
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "arquivo": "cena-06.mp3",
+    "audioUrl": "/pitch/audio/cena-06.mp3",
+    "rotulo": "Código · RN-01",
+    "duracao": 11.84,
+    "palavras": [
+      {
+        "w": "A",
+        "s": 0,
+        "e": 0.08
+      },
+      {
+        "w": "identificação",
+        "s": 0.24,
+        "e": 0.88
+      },
+      {
+        "w": "do",
+        "s": 0.96,
+        "e": 1.04
+      },
+      {
+        "w": "cliente",
+        "s": 1.32,
+        "e": 1.6
+      },
+      {
+        "w": "segue",
+        "s": 1.68,
+        "e": 1.92
+      },
+      {
+        "w": "o",
+        "s": 1.96,
+        "e": 2
+      },
+      {
+        "w": "algoritmo",
+        "s": 2.08,
+        "e": 2.56
+      },
+      {
+        "w": "oficial",
+        "s": 2.64,
+        "e": 3.2
+      },
+      {
+        "w": "da",
+        "s": 3.24,
+        "e": 3.28
+      },
+      {
+        "w": "Receita",
+        "s": 3.4,
+        "e": 3.76
+      },
+      {
+        "w": "Federal.",
+        "s": 3.84,
+        "e": 4.827
+      },
+      {
+        "w": "O",
+        "s": 4.853,
+        "e": 4.88
+      },
+      {
+        "w": "Módulo",
+        "s": 4.96,
+        "e": 5.28
+      },
+      {
+        "w": "onze",
+        "s": 5.36,
+        "e": 5.76
+      },
+      {
+        "w": "calcula",
+        "s": 5.96,
+        "e": 6.2
+      },
+      {
+        "w": "os",
+        "s": 6.24,
+        "e": 6.4
+      },
+      {
+        "w": "dois",
+        "s": 6.44,
+        "e": 6.64
+      },
+      {
+        "w": "dígitos",
+        "s": 6.72,
+        "e": 7.12
+      },
+      {
+        "w": "verificadores",
+        "s": 7.2,
+        "e": 8.16
+      },
+      {
+        "w": "e",
+        "s": 8.24,
+        "e": 8.32
+      },
+      {
+        "w": "bloqueia",
+        "s": 8.44,
+        "e": 8.8
+      },
+      {
+        "w": "qualquer",
+        "s": 8.92,
+        "e": 9.28
+      },
+      {
+        "w": "CPF",
+        "s": 9.36,
+        "e": 9.84
+      },
+      {
+        "w": "inválido",
+        "s": 9.92,
+        "e": 10.56
+      },
+      {
+        "w": "ou",
+        "s": 10.64,
+        "e": 10.72
+      },
+      {
+        "w": "duplicado.",
+        "s": 10.8,
+        "e": 11.84
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "arquivo": "cena-07.mp3",
+    "audioUrl": "/pitch/audio/cena-07.mp3",
+    "rotulo": "Clientes",
+    "duracao": 9.52,
+    "palavras": [
+      {
+        "w": "O",
+        "s": 0,
+        "e": 0.08
+      },
+      {
+        "w": "operador",
+        "s": 0.2,
+        "e": 0.64
+      },
+      {
+        "w": "decide",
+        "s": 0.72,
+        "e": 1.12
+      },
+      {
+        "w": "em",
+        "s": 1.2,
+        "e": 1.28
+      },
+      {
+        "w": "segundos:",
+        "s": 1.4,
+        "e": 2.4
+      },
+      {
+        "w": "seleciona",
+        "s": 2.48,
+        "e": 3.04
+      },
+      {
+        "w": "um",
+        "s": 3.08,
+        "e": 3.12
+      },
+      {
+        "w": "cliente",
+        "s": 3.2,
+        "e": 3.6
+      },
+      {
+        "w": "fidelizado,",
+        "s": 3.64,
+        "e": 4.68
+      },
+      {
+        "w": "cadastra",
+        "s": 4.72,
+        "e": 5.2
+      },
+      {
+        "w": "um",
+        "s": 5.28,
+        "e": 5.36
+      },
+      {
+        "w": "novo",
+        "s": 5.44,
+        "e": 5.76
+      },
+      {
+        "w": "sem",
+        "s": 5.84,
+        "e": 6
+      },
+      {
+        "w": "sair",
+        "s": 6.08,
+        "e": 6.32
+      },
+      {
+        "w": "da",
+        "s": 6.4,
+        "e": 6.48
+      },
+      {
+        "w": "venda,",
+        "s": 6.52,
+        "e": 7.16
+      },
+      {
+        "w": "ou",
+        "s": 7.2,
+        "e": 7.36
+      },
+      {
+        "w": "segue",
+        "s": 7.44,
+        "e": 7.68
+      },
+      {
+        "w": "como",
+        "s": 7.76,
+        "e": 7.92
+      },
+      {
+        "w": "consumidor",
+        "s": 8,
+        "e": 8.56
+      },
+      {
+        "w": "final.",
+        "s": 8.64,
+        "e": 9.52
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "arquivo": "cena-08.mp3",
+    "audioUrl": "/pitch/audio/cena-08.mp3",
+    "rotulo": "Perfis de Acesso",
+    "duracao": 13.28,
+    "palavras": [
+      {
+        "w": "Cada",
+        "s": 0,
+        "e": 0.24
+      },
+      {
+        "w": "perfil",
+        "s": 0.32,
+        "e": 0.8
+      },
+      {
+        "w": "tem",
+        "s": 0.88,
+        "e": 0.96
+      },
+      {
+        "w": "o",
+        "s": 1,
+        "e": 1.04
+      },
+      {
+        "w": "seu",
+        "s": 1.12,
+        "e": 1.28
+      },
+      {
+        "w": "poder.",
+        "s": 1.36,
+        "e": 2.16
+      },
+      {
+        "w": "O",
+        "s": 2.24,
+        "e": 2.32
+      },
+      {
+        "w": "caixa",
+        "s": 2.4,
+        "e": 2.8
+      },
+      {
+        "w": "opera",
+        "s": 2.88,
+        "e": 3.12
+      },
+      {
+        "w": "o",
+        "s": 3.16,
+        "e": 3.2
+      },
+      {
+        "w": "PDV,",
+        "s": 3.28,
+        "e": 4.08
+      },
+      {
+        "w": "o",
+        "s": 4.16,
+        "e": 4.24
+      },
+      {
+        "w": "gerente",
+        "s": 4.36,
+        "e": 4.72
+      },
+      {
+        "w": "autoriza",
+        "s": 4.88,
+        "e": 5.2
+      },
+      {
+        "w": "alçadas,",
+        "s": 5.28,
+        "e": 6.08
+      },
+      {
+        "w": "e",
+        "s": 6.16,
+        "e": 6.24
+      },
+      {
+        "w": "o",
+        "s": 6.267,
+        "e": 6.293
+      },
+      {
+        "w": "administrador",
+        "s": 6.32,
+        "e": 7.12
+      },
+      {
+        "w": "controla",
+        "s": 7.32,
+        "e": 7.6
+      },
+      {
+        "w": "equipe,",
+        "s": 7.72,
+        "e": 8.32
+      },
+      {
+        "w": "empresa",
+        "s": 8.6,
+        "e": 8.88
+      },
+      {
+        "w": "e",
+        "s": 9.04,
+        "e": 9.08
+      },
+      {
+        "w": "dados",
+        "s": 9.12,
+        "e": 9.44
+      },
+      {
+        "w": "fiscais.",
+        "s": 9.52,
+        "e": 10.48
+      },
+      {
+        "w": "Tudo",
+        "s": 10.52,
+        "e": 10.72
+      },
+      {
+        "w": "protegido",
+        "s": 10.8,
+        "e": 11.44
+      },
+      {
+        "w": "por",
+        "s": 11.52,
+        "e": 11.6
+      },
+      {
+        "w": "middleware",
+        "s": 11.68,
+        "e": 12.16
+      },
+      {
+        "w": "de",
+        "s": 12.2,
+        "e": 12.24
+      },
+      {
+        "w": "acesso.",
+        "s": 12.32,
+        "e": 13.28
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "arquivo": "cena-09.mp3",
+    "audioUrl": "/pitch/audio/cena-09.mp3",
+    "rotulo": "Alçada · RN-02",
+    "duracao": 11.68,
+    "palavras": [
+      {
+        "w": "Desconto",
+        "s": 0,
+        "e": 0.48
+      },
+      {
+        "w": "acima",
+        "s": 0.6,
+        "e": 0.88
+      },
+      {
+        "w": "de",
+        "s": 0.96,
+        "e": 1.04
+      },
+      {
+        "w": "dez",
+        "s": 1.12,
+        "e": 1.2
+      },
+      {
+        "w": "por",
+        "s": 1.28,
+        "e": 1.44
+      },
+      {
+        "w": "cento?",
+        "s": 1.52,
+        "e": 2.32
+      },
+      {
+        "w": "O",
+        "s": 2.36,
+        "e": 2.4
+      },
+      {
+        "w": "sistema",
+        "s": 2.44,
+        "e": 2.88
+      },
+      {
+        "w": "bloqueia",
+        "s": 2.96,
+        "e": 3.44
+      },
+      {
+        "w": "a",
+        "s": 3.493,
+        "e": 3.547
+      },
+      {
+        "w": "venda",
+        "s": 3.6,
+        "e": 4
+      },
+      {
+        "w": "e",
+        "s": 4.08,
+        "e": 4.16
+      },
+      {
+        "w": "exige",
+        "s": 4.28,
+        "e": 4.56
+      },
+      {
+        "w": "a",
+        "s": 4.64,
+        "e": 4.72
+      },
+      {
+        "w": "senha",
+        "s": 4.8,
+        "e": 5.04
+      },
+      {
+        "w": "do",
+        "s": 5.08,
+        "e": 5.12
+      },
+      {
+        "w": "gerente.",
+        "s": 5.2,
+        "e": 6.12
+      },
+      {
+        "w": "A",
+        "s": 6.16,
+        "e": 6.267
+      },
+      {
+        "w": "aprovação",
+        "s": 6.373,
+        "e": 6.88
+      },
+      {
+        "w": "fica",
+        "s": 6.92,
+        "e": 7.12
+      },
+      {
+        "w": "gravada,",
+        "s": 7.28,
+        "e": 8
+      },
+      {
+        "w": "com",
+        "s": 8.08,
+        "e": 8.16
+      },
+      {
+        "w": "nome,",
+        "s": 8.4,
+        "e": 8.72
+      },
+      {
+        "w": "data",
+        "s": 8.8,
+        "e": 9.2
+      },
+      {
+        "w": "e",
+        "s": 9.28,
+        "e": 9.32
+      },
+      {
+        "w": "valor,",
+        "s": 9.36,
+        "e": 10.053
+      },
+      {
+        "w": "pronta",
+        "s": 10.107,
+        "e": 10.4
+      },
+      {
+        "w": "para",
+        "s": 10.48,
+        "e": 10.56
+      },
+      {
+        "w": "auditoria.",
+        "s": 10.64,
+        "e": 11.68
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "arquivo": "cena-10.mp3",
+    "audioUrl": "/pitch/audio/cena-10.mp3",
+    "rotulo": "Histórico · RN-03/04",
+    "duracao": 10.72,
+    "palavras": [
+      {
+        "w": "E",
+        "s": 0,
+        "e": 0.08
+      },
+      {
+        "w": "o",
+        "s": 0.12,
+        "e": 0.16
+      },
+      {
+        "w": "histórico",
+        "s": 0.24,
+        "e": 0.88
+      },
+      {
+        "w": "é",
+        "s": 0.96,
+        "e": 1.04
+      },
+      {
+        "w": "imutável.",
+        "s": 1.12,
+        "e": 2.12
+      },
+      {
+        "w": "O",
+        "s": 2.16,
+        "e": 2.24
+      },
+      {
+        "w": "preço",
+        "s": 2.32,
+        "e": 2.64
+      },
+      {
+        "w": "de",
+        "s": 2.72,
+        "e": 2.8
+      },
+      {
+        "w": "cada",
+        "s": 2.84,
+        "e": 3.12
+      },
+      {
+        "w": "item",
+        "s": 3.2,
+        "e": 3.52
+      },
+      {
+        "w": "é",
+        "s": 3.6,
+        "e": 3.68
+      },
+      {
+        "w": "congelado",
+        "s": 3.8,
+        "e": 4.32
+      },
+      {
+        "w": "no",
+        "s": 4.4,
+        "e": 4.48
+      },
+      {
+        "w": "momento",
+        "s": 4.68,
+        "e": 4.933
+      },
+      {
+        "w": "da",
+        "s": 4.987,
+        "e": 5.04
+      },
+      {
+        "w": "venda,",
+        "s": 5.12,
+        "e": 5.787
+      },
+      {
+        "w": "e",
+        "s": 5.813,
+        "e": 5.84
+      },
+      {
+        "w": "um",
+        "s": 5.92,
+        "e": 6
+      },
+      {
+        "w": "estorno",
+        "s": 6.16,
+        "e": 6.64
+      },
+      {
+        "w": "só",
+        "s": 6.72,
+        "e": 6.84
+      },
+      {
+        "w": "acontece",
+        "s": 6.88,
+        "e": 7.44
+      },
+      {
+        "w": "com",
+        "s": 7.52,
+        "e": 7.6
+      },
+      {
+        "w": "motivo",
+        "s": 7.68,
+        "e": 8.16
+      },
+      {
+        "w": "formal",
+        "s": 8.32,
+        "e": 8.72
+      },
+      {
+        "w": "e",
+        "s": 8.8,
+        "e": 8.84
+      },
+      {
+        "w": "autorização",
+        "s": 8.88,
+        "e": 9.6
+      },
+      {
+        "w": "gerencial.",
+        "s": 9.68,
+        "e": 10.72
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "arquivo": "cena-11.mp3",
+    "audioUrl": "/pitch/audio/cena-11.mp3",
+    "rotulo": "Dashboard",
+    "duracao": 9.68,
+    "palavras": [
+      {
+        "w": "Para",
+        "s": 0,
+        "e": 0.24
+      },
+      {
+        "w": "a",
+        "s": 0.267,
+        "e": 0.293
+      },
+      {
+        "w": "gestão,",
+        "s": 0.32,
+        "e": 1.04
+      },
+      {
+        "w": "um",
+        "s": 1.12,
+        "e": 1.2
+      },
+      {
+        "w": "painel",
+        "s": 1.32,
+        "e": 1.6
+      },
+      {
+        "w": "em",
+        "s": 1.68,
+        "e": 1.76
+      },
+      {
+        "w": "tempo",
+        "s": 1.88,
+        "e": 2.04
+      },
+      {
+        "w": "real:",
+        "s": 2.08,
+        "e": 2.8
+      },
+      {
+        "w": "faturamento,",
+        "s": 2.84,
+        "e": 3.84
+      },
+      {
+        "w": "ticket",
+        "s": 4,
+        "e": 4.16
+      },
+      {
+        "w": "médio,",
+        "s": 4.24,
+        "e": 4.88
+      },
+      {
+        "w": "ranking",
+        "s": 4.96,
+        "e": 5.28
+      },
+      {
+        "w": "de",
+        "s": 5.32,
+        "e": 5.36
+      },
+      {
+        "w": "produtos",
+        "s": 5.44,
+        "e": 6.08
+      },
+      {
+        "w": "e",
+        "s": 6.12,
+        "e": 6.16
+      },
+      {
+        "w": "formas",
+        "s": 6.24,
+        "e": 6.64
+      },
+      {
+        "w": "de",
+        "s": 6.68,
+        "e": 6.72
+      },
+      {
+        "w": "pagamento,",
+        "s": 6.8,
+        "e": 7.6
+      },
+      {
+        "w": "atualizados",
+        "s": 7.68,
+        "e": 8.4
+      },
+      {
+        "w": "a",
+        "s": 8.48,
+        "e": 8.56
+      },
+      {
+        "w": "cada",
+        "s": 8.6,
+        "e": 8.8
+      },
+      {
+        "w": "venda.",
+        "s": 8.88,
+        "e": 9.68
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "arquivo": "cena-12.mp3",
+    "audioUrl": "/pitch/audio/cena-12.mp3",
+    "rotulo": "Fiscal · NFC-e",
+    "duracao": 11.28,
+    "palavras": [
+      {
+        "w": "No",
+        "s": 0,
+        "e": 0.08
+      },
+      {
+        "w": "fiscal,",
+        "s": 0.24,
+        "e": 0.96
+      },
+      {
+        "w": "a",
+        "s": 1.04,
+        "e": 1.12
+      },
+      {
+        "w": "NFC-e",
+        "s": 1.28,
+        "e": 2.16
+      },
+      {
+        "w": "modelo",
+        "s": 2.36,
+        "e": 2.56
+      },
+      {
+        "w": "sessenta",
+        "s": 2.68,
+        "e": 3.04
+      },
+      {
+        "w": "e",
+        "s": 3.12,
+        "e": 3.2
+      },
+      {
+        "w": "cinco",
+        "s": 3.32,
+        "e": 3.6
+      },
+      {
+        "w": "é",
+        "s": 3.68,
+        "e": 3.76
+      },
+      {
+        "w": "gerada",
+        "s": 3.84,
+        "e": 4.24
+      },
+      {
+        "w": "com",
+        "s": 4.32,
+        "e": 4.4
+      },
+      {
+        "w": "chave",
+        "s": 4.48,
+        "e": 4.72
+      },
+      {
+        "w": "de",
+        "s": 4.8,
+        "e": 4.88
+      },
+      {
+        "w": "quarenta",
+        "s": 4.92,
+        "e": 5.333
+      },
+      {
+        "w": "e",
+        "s": 5.387,
+        "e": 5.44
+      },
+      {
+        "w": "quatro",
+        "s": 5.48,
+        "e": 5.68
+      },
+      {
+        "w": "dígitos,",
+        "s": 5.76,
+        "e": 6.6
+      },
+      {
+        "w": "QR",
+        "s": 6.64,
+        "e": 7.04
+      },
+      {
+        "w": "Code",
+        "s": 7.12,
+        "e": 7.44
+      },
+      {
+        "w": "de",
+        "s": 7.48,
+        "e": 7.52
+      },
+      {
+        "w": "consulta",
+        "s": 7.6,
+        "e": 8.08
+      },
+      {
+        "w": "pública",
+        "s": 8.16,
+        "e": 8.72
+      },
+      {
+        "w": "e",
+        "s": 8.8,
+        "e": 8.84
+      },
+      {
+        "w": "os",
+        "s": 8.88,
+        "e": 8.96
+      },
+      {
+        "w": "tributos",
+        "s": 9.04,
+        "e": 9.52
+      },
+      {
+        "w": "da",
+        "s": 9.6,
+        "e": 9.68
+      },
+      {
+        "w": "Lei",
+        "s": 9.76,
+        "e": 9.88
+      },
+      {
+        "w": "da",
+        "s": 9.92,
+        "e": 9.96
+      },
+      {
+        "w": "Transparência.",
+        "s": 10,
+        "e": 11.28
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "arquivo": "cena-13.mp3",
+    "audioUrl": "/pitch/audio/cena-13.mp3",
+    "rotulo": "Relatórios",
+    "duracao": 11.04,
+    "palavras": [
+      {
+        "w": "Relatórios",
+        "s": 0,
+        "e": 0.64
+      },
+      {
+        "w": "executivos",
+        "s": 0.72,
+        "e": 1.52
+      },
+      {
+        "w": "saem",
+        "s": 1.6,
+        "e": 1.84
+      },
+      {
+        "w": "com",
+        "s": 1.92,
+        "e": 2.08
+      },
+      {
+        "w": "um",
+        "s": 2.12,
+        "e": 2.16
+      },
+      {
+        "w": "clique:",
+        "s": 2.24,
+        "e": 2.96
+      },
+      {
+        "w": "PDF",
+        "s": 3.04,
+        "e": 3.68
+      },
+      {
+        "w": "com",
+        "s": 3.76,
+        "e": 3.84
+      },
+      {
+        "w": "identidade",
+        "s": 4,
+        "e": 4.48
+      },
+      {
+        "w": "visual,",
+        "s": 4.92,
+        "e": 5.44
+      },
+      {
+        "w": "planilha",
+        "s": 5.52,
+        "e": 5.84
+      },
+      {
+        "w": "Excel",
+        "s": 5.92,
+        "e": 6.32
+      },
+      {
+        "w": "formatada",
+        "s": 6.4,
+        "e": 7.28
+      },
+      {
+        "w": "e",
+        "s": 7.36,
+        "e": 7.44
+      },
+      {
+        "w": "CSV",
+        "s": 7.52,
+        "e": 8.24
+      },
+      {
+        "w": "pronto",
+        "s": 8.32,
+        "e": 8.56
+      },
+      {
+        "w": "para",
+        "s": 8.64,
+        "e": 8.8
+      },
+      {
+        "w": "qualquer",
+        "s": 8.88,
+        "e": 9.28
+      },
+      {
+        "w": "ferramenta",
+        "s": 9.36,
+        "e": 9.88
+      },
+      {
+        "w": "de",
+        "s": 9.92,
+        "e": 9.96
+      },
+      {
+        "w": "análise.",
+        "s": 10,
+        "e": 11.04
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "arquivo": "cena-14.mp3",
+    "audioUrl": "/pitch/audio/cena-14.mp3",
+    "rotulo": "Qualidade",
+    "duracao": 10.56,
+    "palavras": [
+      {
+        "w": "Qualidade",
+        "s": 0,
+        "e": 0.64
+      },
+      {
+        "w": "não",
+        "s": 0.8,
+        "e": 0.96
+      },
+      {
+        "w": "é",
+        "s": 1.04,
+        "e": 1.12
+      },
+      {
+        "w": "promessa,",
+        "s": 1.24,
+        "e": 1.92
+      },
+      {
+        "w": "é",
+        "s": 2,
+        "e": 2.08
+      },
+      {
+        "w": "evidência.",
+        "s": 2.16,
+        "e": 3.36
+      },
+      {
+        "w": "Dezoito",
+        "s": 3.48,
+        "e": 3.84
+      },
+      {
+        "w": "testes",
+        "s": 3.92,
+        "e": 4.4
+      },
+      {
+        "w": "de",
+        "s": 4.48,
+        "e": 4.64
+      },
+      {
+        "w": "ponta",
+        "s": 4.68,
+        "e": 4.88
+      },
+      {
+        "w": "a",
+        "s": 4.96,
+        "e": 5.04
+      },
+      {
+        "w": "ponta",
+        "s": 5.08,
+        "e": 5.28
+      },
+      {
+        "w": "aprovados,",
+        "s": 5.36,
+        "e": 6.32
+      },
+      {
+        "w": "build",
+        "s": 6.48,
+        "e": 6.8
+      },
+      {
+        "w": "sem",
+        "s": 6.88,
+        "e": 7.12
+      },
+      {
+        "w": "erros",
+        "s": 7.2,
+        "e": 7.6
+      },
+      {
+        "w": "e",
+        "s": 7.72,
+        "e": 7.84
+      },
+      {
+        "w": "todas",
+        "s": 7.92,
+        "e": 8.16
+      },
+      {
+        "w": "as",
+        "s": 8.24,
+        "e": 8.32
+      },
+      {
+        "w": "regras",
+        "s": 8.4,
+        "e": 8.72
+      },
+      {
+        "w": "de",
+        "s": 8.76,
+        "e": 8.8
+      },
+      {
+        "w": "negócio",
+        "s": 8.92,
+        "e": 9.28
+      },
+      {
+        "w": "homologadas.",
+        "s": 9.36,
+        "e": 10.56
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "arquivo": "cena-15.mp3",
+    "audioUrl": "/pitch/audio/cena-15.mp3",
+    "rotulo": "Encerramento",
+    "duracao": 9.84,
+    "palavras": [
+      {
+        "w": "MS²",
+        "s": 0,
+        "e": 1.2
+      },
+      {
+        "w": "Vestuário.",
+        "s": 1.28,
+        "e": 2.32
+      },
+      {
+        "w": "Moda,",
+        "s": 2.4,
+        "e": 2.987
+      },
+      {
+        "w": "estilo",
+        "s": 3.093,
+        "e": 3.52
+      },
+      {
+        "w": "e",
+        "s": 3.56,
+        "e": 3.6
+      },
+      {
+        "w": "você,",
+        "s": 3.64,
+        "e": 4.36
+      },
+      {
+        "w": "com",
+        "s": 4.4,
+        "e": 4.48
+      },
+      {
+        "w": "a",
+        "s": 4.56,
+        "e": 4.64
+      },
+      {
+        "w": "tecnologia",
+        "s": 4.72,
+        "e": 5.36
+      },
+      {
+        "w": "que",
+        "s": 5.44,
+        "e": 5.52
+      },
+      {
+        "w": "o",
+        "s": 5.56,
+        "e": 5.6
+      },
+      {
+        "w": "seu",
+        "s": 5.68,
+        "e": 5.84
+      },
+      {
+        "w": "varejo",
+        "s": 5.88,
+        "e": 6.24
+      },
+      {
+        "w": "merece.",
+        "s": 6.44,
+        "e": 7.24
+      },
+      {
+        "w": "Projeto",
+        "s": 7.28,
+        "e": 7.76
+      },
+      {
+        "w": "Integrador",
+        "s": 7.84,
+        "e": 8.48
+      },
+      {
+        "w": "Firjan",
+        "s": 8.56,
+        "e": 8.96
+      },
+      {
+        "w": "SENAI.",
+        "s": 9.04,
+        "e": 9.84
+      }
+    ]
+  }
+];
+    const DESTAQUES = {
+  "1": [
+    "emoção.",
+    "operação",
+    "vitrine,"
+  ],
+  "2": [
+    "filas",
+    "travam",
+    "sem",
+    "controle.",
+    "perdida."
+  ],
+  "3": [
+    "ms²",
+    "vestuário:",
+    "varejo",
+    "moda."
+  ],
+  "4": [
+    "react",
+    "typescript",
+    "node",
+    "express,",
+    "acid."
+  ],
+  "5": [
+    "velocidade",
+    "absoluta.",
+    "trezentos",
+    "milissegundos."
+  ],
+  "6": [
+    "receita",
+    "federal.",
+    "módulo",
+    "onze",
+    "bloqueia"
+  ],
+  "7": [
+    "segundos:",
+    "fidelizado,",
+    "consumidor"
+  ],
+  "8": [
+    "caixa",
+    "gerente",
+    "administrador",
+    "middleware"
+  ],
+  "9": [
+    "desconto",
+    "acima",
+    "dez",
+    "cento?",
+    "bloqueia",
+    "gerente."
+  ],
+  "10": [
+    "histórico",
+    "imutável.",
+    "congelado"
+  ],
+  "11": [
+    "painel",
+    "tempo",
+    "real:",
+    "faturamento,",
+    "ticket"
+  ],
+  "12": [
+    "nfc-e",
+    "sessenta",
+    "cinco",
+    "quarenta",
+    "quatro",
+    "dígitos,"
+  ],
+  "13": [
+    "um",
+    "clique:",
+    "pdf",
+    "excel",
+    "csv"
+  ],
+  "14": [
+    "evidência.",
+    "dezoito",
+    "testes",
+    "homologadas."
+  ],
+  "15": [
+    "ms²",
+    "vestuário.",
+    "moda,",
+    "estilo",
+    "você,"
+  ]
+};
 
-    const DURACAO_TOTAL = 169.0;
+    let cenaAtivaIndex = 0;
+    let isPlaying = false;
+    let isCountingDown = false;
+    let globalTime = 0;
+    let lastTimestamp = 0;
+    let showTimecode = false;
 
-    // Estado Geral do Player
-    let tempoAtual = 0;
-    let executando = false;
-    let emContagem = false;
-    let valorContagem = 3;
-    let ultimoTimestamp = performance.now();
-    let audioMutado = false;
-    let proporcaoVertical = false;
-    let audioCtx = null;
-    let narradorNativo = window.speechSynthesis || null;
-    let vozPtBr = null;
-    let ultimaCenaFalada = 0;
-
-    // Elementos DOM
-    const stageContainer = document.getElementById('stage-container');
+    const stage = document.getElementById('stage');
+    const cameraRig = document.getElementById('camera-rig');
+    const badgeText = document.getElementById('badge-text');
+    const headline = document.getElementById('headline');
+    const visualStage = document.getElementById('visual-stage');
+    const sceneCounter = document.getElementById('scene-counter');
+    const timecodeCorner = document.getElementById('timecode-corner');
     const startOverlay = document.getElementById('start-overlay');
-    const countdownOverlay = document.getElementById('countdown-overlay');
-    const countdownDigit = document.getElementById('countdown-digit');
-    const progressFill = document.getElementById('progress-fill');
-    const timecodeDisplay = document.getElementById('timecode-display');
-    const camera = document.getElementById('camera');
-    const audioLabel = document.getElementById('audio-label');
-    const audioDot = document.getElementById('audio-dot');
+    const startPrompt = document.getElementById('start-prompt');
+    const countdownDisplay = document.getElementById('countdown-display');
+    const audio = document.getElementById('audio-player');
 
-    // Inicialização da Voz Neural
-    function carregarVozes() {
-      if (!narradorNativo) return;
-      const vozes = narradorNativo.getVoices();
-      vozPtBr = vozes.find(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR') || v.lang.includes('pt')) || vozes[0];
+    // 1. AJUSTE DE ESCALA AUTOMÁTICA (1080x1920 CABE EM QUALQUER TELA)
+    function resize() {
+      const padding = 20;
+      const availableW = window.innerWidth - padding;
+      const availableH = window.innerHeight - padding;
+      const scale = Math.min(availableW / 1080, availableH / 1920);
+      document.documentElement.style.setProperty('--scale', scale.toFixed(4));
     }
-    if (narradorNativo) {
-      carregarVozes();
-      narradorNativo.onvoiceschanged = carregarVozes;
-    }
+    window.addEventListener('resize', resize);
+    resize();
 
-    // Dimensionamento Fluido e Escala
-    function ajustarEscala() {
-      const baseW = proporcaoVertical ? 1080 : 1920;
-      const baseH = proporcaoVertical ? 1920 : 1080;
-      const scaleX = window.innerWidth / baseW;
-      const scaleY = window.innerHeight / baseH;
-      const scale = Math.min(scaleX, scaleY) * 0.96;
-
-      stageContainer.style.width = baseW + 'px';
-      stageContainer.style.height = baseH + 'px';
-      stageContainer.style.transform = `scale(${scale})`;
-    }
-    window.addEventListener('resize', ajustarEscala);
-    ajustarEscala();
-
-    // Síntese Web Audio (SFX de Alta Fidelidade)
-    function tocarSfx(freq = 440, dur = 0.12, tipo = 'sine') {
-      if (audioMutado) return;
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = tipo;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + dur);
-      } catch (e) {}
-    }
-
-    // Narração Inteligente por Cena
-    const TEXTOS_NARRACAO = {
-      1: "Moda é emoção. Mas, por trás de cada vitrine, existe uma operação que não pode parar.",
-      2: "Filas que travam no horário de pico. Descontos aplicados sem controle. Cadastros duplicados e notas rejeitadas. Cada minuto de caixa parado é venda perdida.",
-      3: "Por isso nasceu o MS² Vestuário: um sistema de PDV e gestão comercial pensado, do primeiro pixel ao último byte, para o varejo de moda.",
-      4: "A arquitetura é moderna e segura: React com TypeScript no front-end, uma API REST em Node e Express, validação com Zod, autenticação JWT e banco relacional com transações ACID.",
-      5: "No caixa, a velocidade é absoluta. O produto é bipado e entra no carrinho em menos de trezentos milissegundos. O total é recalculado em centavos, e cada ação tem a sua tecla de atalho.",
-      6: "A identificação do cliente segue o algoritmo oficial da Receita Federal. O Módulo onze calcula os dois dígitos verificadores e bloqueia qualquer CPF inválido ou duplicado.",
-      7: "O operador decide em segundos: seleciona um cliente fidelizado, cadastra um novo sem sair da venda, ou segue como consumidor final.",
-      8: "Cada perfil tem o seu poder. O caixa opera o PDV, o gerente autoriza alçadas, e o administrador controla equipe, empresa e dados fiscais. Tudo protegido por middleware de acesso.",
-      9: "Desconto acima de dez por cento? O sistema bloqueia a venda e exige a senha do gerente. A aprovação fica gravada, com nome, data e valor, pronta para auditoria.",
-      10: "E o histórico é imutável. O preço de cada item é congelado no momento da venda, e um estorno só acontece com motivo formal e autorização gerencial.",
-      11: "Para a gestão, um painel em tempo real: faturamento, ticket médio, ranking de produtos e formas de pagamento, atualizados a cada venda.",
-      12: "No fiscal, a NFC-e modelo sessenta e cinco é gerada com chave de quarenta e quatro dígitos, QR Code de consulta pública e os tributos da Lei da Transparência.",
-      13: "Relatórios executivos saem com um clique: PDF com identidade visual, planilha Excel formatada e CSV pronto para qualquer ferramenta de análise.",
-      14: "Qualidade não é promessa, é evidência. Dezoito testes de ponta a ponta aprovados, build sem erros e todas as regras de negócio homologadas.",
-      15: "MS² Vestuário. Moda, estilo e você, com a tecnologia que o seu varejo merece. Projeto Integrador Firjan SENAI."
-    };
-
-    let audioAtual = null;
-
-    function narrarCena(cenaId) {
-      if (audioMutado) return;
-      if (ultimaCenaFalada === cenaId) return;
-      ultimaCenaFalada = cenaId;
-
-      // Interrompe áudio ou fala anterior
-      if (audioAtual) {
-        try { audioAtual.pause(); audioAtual.currentTime = 0; } catch (e) {}
+    // 2. FUNÇÃO RENDER VISUAL DE CADA CENA
+    function montarVisualCena(id) {
+      switch(id) {
+        case 1:
+          return `
+            <div class="brand-hero v-card show">
+              <div class="brand-logo-crest">
+                <img src="/logo.png" alt="MS²" class="brand-logo-img" onerror="this.style.display='none'">
+              </div>
+              <div class="hero-title">MS² VESTUÁRIO</div>
+              <div style="font-size:26px; color:#FACC15; font-weight:800;">Frente de Caixa & Gestão Comercial</div>
+            </div>
+          `;
+        case 2:
+          return `
+            <div class="v-card show">
+              <div class="pain-grid">
+                <div class="pain-box">
+                  <div class="pain-stat">&gt; 18m</div>
+                  <div class="pain-desc">Filas no Caixa</div>
+                </div>
+                <div class="pain-box">
+                  <div class="pain-stat">-35%</div>
+                  <div class="pain-desc">Margem Sangrada</div>
+                </div>
+                <div class="pain-box">
+                  <div class="pain-stat">FALHA</div>
+                  <div class="pain-desc">Notas Rejeitadas</div>
+                </div>
+              </div>
+            </div>
+          `;
+        case 3:
+          return `
+            <div class="v-card show">
+              <div class="pillars-grid">
+                <div class="pillar-box">
+                  <div class="pillar-icon">⚡</div>
+                  <div class="pillar-title">Sub-300ms</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pillar-icon">🛡️</div>
+                  <div class="pillar-title">Alçadas RBAC</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pillar-icon">📊</div>
+                  <div class="pillar-title">BI & NFC-e</div>
+                </div>
+              </div>
+            </div>
+          `;
+        case 4:
+          return `
+            <div class="v-card show">
+              <div class="arch-stack">
+                <div class="arch-item">
+                  <span class="arch-tag">FRONT-END</span>
+                  <span class="arch-tech">React 19 & TypeScript</span>
+                </div>
+                <div class="arch-item">
+                  <span class="arch-tag">API REST</span>
+                  <span class="arch-tech">Node.js, Express & Zod</span>
+                </div>
+                <div class="arch-item">
+                  <span class="arch-tag">BANCO ACID</span>
+                  <span class="arch-tech">MySQL 8.0 & SQLite</span>
+                </div>
+              </div>
+            </div>
+          `;
+        case 5:
+          return `
+            <div class="v-card show">
+              <div class="pdv-screen">
+                <div class="pdv-top">
+                  <span>CAIXA 01 · OPERADOR: ANA SILVA</span>
+                  <span>180ms</span>
+                </div>
+                <div class="pdv-item">
+                  <span>#103 Calça Jeans Slim Raw Denim</span>
+                  <span style="color:#FACC15;">R$ 159,90</span>
+                </div>
+                <div class="pdv-total">
+                  <span>TOTAL:</span>
+                  <span>R$ 159,90</span>
+                </div>
+              </div>
+            </div>
+          `;
+        case 6:
+          return `
+            <div class="v-card show" style="text-align:left; font-family:'JetBrains Mono', monospace;">
+              <div style="color:#10B981; font-size:26px; font-weight:800; margin-bottom:12px;">✔ RN-01 MÓDULO 11 OFICIAL</div>
+              <div style="font-size:24px; color:#F8FAFC; line-height:1.4;">
+                d1 = 11 - (somarPesos(cpf, 9) % 11)<br>
+                d2 = 11 - (somarPesos(cpf, 10) % 11)<br>
+                <span style="color:#F43F5E;">if (invalido) bloqueiaVenda();</span>
+              </div>
+            </div>
+          `;
+        case 7:
+          return `
+            <div class="v-card show">
+              <div class="pillars-grid">
+                <div class="pillar-box">
+                  <div class="pillar-icon">👤</div>
+                  <div class="pillar-title">Consumidor F10</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pillar-icon">⭐</div>
+                  <div class="pillar-title">Fidelizado CPF</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pillar-icon">📝</div>
+                  <div class="pillar-title">Cadastro Rápido</div>
+                </div>
+              </div>
+            </div>
+          `;
+        case 8:
+          return `
+            <div class="v-card show">
+              <div class="arch-stack">
+                <div class="arch-item">
+                  <span class="arch-tag">OPERACIONAL</span>
+                  <span class="arch-tech">Caixa (PDV & Vendas)</span>
+                </div>
+                <div class="arch-item">
+                  <span class="arch-tag">TÁTICO</span>
+                  <span class="arch-tech">Gerente (Alçadas &gt; 10%)</span>
+                </div>
+                <div class="arch-item">
+                  <span class="arch-tag">ESTRATÉGICO</span>
+                  <span class="arch-tech">Admin (Gestão Total)</span>
+                </div>
+              </div>
+            </div>
+          `;
+        case 9:
+          return `
+            <div class="v-card show" style="border-color:#F43F5E;">
+              <div style="font-size:42px; margin-bottom:8px;">🔒</div>
+              <div style="font-family:'Space Grotesk'; font-size:36px; font-weight:900; color:#F43F5E; margin-bottom:8px;">
+                DESCONTO &gt; 10% BLOQUEADO
+              </div>
+              <div style="font-size:26px; color:#F8FAFC;">
+                Exige senha e credencial do Gerente com gravação auditada.
+              </div>
+            </div>
+          `;
+        case 10:
+          return `
+            <div class="v-card show">
+              <div style="font-size:42px; margin-bottom:8px;">🧊</div>
+              <div style="font-family:'Space Grotesk'; font-size:34px; font-weight:900; color:#FACC15; margin-bottom:8px;">
+                PREÇO HISTÓRICO CONGELADO
+              </div>
+              <div style="font-size:24px; color:#F8FAFC;">
+                Snapshot imutável do item: integridade contábil para sempre.
+              </div>
+            </div>
+          `;
+        case 11:
+          return `
+            <div class="v-card show">
+              <div class="pain-grid">
+                <div class="pillar-box">
+                  <div class="pain-stat" style="font-size:36px; color:#10B981;">R$ 14,8k</div>
+                  <div class="pain-desc">Faturamento</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pain-stat" style="font-size:36px; color:#FACC15;">R$ 142</div>
+                  <div class="pain-desc">Ticket Médio</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pain-stat" style="font-size:36px; color:#3B82F6;">52%</div>
+                  <div class="pain-desc">PIX Instantâneo</div>
+                </div>
+              </div>
+            </div>
+          `;
+        case 12:
+          return `
+            <div class="v-card show" style="text-align:left; font-family:'JetBrains Mono', monospace;">
+              <div style="color:#FACC15; font-size:24px; font-weight:800; margin-bottom:8px;">NFC-e MODELO 65 HOMOLOGADA</div>
+              <div style="font-size:20px; color:#CBD5E1; word-break:break-all;">
+                CHAVE: 3326 1012 3456 7800 0190 6500 1000 0000 3410 0984 9201<br>
+                <span style="color:#10B981;">✔ QR CODE SEFAZ VÁLIDO</span>
+              </div>
+            </div>
+          `;
+        case 13:
+          return `
+            <div class="v-card show">
+              <div class="pillars-grid">
+                <div class="pillar-box">
+                  <div class="pillar-icon">📑</div>
+                  <div class="pillar-title">PDF A4</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pillar-icon">📊</div>
+                  <div class="pillar-title">Excel .XLSX</div>
+                </div>
+                <div class="pillar-box">
+                  <div class="pillar-icon">⚡</div>
+                  <div class="pillar-title">CSV Universal</div>
+                </div>
+              </div>
+            </div>
+          `;
+        case 14:
+          return `
+            <div class="v-card show" style="border-color:#10B981;">
+              <div style="font-family:'Space Grotesk'; font-size:40px; font-weight:900; color:#10B981; margin-bottom:12px;">
+                18 / 18 TESTES PASS (100%)
+              </div>
+              <div style="font-size:26px; color:#F8FAFC;">
+                Regras RN-01 a RN-06 auditadas. Zero falhas.
+              </div>
+            </div>
+          `;
+        case 15:
+          // CTA DO PDF: Palavra grande com brilho e caixa de comentário simulada
+          return `
+            <div class="cta-container">
+              <div class="cta-giant-word">MS2</div>
+              <div class="comment-simulator">
+                <div class="comment-avatar">💬</div>
+                <div class="comment-input">
+                  <span id="comment-text">Comente MS2 no chat</span><span class="cursor-blink"></span>
+                </div>
+              </div>
+            </div>
+          `;
+        default:
+          return '';
       }
-      if (narradorNativo) narradorNativo.cancel();
-
-      // 1. Reprodução do áudio oficial Eleven Multilíngue v4 salvo em cache
-      audioAtual = new Audio(`/pitch/audio/cena-${String(cenaId).padStart(2, '0')}.mp3`);
-      audioAtual.play()
-        .then(() => {
-          if (audioLabel) audioLabel.textContent = 'Eleven Multilíngue v4';
-        })
-        .catch(() => {
-          // Fallback gracioso: Sintetizador Web Speech nativo PT-BR
-          if (!narradorNativo) return;
-          const texto = TEXTOS_NARRACAO[cenaId];
-          if (!texto) return;
-          const utter = new SpeechSynthesisUtterance(texto);
-          if (vozPtBr) utter.voice = vozPtBr;
-          utter.rate = 1.05;
-          utter.pitch = 1.0;
-          narradorNativo.speak(utter);
-          if (audioLabel) audioLabel.textContent = 'Voz Neural PT-BR';
-        });
     }
 
-    // Contagem Regressiva 3-2-1
-    function iniciarApresentacao() {
-      emContagem = true;
-      executando = false;
-      tempoAtual = 0;
-      startOverlay.style.display = 'none';
-      countdownOverlay.style.display = 'flex';
-      valorContagem = 3;
+    // 3. CARREGAR CENA E PREPARAR PALAVRAS
+    function carregarCena(index) {
+      if (index < 0 || index >= CENAS_DATA.length) return;
+      cenaAtivaIndex = index;
+      const c = CENAS_DATA[index];
 
-      function tick() {
-        if (valorContagem > 0) {
-          countdownDigit.textContent = valorContagem;
-          countdownDigit.style.transform = 'scale(1.25)';
-          countdownDigit.style.opacity = '1';
-          tocarSfx(valorContagem === 1 ? 880 : 540, 0.16);
+      badgeText.innerText = `CENA ${String(c.id).padStart(2, '0')} · ${c.rotulo.toUpperCase()}`;
+      sceneCounter.innerText = `CENA ${String(c.id).padStart(2, '0')} / ${String(CENAS_DATA.length).padStart(2, '0')}`;
 
-          setTimeout(() => {
-            countdownDigit.style.transform = 'scale(0.8)';
-            countdownDigit.style.opacity = '0';
-          }, 650);
+      // Monta as palavras da narração
+      const destaquesCena = DESTAQUES[c.id] || [];
+      headline.innerHTML = c.palavras.map((p, idx) => {
+        const clean = p.w.toLowerCase().replace(/[^a-z0-9áéíóúãõâêîôûç²]/gi, '');
+        const isHighlight = destaquesCena.some(d => d.toLowerCase().includes(clean));
+        const hlClass = isHighlight ? 'highlight' : '';
+        return `<span class="word ${hlClass}" id="w-${idx}" data-s="${p.s}" data-e="${p.e}">${p.w}</span>`;
+      }).join(' ');
 
-          valorContagem--;
-          setTimeout(tick, 1000);
-        } else {
-          countdownOverlay.style.display = 'none';
-          emContagem = false;
-          executando = true;
-          document.body.classList.add('hide-cursor');
-          tocarSfx(1046, 0.4, 'triangle'); // C6 acorde de largada
-          ultimoTimestamp = performance.now();
-          requestAnimationFrame(loop);
-        }
-      }
-      tick();
+      // Monta o elemento visual
+      visualStage.innerHTML = montarVisualCena(c.id);
+
+      // Prepara áudio
+      audio.src = c.audioUrl;
+      globalTime = 0;
     }
 
-    // ========================================================================
-    // MOTOR DETERMINÍSTICO DE ANIMAÇÃO RENDER(T)
-    // ========================================================================
+    // 4. FUNÇÃO DETERMINÍSTICA RENDER(T) CONFORME O GUIA DO PDF!
     function render(t) {
-      // 1. Barra de Progresso
-      const pct = Math.min(100, Math.max(0, (t / DURACAO_TOTAL) * 100));
-      progressFill.style.width = pct + '%';
+      const c = CENAS_DATA[cenaAtivaIndex];
+      if (!c) return;
 
-      // 2. HUD Timecode
-      const min = Math.floor(t / 60);
-      const seg = Math.floor(t % 60);
-      const dec = Math.floor((t % 1) * 10);
-      timecodeDisplay.textContent = `${String(min).padStart(2,'0')}:${String(seg).padStart(2,'0')}.${dec} / 02:49.0`;
+      // Câmera lenta push-in contínua (1.0 -> 1.04) para evitar cena parada (requisito do PDF!)
+      const progress = Math.min(1, Math.max(0, t / (c.duracao || 1)));
+      const cameraScale = 1.0 + progress * 0.04;
+      cameraRig.style.transform = `scale(${cameraScale})`;
 
-      // 3. Ambient Glow Movement
-      const glowGold = document.getElementById('fx-glow-gold');
-      const glowIndigo = document.getElementById('fx-glow-indigo');
-      const glowEmerald = document.getElementById('fx-glow-emerald');
-      if (glowGold) glowGold.style.transform = `translate(${Math.sin(t * 0.35) * 70}px, ${Math.cos(t * 0.25) * 50}px)`;
-      if (glowIndigo) glowIndigo.style.transform = `translate(${Math.cos(t * 0.3) * 60}px, ${Math.sin(t * 0.4) * 60}px)`;
-      if (glowEmerald) glowEmerald.style.transform = `translate(-50%, -50%) scale(${1 + Math.sin(t * 0.45) * 0.18})`;
+      // Atualiza estado de cada palavra conforme o tempo t
+      const spans = headline.getElementsByClassName('word');
+      for (let i = 0; i < spans.length; i++) {
+        const span = spans[i];
+        const s = parseFloat(span.getAttribute('data-s'));
+        const e = parseFloat(span.getAttribute('data-e'));
 
-      // 4. Renderização por Cena
-      CENAS.forEach(cena => {
-        const el = document.getElementById(`scene-${cena.id}`);
-        if (!el) return;
-
-        const ativa = t >= cena.inicio && t < cena.fim;
-        const tempoNaCena = t - cena.inicio;
-        const duracaoCena = cena.fim - cena.inicio;
-
-        if (ativa) {
-          // Fade-in e Fade-out ágil
-          let op = 1;
-          const fade = 0.3;
-          if (tempoNaCena < fade) {
-            op = Math.max(0.25, tempoNaCena / fade);
-          } else if (cena.fim - t < fade && cena.id !== 15) {
-            op = Math.max(0.2, (cena.fim - t) / fade);
+        if (t >= s) {
+          span.classList.add('entered');
+          if (t <= e + 0.1) {
+            span.classList.add('active-word');
+          } else {
+            span.classList.remove('active-word');
           }
-
-          el.style.opacity = op;
-          el.style.pointerEvents = 'auto';
-
-          // Movimento de Câmera Push Lento (1.00 a 1.06)
-          const zoom = 1.0 + (tempoNaCena / duracaoCena) * 0.06;
-          camera.style.transform = `scale(${zoom})`;
-
-          // Entrada Palavra por Palavra
-          const words = el.querySelectorAll('.word');
-          const totalWords = words.length;
-          const tempoTexto = Math.min(duracaoCena * 0.78, totalWords * 0.28);
-
-          words.forEach((w, idx) => {
-            const pontoEntrada = (idx / totalWords) * tempoTexto;
-            if (tempoNaCena >= pontoEntrada) {
-              w.classList.add('active');
-            } else {
-              w.classList.remove('active');
-            }
-          });
-
-          // Disparar Narração se estiver tocando
-          if (executando) {
-            narrarCena(cena.id);
-          }
-
-          // Ativar Foto de Fundo correspondente
-          document.querySelectorAll('.backdrop-photo').forEach(b => b.classList.remove('active'));
-          if (cena.bg) {
-            const bgEl = document.getElementById(cena.bg);
-            if (bgEl) bgEl.classList.add('active');
-          }
-
         } else {
-          el.style.opacity = 0;
-          el.style.pointerEvents = 'none';
+          span.classList.remove('entered');
+          span.classList.remove('active-word');
         }
-      });
+      }
 
-      // 5. Morfismos dinâmicos com Morphicons baseados no relógio mestre t
-      if (window.Morphicons && window.Morphicons.icons) {
-        const ic = window.Morphicons.icons;
-
-        // Cena 5 (PDV): Ao atingir o instante do bip laser (46.2s), morfa Barcode -> CheckCircle2
-        const scanEl = document.getElementById('morph-icon-scanner');
-        if (scanEl) {
-          if (t >= 46.2 && !morphState.scannerBipado) {
-            morphState.scannerBipado = true;
-            scanEl.morphTo(ic.CheckCircle2, 'bouncy');
-            tocarSfx(1200, 0.08);
-          } else if (t < 46.2 && morphState.scannerBipado) {
-            morphState.scannerBipado = false;
-            scanEl.morphTo(ic.Barcode, 'snappy');
-          }
+      // Efeito de digitação da caixa de comentário na Cena 15 (CTA do PDF)
+      if (c.id === 15) {
+        const commentElem = document.getElementById('comment-text');
+        if (commentElem) {
+          const fullText = "Comente MS2 no chat";
+          const charsToShow = Math.min(fullText.length, Math.floor(Math.max(0, t - 1.2) * 6));
+          commentElem.innerText = fullText.slice(0, charsToShow);
         }
+      }
 
-        // Cena 8 (RBAC): Morfismo dinâmico Shield -> Lock -> Key
-        const rbacEl = document.getElementById('morph-icon-rbac');
-        if (rbacEl) {
-          if (t >= 86.0 && morphState.rbacFase !== 2) {
-            morphState.rbacFase = 2;
-            rbacEl.morphTo(ic.Key, 'bouncy');
-          } else if (t >= 82.0 && t < 86.0 && morphState.rbacFase !== 1) {
-            morphState.rbacFase = 1;
-            rbacEl.morphTo(ic.Lock, 'snappy');
-          } else if (t < 82.0 && morphState.rbacFase !== 0) {
-            morphState.rbacFase = 0;
-            rbacEl.morphTo(ic.Shield, 'snappy');
-          }
-        }
-
-        // Cena 11 (Dashboard BI): Morfismo TrendingUp -> BarChart3
-        const dashEl = document.getElementById('morph-icon-dashboard');
-        if (dashEl) {
-          if (t >= 118.0 && morphState.dashFase !== 1) {
-            morphState.dashFase = 1;
-            dashEl.morphTo(ic.BarChart3, 'bouncy');
-          } else if (t < 118.0 && morphState.dashFase !== 0) {
-            morphState.dashFase = 0;
-            dashEl.morphTo(ic.TrendingUp, 'snappy');
-          }
-        }
-
-        // Cena 14 (Testes E2E): Morfismo Play -> CheckCircle2
-        const testsEl = document.getElementById('morph-icon-tests');
-        if (testsEl) {
-          if (t >= 150.0 && morphState.testsFase !== 1) {
-            morphState.testsFase = 1;
-            testsEl.morphTo(ic.CheckCircle2, 'bouncy');
-          } else if (t < 150.0 && morphState.testsFase !== 0) {
-            morphState.testsFase = 0;
-            testsEl.morphTo(ic.Play, 'snappy');
-          }
-        }
+      // Timecode no canto
+      if (showTimecode) {
+        timecodeCorner.innerText = `${t.toFixed(2)}s / ${c.duracao.toFixed(1)}s [CENA ${c.id}]`;
       }
     }
 
-    // Loop Principal
-    function loop(agora) {
-      if (!executando) return;
+    // 5. LOOP PRINCIPAL DE ANIMAÇÃO A 60 FPS
+    function gameLoop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
 
-      const delta = (agora - ultimoTimestamp) / 1000;
-      ultimoTimestamp = agora;
+      if (isPlaying) {
+        // Se o áudio estiver tocando, sincroniza diretamente com audio.currentTime
+        if (!audio.paused && !audio.ended) {
+          globalTime = audio.currentTime;
+        } else {
+          globalTime += dt;
+        }
 
-      tempoAtual += delta;
+        render(globalTime);
 
-      if (tempoAtual >= DURACAO_TOTAL) {
-        tempoAtual = DURACAO_TOTAL;
-        executando = false;
-        document.body.classList.remove('hide-cursor');
-        render(tempoAtual);
+        // Ao terminar a cena, avança automaticamente
+        const duracaoCena = CENAS_DATA[cenaAtivaIndex].duracao;
+        if (globalTime >= duracaoCena) {
+          if (cenaAtivaIndex < CENAS_DATA.length - 1) {
+            carregarCena(cenaAtivaIndex + 1);
+            audio.play().catch(() => {});
+          } else {
+            // Última cena (congela no último quadro como manda o PDF)
+            isPlaying = false;
+            document.body.classList.remove('playing');
+          }
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+
+    // 6. CONTAGEM 3-2-1 ANTES DE TOCAR (REQUISITO DA PÁGINA 6 DO PDF!)
+    function iniciarComContagem() {
+      if (isCountingDown) return;
+      isCountingDown = true;
+      startPrompt.style.display = 'none';
+      countdownDisplay.style.display = 'block';
+
+      let count = 3;
+      countdownDisplay.innerText = count;
+
+      const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownDisplay.innerText = count;
+        } else {
+          clearInterval(timer);
+          startOverlay.style.display = 'none';
+          isCountingDown = false;
+          isPlaying = true;
+          document.body.classList.add('playing');
+          globalTime = 0;
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
+      }, 1000);
+    }
+
+    function togglePlay() {
+      if (startOverlay.style.display !== 'none') {
+        iniciarComContagem();
         return;
       }
-
-      render(tempoAtual);
-      requestAnimationFrame(loop);
-    }
-
-    // ========================================================================
-    // INTEGRAÇÃO COM MORPHICONS (FÍSICA DE MOLA E MORFISMOS VETORIAIS)
-    // ========================================================================
-    let morphState = { scannerBipado: false, rbacFase: 0, dashFase: 0, testsFase: 0 };
-
-    function setupMorphicons() {
-      if (!window.Morphicons || !window.Morphicons.icons) return;
-      const ic = window.Morphicons.icons;
-
-      const playEl = document.getElementById('icon-morph-play');
-      if (playEl) playEl.icon = executando ? ic.Pause : ic.Play;
-
-      const muteEl = document.getElementById('icon-morph-mute');
-      if (muteEl) muteEl.icon = audioMutado ? ic.VolumeX : ic.Volume2;
-
-      const aspectEl = document.getElementById('icon-morph-aspect');
-      if (aspectEl) aspectEl.icon = proporcaoVertical ? ic.Smartphone : ic.Monitor;
-
-      const fsEl = document.getElementById('icon-morph-fs');
-      if (fsEl) fsEl.icon = ic.Maximize2;
-
-      const scanEl = document.getElementById('morph-icon-scanner');
-      if (scanEl) scanEl.icon = ic.Barcode;
-
-      const rbacEl = document.getElementById('morph-icon-rbac');
-      if (rbacEl) rbacEl.icon = ic.Shield;
-
-      const dashEl = document.getElementById('morph-icon-dashboard');
-      if (dashEl) dashEl.icon = ic.TrendingUp;
-
-      const testsEl = document.getElementById('morph-icon-tests');
-      if (testsEl) testsEl.icon = ic.Play;
-    }
-
-    // Inicializa ao carregar a página
-    window.addEventListener('DOMContentLoaded', setupMorphicons);
-    setTimeout(setupMorphicons, 100);
-
-    // ========================================================================
-    // ATALHOS DE TECLADO E CONTROLES DE PALCO
-    // ========================================================================
-    function togglePlay() {
-      if (emContagem) return;
-      if (!executando) {
-        if (tempoAtual >= DURACAO_TOTAL) tempoAtual = 0;
-        if (tempoAtual === 0) {
-          iniciarApresentacao();
-        } else {
-          executando = true;
-          document.body.classList.add('hide-cursor');
-          ultimoTimestamp = performance.now();
-          requestAnimationFrame(loop);
-        }
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        document.body.classList.add('playing');
+        audio.play().catch(() => {});
       } else {
-        executando = false;
-        document.body.classList.remove('hide-cursor');
-        if (audioAtual) {
-          try { audioAtual.pause(); } catch(e) {}
-        }
-        if (narradorNativo) narradorNativo.pause();
-      }
-
-      // Morfismo do botão Play / Pause
-      const playEl = document.getElementById('icon-morph-play');
-      if (playEl && window.Morphicons) {
-        playEl.morphTo(executando ? window.Morphicons.icons.Pause : window.Morphicons.icons.Play, 'bouncy');
+        document.body.classList.remove('playing');
+        audio.pause();
       }
     }
 
-    function pularCena(delta) {
-      if (audioAtual) {
-        try { audioAtual.pause(); audioAtual.currentTime = 0; } catch (e) {}
-      }
-      const idx = CENAS.findIndex(c => tempoAtual >= c.inicio && tempoAtual < c.fim);
-      let novo = (idx === -1 ? 0 : idx) + delta;
-      if (novo < 0) novo = 0;
-      if (novo >= CENAS.length) novo = CENAS.length - 1;
-
-      tempoAtual = CENAS[novo].inicio + 0.5;
-      ultimaCenaFalada = 0;
-      tocarSfx(750, 0.08);
-      render(tempoAtual);
+    function reiniciar() {
+      isPlaying = false;
+      document.body.classList.remove('playing');
+      carregarCena(0);
+      startOverlay.style.display = 'flex';
+      startPrompt.style.display = 'flex';
+      countdownDisplay.style.display = 'none';
     }
 
-    function irParaCena(num) {
-      if (num < 1 || num > CENAS.length) return;
-      if (audioAtual) {
-        try { audioAtual.pause(); audioAtual.currentTime = 0; } catch (e) {}
-      }
-      tempoAtual = CENAS[num - 1].inicio + 0.5;
-      ultimaCenaFalada = 0;
-      tocarSfx(800, 0.08);
-      render(tempoAtual);
-    }
-
-    function toggleAudio() {
-      audioMutado = !audioMutado;
-      const muteEl = document.getElementById('icon-morph-mute');
-      if (audioMutado) {
-        if (audioAtual) {
-          try { audioAtual.pause(); } catch(e) {}
-        }
-        audioLabel.textContent = 'Áudio Mudo';
-        audioDot.style.background = '#ef4444';
-        audioDot.style.boxShadow = '0 0 8px #ef4444';
-        if (narradorNativo) narradorNativo.cancel();
-        if (muteEl && window.Morphicons) muteEl.morphTo(window.Morphicons.icons.VolumeX, 'snappy');
-      } else {
-        audioLabel.textContent = 'Voz Neural PT-BR';
-        audioDot.style.background = '#10b981';
-        audioDot.style.boxShadow = '0 0 8px #10b981';
-        tocarSfx(660, 0.15);
-        if (muteEl && window.Morphicons) muteEl.morphTo(window.Morphicons.icons.Volume2, 'snappy');
+    function proximaCena() {
+      if (cenaAtivaIndex < CENAS_DATA.length - 1) {
+        carregarCena(cenaAtivaIndex + 1);
+        if (isPlaying) audio.play().catch(() => {});
       }
     }
 
-    function toggleAspecto() {
-      proporcaoVertical = !proporcaoVertical;
-      if (proporcaoVertical) {
-        stageContainer.classList.add('aspect-916');
-      } else {
-        stageContainer.classList.remove('aspect-916');
-      }
-      ajustarEscala();
-
-      const aspectEl = document.getElementById('icon-morph-aspect');
-      if (aspectEl && window.Morphicons) {
-        aspectEl.morphTo(proporcaoVertical ? window.Morphicons.icons.Smartphone : window.Morphicons.icons.Monitor, 'bouncy');
+    function cenaAnterior() {
+      if (cenaAtivaIndex > 0) {
+        carregarCena(cenaAtivaIndex - 1);
+        if (isPlaying) audio.play().catch(() => {});
       }
     }
 
-    function toggleFullscreen() {
-      const fsEl = document.getElementById('icon-morph-fs');
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-        if (fsEl && window.Morphicons) fsEl.morphTo(window.Morphicons.icons.Minimize2, 'snappy');
-      } else {
-        document.exitFullscreen().catch(() => {});
-        if (fsEl && window.Morphicons) fsEl.morphTo(window.Morphicons.icons.Maximize2, 'snappy');
-      }
-    }
-
-    // Listener Global de Teclas
+    // 7. ATALHOS DE TECLADO EXATOS DO PDF (PÁGINA 6)
+    // ESPAÇO pausa/continua · R reinicia com contagem · ← → pulam de cena · T mostra tempo
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        togglePlay();
-      } else if (e.key === 'r' || e.key === 'R') {
-        e.preventDefault();
-        if (narradorNativo) narradorNativo.cancel();
-        iniciarApresentacao();
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        pularCena(1);
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        pularCena(-1);
-      } else if (e.key >= '1' && e.key <= '9') {
-        e.preventDefault();
-        irParaCena(parseInt(e.key));
-      } else if (e.key === '0') {
-        e.preventDefault();
-        irParaCena(10);
-      } else if (e.key === 'm' || e.key === 'M') {
-        e.preventDefault();
-        toggleAudio();
-      } else if (e.key === 'f' || e.key === 'F') {
-        e.preventDefault();
-        toggleFullscreen();
-      } else if (e.key === 'a' || e.key === 'A') {
-        e.preventDefault();
-        toggleAspecto();
-      } else if (e.key === 't' || e.key === 'T') {
-        e.preventDefault();
-        const hud = document.getElementById('hud-timecode');
-        if (hud) hud.style.display = hud.style.display === 'none' ? 'flex' : 'none';
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault();
+          togglePlay();
+          break;
+        case 'KeyR':
+          e.preventDefault();
+          reiniciar();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          cenaAnterior();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          proximaCena();
+          break;
+        case 'KeyT':
+          e.preventDefault();
+          showTimecode = !showTimecode;
+          timecodeCorner.style.display = showTimecode ? 'block' : 'none';
+          break;
+        case 'Digit1': case 'Digit2': case 'Digit3': case 'Digit4': case 'Digit5':
+        case 'Digit6': case 'Digit7': case 'Digit8': case 'Digit9':
+          carregarCena(parseInt(e.key, 10) - 1);
+          if (isPlaying) audio.play().catch(() => {});
+          break;
+        case 'Digit0':
+          carregarCena(9);
+          if (isPlaying) audio.play().catch(() => {});
+          break;
       }
     });
 
-    // Comunicação Bidirecional com a Janela Pai (React PitchMotionPage)
-    window.addEventListener('message', (e) => {
-      if (!e.data || typeof e.data !== 'object') return;
-      if (e.data.tipo === 'TOGGLE_PLAY') {
-        if (e.data.tocando !== executando) togglePlay();
-      } else if (e.data.tipo === 'TOGGLE_MUTE') {
-        if (e.data.mudo !== audioMutado) toggleAudio();
-      } else if (e.data.tipo === 'IR_PARA_CENA') {
-        irParaCena(e.data.cena);
-      }
-    });
-
-    // Pular no tempo ao clicar na barra de progresso
-    document.getElementById('progress-track').addEventListener('click', (e) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      tempoAtual = pos * DURACAO_TOTAL;
-      ultimaCenaFalada = 0;
-      render(tempoAtual);
-    });
-
-    // Render Inicial
-    render(0);
-    setupMorphicons();
+    // Iniciar na Cena 1
+    carregarCena(0);
   </script>
 </body>
 </html>

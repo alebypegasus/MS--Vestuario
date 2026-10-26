@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import 'express-async-errors';
 import cors from 'cors';
@@ -38,9 +41,9 @@ async function request(
   return { status: res.status, data };
 }
 
-function assertStatus(actual: number, expected: number, testName: string) {
+function assertStatus(actual: number, expected: number, testName: string, data?: unknown) {
   if (actual !== expected) {
-    throw new Error(`Falha no teste [${testName}]: Esperado HTTP ${expected}, mas recebeu HTTP ${actual}`);
+    throw new Error(`Falha no teste [${testName}]: Esperado HTTP ${expected}, mas recebeu HTTP ${actual}${data ? ` - ${JSON.stringify(data)}` : ''}`);
   }
 }
 
@@ -104,8 +107,8 @@ async function runTests() {
       'POST',
       '/api/clientes',
       {
-        nome: 'Mariana Tentativa Duplicada',
-        cpf: '529.982.247-25', // CPF existente de Mariana Souza
+        nome: 'Beatriz Almeida Tentativa Duplicada',
+        cpf: cpfValidoNovo, // CPF recém-cadastrado no passo anterior
         telefone: '(21) 98888-0000'
       },
       tokenCaixa
@@ -245,6 +248,10 @@ async function runTests() {
     );
     assertStatus(novoFuncionario.status, 201, 'Cadastro Novo Funcionário');
     console.log(` -> Sucesso! Novo funcionário ID ${novoFuncionario.data.id} cadastrado com cargo '${novoFuncionario.data.cargo}'.`);
+
+    // Limpeza de testes: mantém o banco exatamente com 1 ADM, 1 Gerente, 4 Caixas e 45 Clientes
+    await db.execute("DELETE FROM usuarios WHERE email = 'marcos.caixa.teste@ms2.com.br'");
+    await db.execute("DELETE FROM clientes WHERE id = ?", [novoCliente.data.id]);
 
     console.log(`\n========================================================================`);
     console.log(`🎉 TODOS OS 14 TESTES PASSARAM COM SUCESSO!`);

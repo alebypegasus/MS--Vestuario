@@ -38,9 +38,9 @@ async function request(
   return { status: res.status, data };
 }
 
-function assertStatus(actual: number, expected: number, testName: string) {
+function assertStatus(actual: number, expected: number, testName: string, data?: unknown) {
   if (actual !== expected) {
-    throw new Error(`Falha no teste [${testName}]: Esperado HTTP ${expected}, mas recebeu HTTP ${actual}`);
+    throw new Error(`Falha no teste [${testName}]: Esperado HTTP ${expected}, mas recebeu HTTP ${actual}${data ? ` - ${JSON.stringify(data)}` : ''}`);
   }
 }
 

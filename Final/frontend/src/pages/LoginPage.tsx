@@ -134,32 +134,55 @@ export const LoginPage: React.FC = () => {
             <p className="text-center text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
               Acesso Rápido para Avaliação (Seeds)
             </p>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => preencherCredenciais('admin@omnivarejo.com.br', '123456')}
+                className="p-2 sm:p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
+              >
+                <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span>1. Admin</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => preencherCredenciais('gerente@omnivarejo.com.br', '123456')}
+                className="p-2 sm:p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
+              >
+                <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <span>2. Gerente</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => preencherCredenciais('ana.caixa@omnivarejo.com.br', '123456')}
+                className="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
+              >
+                <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>3. Ana (Vendedora)</span>
+              </button>
+            </div>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => preencherCredenciais('admin@empresa.com.br', 'admin123')}
-                className="p-2 sm:p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-200 text-xs font-medium flex flex-col items-center gap-1 transition-all"
+                onClick={() => preencherCredenciais('lucas.caixa@omnivarejo.com.br', '123456')}
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold transition-all"
               >
-                <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <span>Admin</span>
+                Lucas (Vendedor)
               </button>
-
               <button
                 type="button"
-                onClick={() => preencherCredenciais('gerente@empresa.com.br', 'admin123')}
-                className="p-2 sm:p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-200 text-xs font-medium flex flex-col items-center gap-1 transition-all"
+                onClick={() => preencherCredenciais('beatriz.caixa@omnivarejo.com.br', '123456')}
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold transition-all"
               >
-                <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <span>Gerente</span>
+                Beatriz (Vendedora)
               </button>
-
               <button
                 type="button"
-                onClick={() => preencherCredenciais('caixa@empresa.com.br', 'caixa123')}
-                className="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-200 text-xs font-medium flex flex-col items-center gap-1 transition-all"
+                onClick={() => preencherCredenciais('carlos.caixa@omnivarejo.com.br', '123456')}
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold transition-all"
               >
-                <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Caixa</span>
+                Carlos (Vendedor)
               </button>
             </div>
           </div>
