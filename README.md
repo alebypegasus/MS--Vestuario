@@ -1,236 +1,118 @@
-<div align="center">
+# 💎 Plataforma de Gestão Comercial & Frente de Caixa (PDV) Multissegmento
 
-# 👗 MS² Vestuário — Sistema de Gestão e Ponto de Venda (PDV)
+Repositório monorepo completo contendo a suíte de Gestão Comercial, Frente de Caixa (PDV) e Controle de Varejo, estruturado em duas edições sincronizadas:
 
-> **Projeto de Conclusão de Curso — Unidade Curricular de Desenvolvimento de Sistemas**  
-> Modernização de operação varejista: migração completa do papel para uma aplicação web centralizada.
-
-[![Node.js](https://img.shields.io/badge/Backend-Node.js_v20+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript_5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/Frontend-React_18+-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![MySQL](https://img.shields.io/badge/Database-MySQL_8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Aceternity UI](https://img.shields.io/badge/UI-Aceternity_UI-8B5CF6?style=for-the-badge&logo=framer&logoColor=white)](https://ui.aceternity.com/)
-[![Framer Motion](https://img.shields.io/badge/Animation-Framer_Motion-FF0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
-
-</div>
+1. **`Estudo/`**: Edição Acadêmica e Portfólio (MS² Vestuário), preservando o histórico de homologação fiscal, Sprints 1 a 6, Dossiê de Regras de Negócio (RN-01 a RN-08) e documentação de referência (Firjan SENAI).
+2. **`Final/`**: Edição Comercial White-Label (**OmniVarejo Enterprise**), 100% limpa de menções acadêmicas, adaptada para qualquer segmento comercial (Vestuário, Calçados, Informática, Padarias, Confeitarias, Pet Shops, Mercados e Varejo em Geral).
 
 ---
 
-## 📌 1. Sobre o Projeto
-
-A **MS² Vestuário** é uma loja de roupas e acessórios em plena expansão comercial. Historicamente, sua gestão operava de forma estritamente analógica (controle de estoque em cadernos físicos, comandas de vendas em blocos de papel e cálculo manual com calculadoras).
-
-Esse modelo tradicional gerava gargalos severos:
-
-- **Filas no Caixa:** Demora no atendimento devido à consulta manual em catálogos impressos;
-- **Inconsistências Financeiras:** Fechamento diário de caixa demorado e suscetível a erros humanos;
-- **Perda de Fidelização:** Ausência de histórico de clientes e hábitos de consumo;
-- **Falta de Segurança:** Inexistência de controle sobre descontos aplicados e cancelamentos.
-
-Este sistema foi concebido para digitalizar e centralizar a operação da loja, priorizando **agilidade no atendimento, precisão contábil e simplicidade operacional** para usuários sem perfil técnico.
-
----
-
-## 🏛️ 2. Os Três Pilares da Solução
-
-```mermaid
-graph TD
-    A[Sistema PDV MS² Vestuário] --> B[1. Catálogo de Produtos]
-    A --> C[2. Base de Clientes]
-    A --> D[3. Frente de Caixa / PDV]
-
-    B --> B1[Busca Instantânea por Código ou Nome]
-    B --> B2[Preços Atualizados em Tempo Real]
-    B --> B3[Soft Delete para Histórico de Vendas]
-
-    C --> C1[Cadastro Ágil de Balcão]
-    C --> C2[Regra de CPF Único - RN-01]
-    C --> C3[Histórico de Fidelização de Compras]
-
-    D --> D1[Checkout Rápido em Menos de 300ms]
-    D --> D2[Alçadas: Caixa vs Gerente]
-    D --> D3[Desconto Limitado a 10% para Caixa]
-    D --> D4[Aprovação Gerencial via Modal Pontual]
-```
-
-1. **Catálogo de Produtos:** Consulta instantânea por código de barras ou descrição, com proteção de integridade referencial.
-2. **Base de Clientes:** Cadastro ágil com garantia de unicidade de CPF (RN-01), permitindo histórico de compras e suporte opcional a "Consumidor Final" (RN-06).
-3. **Frente de Caixa (PDV):** Registro de itens em tempo real com **snapshot de preço histórico** (RN-04) e controle rigoroso de alçadas de permissão (Caixa vs. Gerente).
-
----
-
-## 🗄️ 3. Modelagem de Dados e DER
-
-O banco de dados relacional foi modelado na **3ª Forma Normal (3FN)** e implementado em **MySQL 8.0+ (Engine InnoDB)** sob o schema `` `ms2vest.db` ``.
-
-### 🖼️ Diagrama Entidade-Relacionamento
-
-<div align="center">
-  <img src="documentação/s01/der-apresentacao.png" alt="Diagrama Entidade-Relacionamento MS² Vestuário" width="90%"/>
-</div>
-
-> Para detalhes das colunas, tipos e constraints, consulte o [Documento Técnico de Modelagem e DER](documentação/s01/02-modelagem-e-der.md) ou a versão vetorial [der-diagrama.svg](documentação/s01/der-diagrama.svg).
-
-### Entidades do Sistema:
-
-- **`usuarios`**: Gestão de funcionários e operadores internos (`ADMIN`, `GERENTE` e `CAIXA`) com senhas em hash bcrypt;
-- **`clientes`**: Base de compradores com restrição `UNIQUE` em `cpf`;
-- **`produtos`**: Peças e acessórios com controle de preço e inativação lógica (`ativo`);
-- **`vendas`**: Registro mestre do cupom (operador, cliente, gerente autorizador, forma de pagamento e totais);
-- **`itens_venda`**: Linhas da venda com **snapshot financeiro** (`preco_unitario` imutável).
-
----
-
-## 🛠️ 4. Stack Tecnológica
-
-| Camada             | Tecnologia                     | Justificativa Técnica                                                                                                  |
-| :----------------- | :----------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
-| **Frontend**       | React + Vite + TypeScript      | Renderização veloz no navegador do caixa, SPA sem recarregamentos de página e tipagem estrita contra erros de runtime. |
-| **Estilização**    | Tailwind CSS                   | Interface utilitária, moderna, responsiva e de alta produtividade sem CSS desorganizado.                               |
-| **Roteamento**     | React Router                   | Controle de navegação e proteção de rotas públicas vs. autenticadas.                                                   |
-| **Backend**        | Node.js + Express + TypeScript | Arquitetura RESTful organizada em camadas (Controllers, Services, Repositories, Middlewares).                          |
-| **Banco de Dados** | MySQL 8.0+ (InnoDB)            | Transações ACID, integridade por Foreign Keys (`RESTRICT` e `CASCADE`) e performance com índices.                      |
-| **Validação**      | Zod                            | Schemas de validação estritos na entrada das rotas da API.                                                             |
-| **Segurança**      | Bcrypt + JWT + RBAC            | Criptografia de senhas, autenticação stateless e alçadas baseadas em perfil (Caixa vs. Gerente).                       |
-
----
-
-## 📁 5. Estrutura do Repositório
+## 🏗️ Estrutura do Monorepo
 
 ```text
-MS² Vestuario/
-├── .gitignore                      # Regras de exclusão de artefatos e credenciais
-├── README.md                       # Documentação principal para apresentação e banca
-├── database/                       # Scripts e recursos de banco de dados
-│   ├── der-apresentacao.jpg        # Imagem visual do DER para slides
-│   ├── der-diagrama.svg            # Imagem técnica vetorial do DER
-│   ├── schema.sql                  # Script DDL de criação do banco e tabelas
-│   └── seeds.sql                   # Carga inicial de testes homologados
-├── backend/                        # API RESTful (Node.js + Express + TS)
-│   └── src/
-│       ├── config/                 # Variáveis de ambiente e pooling de banco
-│       ├── controllers/            # Controladores HTTP
-│       ├── database/               # Scripts SQL locais
-│       ├── middlewares/            # RBAC, autenticação e error handling
-│       ├── models/                 # Modelos das entidades
-│       ├── repositories/           # Camada de persistência SQL
-│       ├── routes/                 # Definição dos endpoints REST
-│       ├── services/               # Lógica de negócio e validações
-│       ├── types/                  # Tipagens e DTOs TypeScript
-│       ├── utils/                  # Utilitários gerais
-│       └── validations/            # Schemas Zod
-├── frontend/                       # Aplicação Web SPA (React + Vite + TS)
-│   └── src/
-│       ├── components/             # Componentes reaproveitáveis (botões, inputs, modais)
-│       ├── hooks/                  # Hooks customizados
-│       ├── layouts/                # Layouts da aplicação
-│       ├── pages/                  # Telas (Login, PDV, Produtos, Clientes)
-│       ├── routes/                 # Configuração de rotas React Router
-│       ├── services/               # Integração HTTP com a API
-│       ├── types/                  # Tipagens espelhadas
-│       ├── utils/                  # Máscaras e formatação monetária (BRL)
-│       └── validations/            # Validações de formulários de tela
-├── documentação/                   # Entregáveis oficiais divididos por Sprint
-│   ├── s01/                        # Sprint 1: Requisitos, DER, DDL e Imagens
-│   ├── s02/                        # Sprint 2: Setup e Camada de Dados
-│   ├── s03/                        # Sprint 3: Regras de Negócio e Rotas
-│   ├── s04/                        # Sprint 4: Interface de Usuário
-│   ├── s05/                        # Sprint 5: Integração e Homologação
-│   └── s06/                        # Sprint 6: Slides e Roteiro de Defesa
-└── consulta/                       # PDFs e especificações da Unidade Curricular
+├── Estudo/                      # Edição Acadêmica / Portfólio (MS² Vestuário)
+│   ├── backend/                 # API REST (Fastify/Express, TypeScript, JWT, RBAC)
+│   ├── frontend/                # SPA React 18, Tailwind CSS, Lucide Icons, Framer Motion
+│   ├── database/                # Scripts DDL e sementes da versão de estudo
+│   └── documentação/            # Dossiês técnicos, Sprints 1 a 6 e diagramas DER
+├── Final/                       # Edição Comercial White-Label (OmniVarejo Enterprise)
+│   ├── backend/                 # API REST porta 3002, 100% White-Label
+│   ├── frontend/                # Frontend comercial porta 5174, temas e branding dinâmico
+│   └── database/                # Scripts DDL limpos para bancos de produção
+├── database/                    # Scripts SQL unificados para MySQL Workbench & Docker
+│   ├── mysql_setup_both.sql     # Inicialização de ambos os bancos (ms2_vestuario e omnivarejo_db)
+│   ├── mysql_setup_estudo.sql   # Inicialização exclusiva do banco de estudo
+│   └── mysql_setup_final.sql    # Inicialização exclusiva do banco comercial
+├── scripts/                     # Automação de sincronização e purificação White-Label
+│   ├── sync-versions.mjs        # Sincroniza e purifica Estudo -> Final em tempo de build
+│   └── watch-sync.mjs           # Daemon de sincronização contínua em tempo real
+├── docker-compose.mysql.yml     # Orquestração do MySQL 8.0 para desenvolvimento local
+├── package.json                 # Scripts unificados do workspace
+└── README.md                    # Documentação geral do repositório
 ```
 
 ---
 
-## 🚦 6. Roadmap de Desenvolvimento Ágil (Sprints)
+## 🌟 Principais Recursos & Inovações
 
-| Sprint | Foco da Entrega              |  Status   | Entregáveis                                                           |
-| :----: | :--------------------------- | :-------: | :-------------------------------------------------------------------- |
-| **01** | **Planejamento e Modelagem** | Concluído | Documento de Requisitos, Regras de Negócio, DER e DDL MySQL.          |
-| **02** | **Backend (Fundamentos)**    | Concluído | Setup Node.js/TS, conexão MySQL, Types e Models/Repositories.          |
-| **03** | **Backend (Lógica e API)**   | Concluído | Controllers, Services, alçadas de desconto/cancelamento e rotas REST. |
-| **04** | **Frontend (Interface)**     |  Próximo  | Telas em React/Vite: Login, PDV Caixa, Produtos e Clientes.           |
-| **05** | **Integração e Homologação** | Planejado | Conexão API via Fetch/Axios, testes E2E e correção de bugs.           |
-| **06** | **Defesa Técnica Final**     | Planejado | Slides de Pitch, Apresentação para Banca e Live Demo.                 |
+### 1. Sistema Universal & Multissegmento
+- **Gestão Dinâmica de Categorias & Subcategorias**: Modal interativo com CRUD completo, ícones dinâmicos e seletor rápido com templates prontos (Moda, Calçados, Informática, Confeitaria/Padaria, etc.).
+- **Atributos Universais por Produto**: Grade de tamanhos, cores, unidade de medida (UN, KG, M, PAR, LT), código de barras (EAN-13), marca, modelo, garantia, lote e data de validade.
+- **Formação de Preço Inteligente**: Preço de custo, preço de venda e cálculo dinâmico de margem bruta estimada.
+
+### 2. Design System & Ergonomia Visual
+- Interface limpa, responsiva e com suporte a Dark Mode.
+- Transições táteis via **Framer Motion** e ícones animados via **Morphicons**.
+- **Facilitador de Preenchimento**: Botão de autocompletar em formulários de clientes, funcionários, produtos e dados da empresa.
+- **Upload e Gestão Visual da Empresa**: Upload de Logotipo da Marca, Logo em Texto e Favicon.
+
+### 3. Frente de Caixa (PDV Ágil)
+- Leitura instantânea por código de barras ou busca por nome/referência.
+- Venda rápida com múltiplos pagamentos (Dinheiro com cálculo de troco, Cartão e PIX Dinâmico com QR Code).
+- Emissão de Comprovante Fiscal / NFC-e com QR Code de autenticação.
+- Controle de alçada gerencial para descontos corporativos (> 10%) e cancelamentos auditados.
+
+### 4. Motor de Banco de Dados Dual-Engine
+- **Modo Autônomo**: Na ausência de MySQL, o sistema ativa automaticamente o banco local SQLite de alta velocidade com tabelas e sementes iniciais.
+- **Modo Corporativo**: Compatibilidade total com MySQL 8.x e MariaDB.
 
 ---
 
-## 🚀 7. Como Executar o Projeto Localmente
-
-> **Regra de Ouro da Demonstração:** O sistema é 100% autônomo e executável localmente, sem dependência de internet ou serviços externos pagos.
+## 🚀 Como Executar
 
 ### Pré-requisitos
+- [Bun](https://bun.sh) instalado (`bun --version` >= 1.2)
+- (Opcional) Docker Desktop para rodar o banco MySQL local
 
-- [Node.js](https://nodejs.org/) (versão 20.x ou superior);
-- [MySQL Server](https://dev.mysql.com/downloads/installer/) (versão 8.0+ em execução local);
-- Cliente SQL de preferência (MySQL Workbench, DBeaver ou terminal `mysql`).
-
----
-
-### Passo 1: Inicializar o Banco de Dados
-
-Abra o terminal na raiz do projeto e execute os scripts de criação do schema e carga inicial:
+### Comandos Rápidos na Raiz do Repositório:
 
 ```bash
-# 1. Cria a base `ms2vest.db`, tabelas, constraints e índices
-mysql -u root -p < database/schema.sql
+# 1. Executar a versão de Estudo (Acadêmica)
+bun run dev:estudo:backend    # Backend em http://localhost:3001
+bun run dev:estudo:frontend   # Frontend em http://localhost:5173
 
-# 2. Insere a massa de dados inicial (usuários, clientes e catálogo de produtos)
-mysql -u root -p < database/seeds.sql
+# 2. Executar a versão Final (Comercial White-Label)
+bun run dev:final:backend     # Backend Comercial em http://localhost:3002
+bun run dev:final:frontend    # Frontend Comercial em http://localhost:5174
+
+# 3. Rodar os testes automatizados da API (14/14 testes de regras de negócio)
+bun run test:estudo           # Testes da versão Estudo
+bun run test:final            # Testes da versão Final
+
+# 4. Sincronização Inteligente (Estudo ➔ Final)
+bun run sync                  # Sincroniza e aplica purificação White-Label
+bun run sync:watch            # Inicia daemon de sincronização contínua
+
+# 5. Build de Produção
+bun run build:all             # Gera o build de ambas as edições
 ```
 
-_(Ou abra os arquivos `database/schema.sql` e `database/seeds.sql` no seu DBeaver/Workbench e execute os comandos)._
+### Subindo o MySQL via Docker (Opcional):
+```bash
+docker compose -f docker-compose.mysql.yml up -d
+```
 
 ---
 
-### Passo 2: Credenciais Pré-cadastradas para Testes
+## 🔄 Sincronização Inteligente (`Estudo` ➔ `Final`)
 
-O script de sementes (`seeds.sql`) já fornece usuários operacionais com senhas criptografadas em bcrypt:
-
-| Perfil            | E-mail               | Senha Padrão | Alçada Operacional                                                    |
-| :---------------- | :------------------- | :----------- | :-------------------------------------------------------------------- |
-| **Administrador** | `admin@ms2.com.br`   | `admin123`   | Acesso total; gestão de usuários/funcionários, produtos e auditoria.  |
-| **Gerente**       | `gerente@ms2.com.br` | `admin123`   | Gestão de catálogo comercial; aprova cancelamentos e descontos > 10%.|
-| **Caixa**         | `caixa@ms2.com.br`   | `caixa123`   | Operação do PDV, cadastro de clientes e desconto de até 10%.          |
+O script `scripts/sync-versions.mjs`:
+1. Espelha automaticamente novas telas, componentes, rotas e regras de negócio de `Estudo/` para `Final/`.
+2. Purifica todos os identificadores acadêmicos (nomes de orientadores, bancas, notas de aula, dísticos de TCC e marcas específicas) transformando-os em parâmetros corporativos configuráveis.
+3. Garante isolamento estrito de portas, segredos JWT e banco de dados entre os dois ambientes.
 
 ---
 
-## 🔒 8. Segurança e Regras de Negócio Implementadas
-
-- **RN-01 (Unicidade de CPF):** Bloqueio estrito no banco e no backend contra cadastros duplicados de clientes.
-- **RN-02 (Alçada de Desconto):** Caixa tem autonomia para até 10% de desconto. Descontos superiores exigem credenciais de Gerente via modal sobreposto no PDV.
-- **RN-03 (Alçada de Cancelamento):** Cancelamento de transação exige autorização gerencial e registro de justificativa.
-- **RN-04 (Snapshot de Preço Histórico):** O preço unitário é gravado na linha do item da venda (`itens_venda.preco_unitario`). Alterações de preço futuras no catálogo não afetam o balanço de vendas passadas.
-- **RN-06 (Consumidor Final):** Abertura de checkout permite venda anônima sem travar a fila do caixa.
-- **RN-08 (Soft Delete de Produtos):** Peças com histórico de vendas não podem sofrer deleção física (`ON DELETE RESTRICT`), mantendo a integridade contábil.
-
----
-
-## 🚀 9. Roteiro e Status das Sprints
-
-| Sprint | Escopo & Entregas Principais | Status | Documentação |
-| :---: | :--- | :---: | :---: |
-| **Sprint 1** | Planejamento, Requisitos, Regras de Negócio, Modelagem Relacional & DDL | Concluído | [Ver Sprint 1](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s01/) |
-| **Sprint 2** | Backend Foundations, Pool de Conexões MySQL, Camada de Dados & Seeds | Concluído | [Ver Sprint 2](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s02/) |
-| **Sprint 3** | Backend Logic, RBAC (Admin/Gerente/Caixa), Validação Zod, Testes & FiveDollars | Concluído | [Ver Sprint 3](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s03/) |
-| **Sprint 4** | Frontend SPA (React + Vite + Tailwind + Aceternity UI), Identidade Visual, Fotos de Catálogo, Configuração Fiscal (Admin), RBAC Estrito de Produtos, Dual Dashboards (Gerente/Admin), Alçadas & E-Nota Dinâmica, Modo Claro/Escuro Automático | Concluído | [Ver Sprint 4](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s04/01-setup-e-interfaces-frontend.md) |
-| **Sprint 5** | Testes Integrados E2E, Auditoria de Segurança & Homologação | Concluído | [Ver Sprint 5](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s05/01-integracao-e-homologacao.md) |
-| **Sprint 6** | Apresentação Pitch Técnico (Slides) & Preparação de Live Demo | Planejado | [Sprint 6](file:///c:/Users/NIT0312117/OneDrive%20-%20Firjan/Documentos/MS%C2%B2%20Vestuario/documenta%C3%A7%C3%A3o/s06/) |
+## 🔒 Regras de Negócio Homologadas (RN-01 a RN-08)
+- **RN-01**: Validação de CPF por Módulo 11 da Receita Federal e separação rígida entre Clientes e Usuários do sistema.
+- **RN-02**: Alçada gerencial de desconto (> 10% requer credenciais de Gerente/Admin com log de auditoria).
+- **RN-03**: Cancelamento de vendas restrito a Gerentes/Admin com estorno e recomposição de estoque.
+- **RN-04**: Matriz de permissões RBAC estrita (Caixa, Gerente, Administrador).
+- **RN-05**: Fechamento e Sangria de Caixa com auditoria de turno.
+- **RN-06**: Venda ao Consumidor Final ou fidelização opcional de clientes cadastrados.
+- **RN-07**: Exportação de relatórios em Excel (.xlsx), CSV e PDF (A4) em todas as telas gerenciais.
+- **RN-08**: Emissão simulada de NFC-e com QR Code de autenticação fiscal.
 
 ---
 
-## 🎓 10. Informações Acadêmicas
-
-- **Instituição:** Firjan - Senai
-- **Unidade Curricular:** Desenvolvimento de Sistemas
-- **Cliente Fictício:** MS² Vestuário
-- **Objetivo:** Simulação de engenharia de software aplicada a um cenário real de varejo.
-- **Formato de Avaliação:** Pitch Técnico em Slides (15 minutos) + Demonstração Prática ao Vivo (Live Demo).
-
----
-
-<div align="center">
-  <sub>Desenvolvido com foco em excelência técnica, código limpo e padrões de engenharia de software.</sub>
-</div>
+*MS² Vestuário & OmniVarejo Enterprise • Desenvolvido com foco em alta performance, robustez e arquitetura limpa.*

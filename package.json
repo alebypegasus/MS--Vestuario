@@ -1,0 +1,31 @@
+{
+  "name": "ms2-vestuario-workspace",
+  "version": "2.5.0",
+  "private": true,
+  "description": "Sistema de Gestão & PDV com Edição Estudo (Acadêmica) e Edição Final (Comercial White-Label Enterprise)",
+  "scripts": {
+    "sync": "bun scripts/sync-versions.mjs",
+    "sync:watch": "bun scripts/watch-sync.mjs",
+    "dev:estudo:frontend": "cd Estudo/frontend && bun run dev",
+    "dev:estudo:backend": "cd Estudo/backend && bun run dev",
+    "dev:final:frontend": "cd Final/frontend && bun run dev",
+    "dev:final:backend": "cd Final/backend && bun run dev",
+    "test:estudo": "cd Estudo/backend && bun run src/test-api.ts",
+    "test:final": "cd Final/backend && bun run src/test-api.ts",
+    "build:estudo": "cd Estudo/frontend && bun ./node_modules/vite/bin/vite.js build",
+    "build:final": "cd Final/frontend && bun ./node_modules/vite/bin/vite.js build",
+    "build:all": "bun run build:estudo && bun run sync && bun run build:final"
+  },
+  "keywords": [
+    "erp",
+    "pdv",
+    "varejo",
+    "react",
+    "tailwind",
+    "white-label",
+    "sqlite",
+    "mysql"
+  ],
+  "author": "Equipe de Engenharia",
+  "license": "PROPRIETARY"
+}
