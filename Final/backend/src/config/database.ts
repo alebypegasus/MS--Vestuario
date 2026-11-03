@@ -22,6 +22,42 @@ let mysqlPool: Pool | null = null;
 let useLocalDb = false;
 let checkDone = false;
 
+async function ensureProductColumns(connection: Awaited<ReturnType<Pool['getConnection']>>): Promise<void> {
+  const columns: Record<string, string> = {
+    subcategoria: 'VARCHAR(100) NULL',
+    tipo: 'VARCHAR(100) NULL',
+    cores: 'JSON NULL',
+    tamanhos: 'JSON NULL',
+    detalhes: 'TEXT NULL',
+    imagens: 'JSON NULL',
+    unidade_medida: "VARCHAR(10) DEFAULT 'UN'",
+    codigo_barras: 'VARCHAR(50) NULL',
+    marca: 'VARCHAR(100) NULL',
+    modelo: 'VARCHAR(100) NULL',
+    variacoes: 'JSON NULL',
+    garantia: 'VARCHAR(60) NULL',
+    data_validade: 'VARCHAR(20) NULL',
+    lote: 'VARCHAR(50) NULL',
+    estoque: 'INT NOT NULL DEFAULT 50',
+    estoque_minimo: 'INT NOT NULL DEFAULT 10',
+    preco_custo: 'DECIMAL(10, 2) NOT NULL DEFAULT 0.00'
+  };
+
+  for (const [name, definition] of Object.entries(columns)) {
+    const [rows]: any = await connection.query(
+      `SELECT COUNT(*) AS total
+       FROM information_schema.columns
+       WHERE table_schema = DATABASE()
+         AND table_name = 'produtos'
+         AND column_name = ?`,
+      [name]
+    );
+    if (Number(rows[0]?.total) === 0) {
+      await connection.query(`ALTER TABLE produtos ADD COLUMN ${name} ${definition}`);
+    }
+  }
+}
+
 async function checkDatabaseDriver(): Promise<boolean> {
   if (checkDone) return !useLocalDb;
   try {
@@ -47,6 +83,7 @@ async function checkDatabaseDriver(): Promise<boolean> {
     // 2. Conecta ao pool com o schema selecionado
     mysqlPool = mysql.createPool({ ...poolConfig, connectTimeout: 2000 });
     const connDb = await mysqlPool.getConnection();
+    await ensureProductColumns(connDb);
     connDb.release();
 
     console.log(`[Database] ✅ Conectado com sucesso ao MySQL na porta ${poolConfig.port} (Schema: ${poolConfig.database})!`);

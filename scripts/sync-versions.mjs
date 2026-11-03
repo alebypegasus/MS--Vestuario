@@ -224,6 +224,10 @@ export function syncDirectory(srcDir, destDir) {
 // 1. Sincronizar Backend
 syncDirectory(path.join(ESTUDO_DIR, 'backend', 'src'), path.join(FINAL_DIR, 'backend', 'src'));
 copyAndSanitizeFile(path.join(ESTUDO_DIR, 'backend', 'package.json'), path.join(FINAL_DIR, 'backend', 'package.json'));
+const finalBackendPackagePath = path.join(FINAL_DIR, 'backend', 'package.json');
+const finalBackendPackage = JSON.parse(fs.readFileSync(finalBackendPackagePath, 'utf-8'));
+delete finalBackendPackage.scripts?.['test:sprint5'];
+fs.writeFileSync(finalBackendPackagePath, `${JSON.stringify(finalBackendPackage, null, 2)}\n`, 'utf-8');
 copyAndSanitizeFile(path.join(ESTUDO_DIR, 'backend', 'tsconfig.json'), path.join(FINAL_DIR, 'backend', 'tsconfig.json'));
 
 // Garantir porta e segredos do Backend Final

@@ -23,6 +23,7 @@ import { formatarMoeda } from '../utils/formatters';
 import { obterImagemProduto } from '../utils/productImages';
 import { NavLink } from 'react-router-dom';
 import { RelatorioVendedoresModal } from '../components/RelatorioVendedoresModal';
+import { AuditoriaFechamentosModal } from '../components/AuditoriaFechamentosModal';
 
 export const DashboardPage: React.FC = () => {
   const { isAdmin } = useAuth();
@@ -30,6 +31,7 @@ export const DashboardPage: React.FC = () => {
   const [clientes, setClientes] = useState<ICliente[]>([]);
   const [carregando, setCarregando] = useState<boolean>(true);
   const [modalRelatorioVendedores, setModalRelatorioVendedores] = useState<boolean>(false);
+  const [modalAuditoria, setModalAuditoria] = useState<boolean>(false);
 
   useEffect(() => {
     carregarDados();
@@ -151,7 +153,16 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {isAdmin && (
+        <button
+            onClick={() => setModalAuditoria(true)}
+            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-sm self-start sm:self-auto"
+            title="Acompanhar fechamentos de caixa, faltas, sobras e parecer gerencial"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            Auditoria de Fechamentos
+          </button>
+
+          {isAdmin && (
           <NavLink
             to="/configuracoes"
             className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center gap-2 transition-all self-start sm:self-auto btn-interactive shadow-sm"
@@ -450,6 +461,12 @@ export const DashboardPage: React.FC = () => {
         isOpen={modalRelatorioVendedores}
         onClose={() => setModalRelatorioVendedores(false)}
         vendas={vendas}
+      />
+
+      {/* Modal de Auditoria de Fechamentos de Caixa */}
+      <AuditoriaFechamentosModal
+        aberto={modalAuditoria}
+        onFechar={() => setModalAuditoria(false)}
       />
     </div>
   );

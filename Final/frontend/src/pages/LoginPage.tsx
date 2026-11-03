@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, ShieldCheck, UserCheck, ShoppingCart, Sun, Moon, Laptop } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { Spotlight } from '../components/ui/spotlight';
-import { ShimmerButton } from '../components/ui/shimmer-button';
-import { Meteors } from '../components/ui/meteors';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Lock,
+  Mail,
+  ArrowRight,
+  ShieldCheck,
+  UserCheck,
+  ShoppingCart,
+  Sun,
+  Moon,
+  Laptop,
+} from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
+import { Spotlight } from "../components/ui/spotlight";
+import { ShimmerButton } from "../components/ui/shimmer-button";
+import { Meteors } from "../components/ui/meteors";
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [enviando, setEnviando] = useState(false);
   const { login } = useAuth();
   const { tema, temaEfetivo, setTema } = useTheme();
@@ -22,7 +32,7 @@ export const LoginPage: React.FC = () => {
     try {
       setEnviando(true);
       await login({ email, senha });
-      navigate('/pdv');
+      navigate("/pdv");
     } catch {
       // O toast de erro é disparado pelo AuthContext
     } finally {
@@ -36,11 +46,10 @@ export const LoginPage: React.FC = () => {
   };
 
   const alternarTema = () => {
-    if (tema === 'system') setTema('light');
-    else if (tema === 'light') setTema('dark');
-    else setTema('system');
+    if (tema === "system") setTema("light");
+    else if (tema === "light") setTema("dark");
+    else setTema("system");
   };
-
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 flex flex-col justify-center items-center px-4 relative overflow-hidden transition-colors duration-300">
@@ -51,22 +60,29 @@ export const LoginPage: React.FC = () => {
           title={`Tema: ${tema} (Efetivo: ${temaEfetivo}) - Clique para alternar`}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm backdrop-blur-md text-slate-700 dark:text-slate-200 hover:border-indigo-400 transition-all"
         >
-          {tema === 'system' && <Laptop className="w-3.5 h-3.5 text-indigo-500" />}
-          {tema === 'light' && <Sun className="w-3.5 h-3.5 text-amber-500" />}
-          {tema === 'dark' && <Moon className="w-3.5 h-3.5 text-indigo-400" />}
-          <span className="capitalize">{tema === 'system' ? 'Auto' : tema === 'light' ? 'Claro' : 'Escuro'}</span>
+          {tema === "system" && (
+            <Laptop className="w-3.5 h-3.5 text-indigo-500" />
+          )}
+          {tema === "light" && <Sun className="w-3.5 h-3.5 text-amber-500" />}
+          {tema === "dark" && <Moon className="w-3.5 h-3.5 text-indigo-400" />}
+          <span className="capitalize">
+            {tema === "system" ? "Auto" : tema === "light" ? "Claro" : "Escuro"}
+          </span>
         </button>
       </div>
 
       {/* Aceternity UI Spotlight */}
-      <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill={temaEfetivo === 'dark' ? '#6366f1' : '#818cf8'} />
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill={temaEfetivo === "dark" ? "#6366f1" : "#818cf8"}
+      />
 
       {/* Elementos visuais de fundo com glow suave */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10 py-8">
-        {/* Cabeçalho de Apresentação com Logo e Aceternity FlipWords */}
+        {/* Cabeçalho de Apresentação com Logo */}
         <div className="text-center mb-7">
           <img
             src="/logo.png"
@@ -77,7 +93,10 @@ export const LoginPage: React.FC = () => {
 
         {/* Card Principal de Login com Aceternity Meteors no Rodapé */}
         <div className="bg-white/85 dark:bg-slate-900/60 rounded-2xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-700/60 shadow-xl dark:shadow-2xl backdrop-blur-xl relative overflow-hidden transition-colors">
-          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5 relative z-10">
+          <form
+            onSubmit={handleLogin}
+            className="space-y-4 sm:space-y-5 relative z-10"
+          >
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 E-mail Corporativo
@@ -119,7 +138,7 @@ export const LoginPage: React.FC = () => {
               className="w-full h-11 sm:h-12 text-sm flex items-center justify-center gap-2 mt-2"
             >
               {enviando ? (
-                'Autenticando...'
+                "Autenticando..."
               ) : (
                 <>
                   Entrar no Sistema
@@ -134,10 +153,14 @@ export const LoginPage: React.FC = () => {
             <p className="text-center text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
               Acesso Rápido para Avaliação (Seeds)
             </p>
+
+            {/* Linha 1: Gestão (Admin, Gerente) e Vendedora 3 (Ana) */}
             <div className="grid grid-cols-3 gap-2 mb-2">
               <button
                 type="button"
-                onClick={() => preencherCredenciais('admin@omnivarejo.com.br', '123456')}
+                onClick={() =>
+                  preencherCredenciais("admin@omnivarejo.com.br", "123456")
+                }
                 className="p-2 sm:p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
               >
                 <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -146,7 +169,9 @@ export const LoginPage: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => preencherCredenciais('gerente@omnivarejo.com.br', '123456')}
+                onClick={() =>
+                  preencherCredenciais("gerente@omnivarejo.com.br", "123456")
+                }
                 className="p-2 sm:p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
               >
                 <UserCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
@@ -155,39 +180,66 @@ export const LoginPage: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => preencherCredenciais('ana.caixa@omnivarejo.com.br', '123456')}
+                onClick={() =>
+                  preencherCredenciais(
+                    "ana.caixa@omnivarejo.com.br",
+                    "123456",
+                  )
+                }
                 className="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
               >
                 <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>3. Ana (Vendedora)</span>
               </button>
             </div>
+
+            {/* Linha 2: Demais Vendedores no mesmo padrão rico com ícone e numeração */}
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => preencherCredenciais('lucas.caixa@omnivarejo.com.br', '123456')}
-                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold transition-all"
+                onClick={() =>
+                  preencherCredenciais(
+                    "lucas.caixa@omnivarejo.com.br",
+                    "123456",
+                  )
+                }
+                className="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
               >
-                Lucas (Vendedor)
+                <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>4. Lucas (Vendedor)</span>
               </button>
+
               <button
                 type="button"
-                onClick={() => preencherCredenciais('beatriz.caixa@omnivarejo.com.br', '123456')}
-                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold transition-all"
+                onClick={() =>
+                  preencherCredenciais(
+                    "beatriz.caixa@omnivarejo.com.br",
+                    "123456",
+                  )
+                }
+                className="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
               >
-                Beatriz (Vendedora)
+                <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>5. Beatriz (Vendedora)</span>
               </button>
+
               <button
                 type="button"
-                onClick={() => preencherCredenciais('carlos.caixa@omnivarejo.com.br', '123456')}
-                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-semibold transition-all"
+                onClick={() =>
+                  preencherCredenciais(
+                    "carlos.caixa@omnivarejo.com.br",
+                    "123456",
+                  )
+                }
+                className="p-2 sm:p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-200 text-xs font-bold flex flex-col items-center gap-1 transition-all"
               >
-                Carlos (Vendedor)
+                <ShoppingCart className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>6. Carlos (Vendedor)</span>
               </button>
             </div>
           </div>
 
-          {temaEfetivo === 'dark' && <Meteors number={15} />}
+          {temaEfetivo === "dark" && <Meteors number={15} />}
         </div>
 
         {/* Rodapé institucional */}

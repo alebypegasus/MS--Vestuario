@@ -15,7 +15,7 @@ app.use(express.json());
 app.use('/api', apiRoutes);
 app.use(tratarErros);
 
-const TEST_PORT = 3099;
+const TEST_PORT = Number(process.env.TEST_PORT) || 3099;
 
 async function request(
   method: string,

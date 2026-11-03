@@ -12,7 +12,7 @@ app.use(express.json());
 app.use('/api', apiRoutes);
 app.use(tratarErros);
 
-const TEST_PORT = 3098;
+const TEST_PORT = Number(process.env.TEST_PORT) || 3098;
 
 async function request(
   method: string,
@@ -60,7 +60,7 @@ async function runE2ETests() {
 
   try {
     // LIMPEZA PREVENTIVA PARA REPETIBILIDADE
-    await db.execute("DELETE FROM clientes WHERE cpf IN ('06451470287', '064.514.702-87', '75618456073')");
+    await db.execute("DELETE FROM clientes WHERE cpf IN ('06451470287', '064.514.702-87', '39053344705', '390.533.447-05')");
     await db.execute("DELETE FROM produtos WHERE codigo = 'TEST-SPRINT5-999'");
 
     // -------------------------------------------------------------
@@ -104,7 +104,7 @@ async function runE2ETests() {
     console.log('\n📌 BLOCO 2: CADASTRO DE CLIENTES & VALIDAÇÃO MÓDULO 11 (RN-01)');
 
     console.log(' [4/18] Cadastrar Cliente Real Válido no Balcão (RN-01)...');
-    const cpfValido = '06451470287'; // CPF matemático válido oficial
+    const cpfValido = '39053344705'; // CPF matemático válido oficial
     const clienteCriado = await request(
       'POST',
       '/api/clientes',

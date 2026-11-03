@@ -8,6 +8,7 @@ import { empresaApi } from '../services/api';
 import { IEmpresa } from '../types';
 import { HomologacaoModal } from './HomologacaoModal';
 import { KeyboardShortcutsModal } from './KeyboardShortcutsModal';
+import { AuditoriaFechamentosModal } from './AuditoriaFechamentosModal';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export const Navbar: React.FC = () => {
@@ -17,6 +18,7 @@ export const Navbar: React.FC = () => {
   const [menuMobileAberto, setMenuMobileAberto] = useState<boolean>(false);
   const [modalHomologacaoAberto, setModalHomologacaoAberto] = useState<boolean>(false);
   const [modalAtalhosAberto, setModalAtalhosAberto] = useState<boolean>(false);
+  const [modalAuditoriaAberto, setModalAuditoriaAberto] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -147,7 +149,24 @@ export const Navbar: React.FC = () => {
                   <MorphIcon icon={LucideIcons.BarChart3} size={16} className="text-teal-500" />
                   <span>Dashboard</span>
                 </NavLink>
-              </>
+
+            <button
+              type="button"
+              onClick={() => setModalAuditoriaAberto(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-800/60"
+              title="Auditoria e Monitoramento de Fechamentos de Caixa (Faltas/Sobras)"
+            >
+              <MorphIcon icon={LucideIcons.ShieldCheck} size={16} className="text-emerald-500" />
+              <span>Auditoria Caixas</span>
+            </button>
+                {/* Modal de Auditoria de Fechamentos de Caixa (Admin/Gerente) */}
+      {isGerenteOuAdmin && (
+        <AuditoriaFechamentosModal
+          aberto={modalAuditoriaAberto}
+          onFechar={() => setModalAuditoriaAberto(false)}
+        />
+      )}
+    </>
             )}
 
             {isAdmin && (
@@ -334,6 +353,20 @@ export const Navbar: React.FC = () => {
                 </div>
                 <span>PDV Caixa</span>
               </NavLink>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      fecharMenu();
+                      setModalAuditoriaAberto(true);
+                    }}
+                    className="flex items-center gap-2.5 p-3 rounded-xl text-xs font-bold bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-left"
+                  >
+                    <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      <MorphIcon icon={LucideIcons.ShieldCheck} size={16} />
+                    </div>
+                    <span>Auditoria Caixas</span>
+                  </button>
 
               <NavLink
                 to="/produtos"

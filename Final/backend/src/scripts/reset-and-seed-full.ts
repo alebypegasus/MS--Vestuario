@@ -161,6 +161,7 @@ export async function resetAndSeedDatabase() {
         desconto REAL NOT NULL DEFAULT 0.00,
         valor_total REAL NOT NULL DEFAULT 0.00,
         forma_pagamento TEXT NOT NULL CHECK(forma_pagamento IN ('DINHEIRO', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'PIX')),
+        detalhes_pagamento TEXT,
         status TEXT NOT NULL CHECK(status IN ('CONCLUIDA', 'CANCELADA')) DEFAULT 'CONCLUIDA',
         motivo_cancelamento TEXT,
         criado_em TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
@@ -298,6 +299,7 @@ export async function resetAndSeedDatabase() {
         desconto DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
         valor_total DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
         forma_pagamento ENUM('DINHEIRO', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'PIX') NOT NULL,
+        detalhes_pagamento TEXT NULL,
         status ENUM('CONCLUIDA', 'CANCELADA') NOT NULL DEFAULT 'CONCLUIDA',
         motivo_cancelamento TEXT NULL,
         criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1068,6 +1070,13 @@ export async function resetAndSeedDatabase() {
     'Evelyn Padilha Muniz', 'Henrique Beltrão Fogaça', 'Jéssica Trindade Bueno'
   ];
 
+  function formatarDataSql(diasAtras: number, hora = 12, min = 0): string {
+    const d = new Date();
+    d.setDate(d.getDate() - diasAtras);
+    d.setHours(hora, min, 0, 0);
+    return d.toISOString().slice(0, 19).replace('T', ' ');
+  }
+
   const clientesIds: number[] = [];
   for (let i = 0; i < nomesClientes.length; i++) {
     const nome = nomesClientes[i];
@@ -1078,10 +1087,11 @@ export async function resetAndSeedDatabase() {
     const email = `${primeiroNome}.${sobrenome}${i + 1}@gmail.com`;
     const ddd = [21, 11, 31, 41, 71, 19, 85][i % 7];
     const telefone = `(${ddd}) 9${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const dataCriacao = formatarDataSql((nomesClientes.length - i) * 2, 10, i % 60);
 
     const [res]: any = await db.execute(
-      `INSERT INTO clientes (nome, cpf, telefone, email, criado_em) VALUES (?, ?, ?, ?, datetime('now', '-${(nomesClientes.length - i) * 2} days'))`,
-      [nome, cpf, telefone, email]
+      `INSERT INTO clientes (nome, cpf, telefone, email, criado_em) VALUES (?, ?, ?, ?, ?)`,
+      [nome, cpf, telefone, email, dataCriacao]
     );
 
     const insertedId = res?.insertId || (i + 1);
@@ -1108,13 +1118,11 @@ export async function resetAndSeedDatabase() {
     const comCliente = v % 3 !== 0;
     const clienteId = comCliente ? clientesIds[v % clientesIds.length] : null;
 
-    // Data retroativa nos últimos 30 dias
+    // Data retroativa nos últimos 30 dias com hora realista
     const diasAtras = Math.floor((totalVendasMeta - v) / 3.8);
     const hora = 9 + (v % 12);
     const minuto = (v * 7) % 60;
-    const criadoEmStr = isSqlite
-      ? `datetime('now', '-${diasAtras} days', '+${hora} hours', '+${minuto} minutes')`
-      : `DATE_SUB(NOW(), INTERVAL ${diasAtras} DAY)`;
+    const dataVenda = formatarDataSql(diasAtras, hora, minuto);
 
     // Escolhe de 1 a 4 produtos aleatórios para a venda
     const qtdItens = 1 + (v % 3);
@@ -1170,9 +1178,9 @@ export async function resetAndSeedDatabase() {
     const [resVenda]: any = await db.execute(
       `INSERT INTO vendas (
         usuario_id, cliente_id, gerente_aprovador_id, subtotal, desconto, valor_total,
-        forma_pagamento, status, motivo_cancelamento, criado_em
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ${criadoEmStr})`,
-      [operadorId, clienteId, gerenteAprovadorId, subtotalVenda, desconto, valorTotal, formaPagto, statusVenda, motivoCancelamento]
+        forma_pagamento, detalhes_pagamento, status, motivo_cancelamento, criado_em
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)`,
+      [operadorId, clienteId, gerenteAprovadorId, subtotalVenda, desconto, valorTotal, formaPagto, statusVenda, motivoCancelamento, dataVenda]
     );
 
     const vendaId = resVenda?.insertId || v;

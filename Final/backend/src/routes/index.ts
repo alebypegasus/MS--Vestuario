@@ -7,6 +7,7 @@ import usuarioRoutes from './usuario.routes';
 import empresaRoutes from './empresa.routes';
 import agendaRoutes from './agenda.routes';
 import categoriaRoutes from './categoria.routes';
+import caixaRoutes from './caixa.routes';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/vendas', vendaRoutes);
 router.use('/usuarios', usuarioRoutes);
 router.use('/empresa', empresaRoutes);
 router.use('/agenda', agendaRoutes);
+router.use('/caixa', caixaRoutes);
 
 export default router;

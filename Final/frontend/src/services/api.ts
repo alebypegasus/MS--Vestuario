@@ -231,3 +231,30 @@ export const categoriasApi = {
       method: 'DELETE',
     }),
 };
+
+
+// 8. Serviços de Fechamento e Auditoria de Caixa
+export const caixaApi = {
+  obterResumoTurno: () => request<import('../types').IResumoTurnoCaixa>('/caixa/resumo'),
+  fecharCaixa: (dados: import('../types').IFechamentoCriacaoDTO) =>
+    request<{ mensagem: string; fechamento: import('../types').IFechamentoCaixa }>('/caixa/fechar', {
+      method: 'POST',
+      body: JSON.stringify(dados),
+    }),
+  listarFechamentos: (filtros?: { status?: string; usuario_id?: number; data_inicio?: string; data_fim?: string }) => {
+    const params = new URLSearchParams();
+    if (filtros?.status) params.append('status', filtros.status);
+    if (filtros?.usuario_id) params.append('usuario_id', String(filtros.usuario_id));
+    if (filtros?.data_inicio) params.append('data_inicio', filtros.data_inicio);
+    if (filtros?.data_fim) params.append('data_fim', filtros.data_fim);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return request<import('../types').IFechamentosResposta>(`/caixa/fechamentos${qs}`);
+  },
+  obterFechamentoPorId: (id: number) =>
+    request<import('../types').IFechamentoCaixa>(`/caixa/fechamentos/${id}`),
+  auditarFechamento: (id: number, parecer: string) =>
+    request<{ mensagem: string; fechamento: import('../types').IFechamentoCaixa }>(`/caixa/fechamentos/${id}/auditar`, {
+      method: 'POST',
+      body: JSON.stringify({ gerente_parecer: parecer }),
+    }),
+};

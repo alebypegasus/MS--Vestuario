@@ -36,9 +36,14 @@ import { ManagerApprovalModal } from '../components/ManagerApprovalModal';
 import { ReceiptModal } from '../components/ReceiptModal';
 import { QuickClienteModal } from '../components/QuickClienteModal';
 import { SearchClienteModal } from '../components/SearchClienteModal';
+import { FechamentoCaixaModal } from '../components/FechamentoCaixaModal';
+import { AuditoriaFechamentosModal } from '../components/AuditoriaFechamentosModal';
+import { Wallet, ShieldCheck as ShieldCheckIcon } from 'lucide-react';
 
 export const PdvPage: React.FC = () => {
-  const { usuario } = useAuth();
+  const { usuario, isCaixa } = useAuth();
+  const [modalFechamentoAberto, setModalFechamentoAberto] = useState<boolean>(false);
+  const [modalAuditoriaAberto, setModalAuditoriaAberto] = useState<boolean>(false);
   const { adicionarToast } = useToast();
 
   // Estados dos Produtos e Filtros
@@ -673,6 +678,30 @@ export const PdvPage: React.FC = () => {
             <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
               {formatarMoeda(valorTotalLiquido)}
             </span>
+          </div>
+
+          <div className="mt-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+            {isCaixa ? (
+              <button
+                type="button"
+                onClick={() => setModalFechamentoAberto(true)}
+                className="w-full py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
+                title="Fechar seu turno de caixa com contagem física de gaveta"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                <span>Fechar Caixa (Turno)</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setModalAuditoriaAberto(true)}
+                className="w-full py-2 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
+                title="Acompanhar e auditar fechamentos de caixa de todos os vendedores"
+              >
+                <ShieldCheckIcon className="w-3.5 h-3.5" />
+                <span>Auditoria de Caixas</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1587,6 +1616,19 @@ export const PdvPage: React.FC = () => {
         clienteSelecionado={clienteSelecionado}
         aoSelecionarCliente={(c) => setClienteSelecionado(c)}
         aoAbrirNovoCliente={() => setModalNovoClienteAberto(true)}
+      />
+
+      {/* Modal de Fechamento de Caixa do Vendedor */}
+      <FechamentoCaixaModal
+        aberto={modalFechamentoAberto}
+        onFechar={() => setModalFechamentoAberto(false)}
+        onAbrirAuditoria={() => setModalAuditoriaAberto(true)}
+      />
+
+      {/* Modal de Auditoria de Fechamentos de Caixa (Gerente e Admin) */}
+      <AuditoriaFechamentosModal
+        aberto={modalAuditoriaAberto}
+        onFechar={() => setModalAuditoriaAberto(false)}
       />
     </div>
   );
