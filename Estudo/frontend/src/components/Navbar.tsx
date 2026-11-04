@@ -159,14 +159,7 @@ export const Navbar: React.FC = () => {
               <MorphIcon icon={LucideIcons.ShieldCheck} size={16} className="text-emerald-500" />
               <span>Auditoria Caixas</span>
             </button>
-                {/* Modal de Auditoria de Fechamentos de Caixa (Admin/Gerente) */}
-      {isGerenteOuAdmin && (
-        <AuditoriaFechamentosModal
-          aberto={modalAuditoriaAberto}
-          onFechar={() => setModalAuditoriaAberto(false)}
-        />
-      )}
-    </>
+              </>
             )}
 
             {isAdmin && (
@@ -568,6 +561,12 @@ export const Navbar: React.FC = () => {
       <KeyboardShortcutsModal
         aberto={modalAtalhosAberto}
         onFechar={() => setModalAtalhosAberto(false)}
+      />
+
+      {/* Modal de Auditoria de Fechamentos de Caixa Global */}
+      <AuditoriaFechamentosModal
+        aberto={modalAuditoriaAberto}
+        onFechar={() => setModalAuditoriaAberto(false)}
       />
     </>
   );

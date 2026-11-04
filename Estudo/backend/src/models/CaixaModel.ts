@@ -96,7 +96,7 @@ export class CaixaModel {
 
     // Consulta de vendas ativas (status = 'CONCLUIDA') do operador desde o último fechamento ou do dia de hoje
     let queryVendas = `
-      SELECT forma_pagamento, valor_final, criado_em
+      SELECT forma_pagamento, valor_total, criado_em
       FROM vendas
       WHERE usuario_id = ? AND status = 'CONCLUIDA'
     `;
@@ -107,7 +107,10 @@ export class CaixaModel {
       params.push(ultimoFechamentoData);
     } else {
       // Se nunca fechou, pega as do dia corrente
-      queryVendas += ` AND DATE(criado_em) = DATE('now', 'localtime')`;
+      const hoje = new Date();
+      const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+      queryVendas += ` AND DATE(criado_em) = ?`;
+      params.push(hojeStr);
     }
 
     const [vendas]: any = await db.execute(queryVendas, params);
@@ -119,7 +122,7 @@ export class CaixaModel {
     let totalCartaoDebito = 0;
 
     for (const v of lista) {
-      const valor = Number(v.valor_final) || 0;
+      const valor = Number(v.valor_total) || 0;
       const forma = String(v.forma_pagamento).toUpperCase();
       if (forma === 'DINHEIRO') totalDinheiro += valor;
       else if (forma === 'PIX') totalPix += valor;

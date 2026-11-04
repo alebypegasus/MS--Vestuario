@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Receipt,
   Search,
@@ -17,6 +17,11 @@ import {
   ChevronDown,
   QrCode,
   RotateCcw,
+  Calendar,
+  Clock,
+  User,
+  Users,
+  Filter,
 } from 'lucide-react';
 import { IVendaCompleta, IEmpresa } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -35,9 +40,58 @@ import {
   exportarParaJSON,
 } from '../utils/exportUtils';
 
+export type TipoFiltroPeriodo =
+  | 'HOJE'
+  | 'ONTEM'
+  | '7_DIAS'
+  | 'MES_ATUAL'
+  | 'MES_ANTERIOR'
+  | 'TODAS'
+  | 'PERSONALIZADO';
+
+// Helpers de datas locais
+const obterHojeYMD = (): string => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dia}`;
+};
+
+const obterOntemYMD = (): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dia}`;
+};
+
+const obterYMDDeDataStr = (dataStr?: string | Date): string => {
+  if (!dataStr) return '';
+  const str = String(dataStr).trim();
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dia}`;
+};
+
+const formatarDataDMA = (ymd: string): string => {
+  if (!ymd) return '';
+  const partes = ymd.split('-');
+  if (partes.length === 3) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+  return ymd;
+};
+
 export const VendasPage: React.FC = () => {
   const { adicionarToast } = useToast();
-  const { isGerenteOuAdmin } = useAuth();
+  const { usuario, isGerenteOuAdmin, isCaixa } = useAuth();
 
   const [vendas, setVendas] = useState<IVendaCompleta[]>([]);
   const [empresa, setEmpresa] = useState<IEmpresa | null>(null);
@@ -45,6 +99,47 @@ export const VendasPage: React.FC = () => {
   const [filtroStatus, setFiltroStatus] = useState<string>('TODAS');
   const [busca, setBusca] = useState<string>('');
   const [menuExportarAberto, setMenuExportarAberto] = useState<boolean>(false);
+
+  // Filtro de Período: Vendedor vê 'HOJE' por padrão; Administrador e Gerente veem 'TODAS'
+  const [filtroPeriodo, setFiltroPeriodo] = useState<TipoFiltroPeriodo>(() => {
+    try {
+      const stored = localStorage.getItem('usuario');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.cargo === 'CAIXA') return 'HOJE';
+      }
+    } catch {}
+    return 'TODAS';
+  });
+
+  // Filtro de Operador (Vendedor): Vendedor vê o seu próprio ID por padrão; Gerente/Admin vê 'TODOS'
+  const [filtroOperador, setFiltroOperador] = useState<number | 'TODOS'>(() => {
+    try {
+      const stored = localStorage.getItem('usuario');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.cargo === 'CAIXA') return u.id;
+      }
+    } catch {}
+    return 'TODOS';
+  });
+
+  // Datas para filtro personalizado
+  const [dataInicioPersonalizada, setDataInicioPersonalizada] = useState<string>('');
+  const [dataFimPersonalizada, setDataFimPersonalizada] = useState<string>('');
+
+  // Sincroniza filtros padrão quando o usuário é carregado
+  useEffect(() => {
+    if (usuario) {
+      if (usuario.cargo === 'CAIXA') {
+        setFiltroPeriodo('HOJE');
+        setFiltroOperador(usuario.id);
+      } else {
+        setFiltroPeriodo('TODAS');
+        setFiltroOperador('TODOS');
+      }
+    }
+  }, [usuario?.id, usuario?.cargo]);
 
   // Modais
   const [vendaSelecionada, setVendaSelecionada] = useState<IVendaCompleta | null>(null);
@@ -124,27 +219,120 @@ export const VendasPage: React.FC = () => {
     }
   };
 
-  const vendasFiltradas = vendas.filter((v) => {
-    const matchStatus = filtroStatus === 'TODAS' || v.status === filtroStatus;
-    const termo = busca.toLowerCase();
-    const matchBusca =
-      !busca ||
-      String(v.id).includes(termo) ||
-      (v.operador_nome && v.operador_nome.toLowerCase().includes(termo)) ||
-      (v.cliente_nome && v.cliente_nome.toLowerCase().includes(termo)) ||
-      (v.cliente_cpf && v.cliente_cpf.includes(termo));
-    return matchStatus && matchBusca;
-  });
+  // Referências de datas para filtragem
+  const hojeYMD = obterHojeYMD();
+  const ontemYMD = obterOntemYMD();
+  const anoMesAtual = hojeYMD.slice(0, 7);
 
-  // Métricas para o Bento Grid
-  const totalVendas = vendas.length;
-  const vendasConcluidas = vendas.filter((v) => v.status === 'CONCLUIDA');
-  const vendasCanceladas = vendas.filter((v) => v.status === 'CANCELADA');
+  const data7DiasAtras = new Date();
+  data7DiasAtras.setDate(data7DiasAtras.getDate() - 6);
+  const seteDiasAtrasYMD = obterYMDDeDataStr(data7DiasAtras);
+
+  const dataMesAnt = new Date();
+  dataMesAnt.setDate(1);
+  dataMesAnt.setMonth(dataMesAnt.getMonth() - 1);
+  const anoMesAnterior = `${dataMesAnt.getFullYear()}-${String(dataMesAnt.getMonth() + 1).padStart(2, '0')}`;
+
+  // 1. Filtragem por Período e Operador
+  const vendasNoPeriodo = useMemo(() => {
+    return vendas.filter((v) => {
+      // Filtro de Operador
+      if (filtroOperador !== 'TODOS' && v.usuario_id !== filtroOperador) {
+        return false;
+      }
+
+      // Filtro de Período
+      const ymd = obterYMDDeDataStr(v.criado_em);
+      if (!ymd) return filtroPeriodo === 'TODAS';
+
+      switch (filtroPeriodo) {
+        case 'HOJE':
+          return ymd === hojeYMD;
+        case 'ONTEM':
+          return ymd === ontemYMD;
+        case '7_DIAS':
+          return ymd >= seteDiasAtrasYMD && ymd <= hojeYMD;
+        case 'MES_ATUAL':
+          return ymd.startsWith(anoMesAtual);
+        case 'MES_ANTERIOR':
+          return ymd.startsWith(anoMesAnterior);
+        case 'PERSONALIZADO':
+          if (dataInicioPersonalizada && ymd < dataInicioPersonalizada) return false;
+          if (dataFimPersonalizada && ymd > dataFimPersonalizada) return false;
+          return true;
+        case 'TODAS':
+        default:
+          return true;
+      }
+    });
+  }, [
+    vendas,
+    filtroOperador,
+    filtroPeriodo,
+    hojeYMD,
+    ontemYMD,
+    anoMesAtual,
+    anoMesAnterior,
+    seteDiasAtrasYMD,
+    dataInicioPersonalizada,
+    dataFimPersonalizada,
+  ]);
+
+  // 2. Filtragem por Status e Termo de Busca
+  const vendasFiltradas = useMemo(() => {
+    return vendasNoPeriodo.filter((v) => {
+      const matchStatus = filtroStatus === 'TODAS' || v.status === filtroStatus;
+      const termo = busca.toLowerCase();
+      const matchBusca =
+        !busca ||
+        String(v.id).includes(termo) ||
+        (v.operador_nome && v.operador_nome.toLowerCase().includes(termo)) ||
+        (v.cliente_nome && v.cliente_nome.toLowerCase().includes(termo)) ||
+        (v.cliente_cpf && v.cliente_cpf.includes(termo));
+      return matchStatus && matchBusca;
+    });
+  }, [vendasNoPeriodo, filtroStatus, busca]);
+
+  // Extrair lista de operadores disponíveis
+  const operadoresDisponiveis = useMemo(() => {
+    const map = new Map<number, string>();
+    vendas.forEach((v) => {
+      if (v.usuario_id && v.operador_nome) {
+        map.set(v.usuario_id, v.operador_nome);
+      }
+    });
+    return Array.from(map.entries()).map(([id, nome]) => ({ id, nome }));
+  }, [vendas]);
+
+  // Métricas do Período Selecionado
+  const totalVendasPeriodo = vendasNoPeriodo.length;
+  const vendasConcluidas = vendasNoPeriodo.filter((v) => v.status === 'CONCLUIDA');
+  const vendasCanceladas = vendasNoPeriodo.filter((v) => v.status === 'CANCELADA');
   const faturamentoTotal = vendasConcluidas.reduce((acc, v) => acc + Number(v.valor_total || 0), 0);
   const totalDescontos = vendasConcluidas.reduce((acc, v) => acc + Number(v.desconto || 0), 0);
   const alcadasAcionadas = vendasConcluidas.filter(
     (v) => Number(v.desconto || 0) > 0 && v.gerente_aprovador_nome
   ).length;
+
+  const getDescricaoPeriodo = () => {
+    switch (filtroPeriodo) {
+      case 'HOJE':
+        return `Vendas de Hoje (${formatarDataDMA(hojeYMD)})`;
+      case 'ONTEM':
+        return `Vendas de Ontem (${formatarDataDMA(ontemYMD)})`;
+      case '7_DIAS':
+        return 'Últimos 7 dias';
+      case 'MES_ATUAL':
+        return 'Vendas deste Mês';
+      case 'MES_ANTERIOR':
+        return 'Vendas do Mês Anterior';
+      case 'PERSONALIZADO':
+        return `Período Personalizado (${dataInicioPersonalizada || 'Início'} a ${dataFimPersonalizada || 'Fim'})`;
+      case 'TODAS':
+      default:
+        return 'Histórico Completo (Todas as Datas)';
+    }
+  };
 
   // Handlers de Exportação
   const obterLinhasExportacao = () => {
@@ -206,7 +394,7 @@ export const VendasPage: React.FC = () => {
     ];
     exportarRelatorioPDF({
       titulo: 'Relatório de Auditoria de Vendas & PDV',
-      subtitulo: `Filtro aplicado: ${filtroStatus} • Período Atual • Sistema Homologado`,
+      subtitulo: `Filtro aplicado: ${filtroStatus} • ${getDescricaoPeriodo()} • Sistema Homologado`,
       colunas: colunasExportacao.slice(0, 9),
       linhas: linhas.map((l) => l.slice(0, 9)),
       totais,
@@ -220,6 +408,7 @@ export const VendasPage: React.FC = () => {
     exportarParaJSON('auditoria_fiscal_vendas', {
       empresa,
       data_extracao: new Date().toISOString(),
+      periodo: getDescricaoPeriodo(),
       total_registros: vendasFiltradas.length,
       faturamento_total: faturamentoTotal,
       vendas: vendasFiltradas,
@@ -240,7 +429,7 @@ export const VendasPage: React.FC = () => {
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>Histórico & Auditoria de Vendas</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
-                  {vendas.length} Registros
+                  {vendasFiltradas.length} de {vendas.length} Registros
                 </span>
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -320,13 +509,84 @@ export const VendasPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bento Grid: Cards de Métricas em Tela Inteira */}
+      {/* Banner de Contexto de Período & Perfil */}
+      {isCaixa && filtroPeriodo === 'HOJE' ? (
+        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-center gap-2.5 text-amber-900 dark:text-amber-200">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-extrabold block">Visualizando Vendas do Dia ({formatarDataDMA(hojeYMD)})</span>
+              <span className="text-[11px] text-amber-700 dark:text-amber-300">
+                Padrão do vendedor ativo. Você pode consultar vendas de outros dias ou meses pelos botões de período abaixo.
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            <button
+              onClick={() => setFiltroPeriodo('MES_ATUAL')}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-800 dark:text-amber-200 font-bold text-xs transition"
+            >
+              Consultar Este Mês &rarr;
+            </button>
+            <button
+              onClick={() => setFiltroPeriodo('TODAS')}
+              className="px-3 py-1.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition"
+            >
+              Ver Tudo
+            </button>
+          </div>
+        </div>
+      ) : isGerenteOuAdmin ? (
+        <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs shadow-xs">
+          <div className="flex items-center gap-2.5 text-purple-900 dark:text-purple-200">
+            <div className="w-7 h-7 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-bold">
+                Visão de Gestão ({isGerenteOuAdmin ? 'Admin/Gerente' : 'Supervisão'}): {getDescricaoPeriodo()}
+              </span>
+              <span className="text-[11px] text-purple-700 dark:text-purple-300 block">
+                Acesso irrestrito a todas as vendas, operadores e períodos com rastreabilidade fiscal.
+              </span>
+            </div>
+          </div>
+          {filtroPeriodo !== 'TODAS' && (
+            <button
+              onClick={() => {
+                setFiltroPeriodo('TODAS');
+                setFiltroOperador('TODOS');
+              }}
+              className="text-[11px] font-bold text-purple-600 dark:text-purple-400 hover:underline shrink-0"
+            >
+              Limpar Filtros e Ver Tudo &rarr;
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs shadow-xs">
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+            <Calendar className="w-4 h-4 text-amber-500" />
+            <span>Consultando período: <strong>{getDescricaoPeriodo()}</strong></span>
+          </div>
+          <button
+            onClick={() => setFiltroPeriodo('HOJE')}
+            className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
+          >
+            Voltar para Vendas de Hoje &rarr;
+          </button>
+        </div>
+      )}
+
+      {/* Bento Grid: Cards de Métricas do Período Selecionado */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Bento 1: Faturamento Líquido */}
         <div className="glass-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:border-emerald-500/40 transition-all">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Faturamento Concluído
+              Faturamento Líquido
             </span>
             <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
@@ -337,7 +597,7 @@ export const VendasPage: React.FC = () => {
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{vendasConcluidas.length} vendas liquidadas com sucesso</span>
+            <span>{vendasConcluidas.length} vendas liquidadas no período</span>
           </div>
         </div>
 
@@ -352,10 +612,10 @@ export const VendasPage: React.FC = () => {
             </div>
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-            {totalVendas}
+            {totalVendasPeriodo}
           </div>
           <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-            {vendasConcluidas.length} concluídas • {vendasCanceladas.length} canceladas
+            {vendasConcluidas.length} concluídas &bull; {vendasCanceladas.length} canceladas
           </div>
         </div>
 
@@ -373,7 +633,7 @@ export const VendasPage: React.FC = () => {
             {vendasCanceladas.length}
           </div>
           <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-            {totalVendas > 0 ? ((vendasCanceladas.length / totalVendas) * 100).toFixed(1) : 0}% de cancelamentos com alçada
+            {totalVendasPeriodo > 0 ? ((vendasCanceladas.length / totalVendasPeriodo) * 100).toFixed(1) : 0}% no período selecionado
           </div>
         </div>
 
@@ -396,37 +656,224 @@ export const VendasPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bento Grid: Barra de Filtros e Busca de Tela Inteira */}
-      <div className="glass-card rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="relative w-full md:w-96">
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por ID, operador, cliente ou CPF..."
-            className="w-full px-3.5 py-2 pl-9 rounded-xl glass-input text-xs placeholder-slate-400 dark:placeholder-slate-500"
-          />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-        </div>
-
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 w-full md:w-auto overflow-x-auto justify-start md:justify-end">
-          {['TODAS', 'CONCLUIDA', 'CANCELADA'].map((st) => (
+      {/* Painel Unificado de Filtros Avançados: Período, Operador, Status e Busca */}
+      <div className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3.5">
+        
+        {/* Linha 1: Seletor de Períodos (Hoje, Ontem, Semana, Mês, Tudo, Personalizado) */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 overflow-x-auto">
             <button
-              key={st}
-              onClick={() => setFiltroStatus(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all btn-interactive ${
-                filtroStatus === st
+              onClick={() => setFiltroPeriodo('HOJE')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === 'HOJE'
+                  ? 'bg-amber-500 text-slate-950 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>Hoje</span>
+              {isCaixa && (
+                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-slate-950/20 text-slate-950 font-black uppercase">
+                  Padrão
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setFiltroPeriodo('ONTEM')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === 'ONTEM'
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              {st === 'TODAS'
-                ? `Todas (${vendas.length})`
-                : st === 'CONCLUIDA'
-                ? `Concluídas (${vendasConcluidas.length})`
-                : `Canceladas (${vendasCanceladas.length})`}
+              Ontem
             </button>
-          ))}
+
+            <button
+              onClick={() => setFiltroPeriodo('7_DIAS')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === '7_DIAS'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Últimos 7 dias
+            </button>
+
+            <button
+              onClick={() => setFiltroPeriodo('MES_ATUAL')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === 'MES_ATUAL'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Este Mês
+            </button>
+
+            <button
+              onClick={() => setFiltroPeriodo('MES_ANTERIOR')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === 'MES_ANTERIOR'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Mês Anterior
+            </button>
+
+            <button
+              onClick={() => setFiltroPeriodo('TODAS')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === 'TODAS'
+                  ? 'bg-amber-500 text-slate-950 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <span>Histórico Completo</span>
+              {isGerenteOuAdmin && (
+                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-purple-600 text-white font-black uppercase">
+                  Tudo
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setFiltroPeriodo('PERSONALIZADO')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap btn-interactive ${
+                filtroPeriodo === 'PERSONALIZADO'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Personalizado</span>
+            </button>
+          </div>
+
+          {/* Filtro de Operador (Vendedor) */}
+          <div className="flex items-center gap-2 self-start lg:self-auto">
+            {isCaixa ? (
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <button
+                  onClick={() => setFiltroOperador(usuario!.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    filtroOperador === usuario?.id
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Exibir apenas as vendas registradas por você"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Minhas Vendas ({usuario?.nome?.split(' ')[0]})</span>
+                </button>
+                <button
+                  onClick={() => setFiltroOperador('TODOS')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    filtroOperador === 'TODOS'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Exibir vendas de todos os caixas da equipe"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Toda a Loja</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5" />
+                  <span>Vendedor:</span>
+                </span>
+                <select
+                  value={filtroOperador}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFiltroOperador(val === 'TODOS' ? 'TODOS' : Number(val));
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 shadow-xs focus:ring-2 focus:ring-amber-500/30"
+                >
+                  <option value="TODOS">Todos os Vendedores ({operadoresDisponiveis.length})</option>
+                  {operadoresDisponiveis.map((op) => (
+                    <option key={op.id} value={op.id}>
+                      {op.nome} (Operador #{op.id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Inputs de Data do Período Personalizado */}
+        {filtroPeriodo === 'PERSONALIZADO' && (
+          <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Data Inicial:</span>
+              <input
+                type="date"
+                value={dataInicioPersonalizada}
+                onChange={(e) => setDataInicioPersonalizada(e.target.value)}
+                className="px-2.5 py-1.5 rounded-lg text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono text-slate-800 dark:text-slate-200"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Data Final:</span>
+              <input
+                type="date"
+                value={dataFimPersonalizada}
+                onChange={(e) => setDataFimPersonalizada(e.target.value)}
+                className="px-2.5 py-1.5 rounded-lg text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono text-slate-800 dark:text-slate-200"
+              />
+            </div>
+            {(dataInicioPersonalizada || dataFimPersonalizada) && (
+              <button
+                onClick={() => {
+                  setDataInicioPersonalizada('');
+                  setDataFimPersonalizada('');
+                }}
+                className="text-xs font-bold text-rose-500 hover:underline ml-1"
+              >
+                Limpar Datas
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Linha 2: Busca por Texto e Filtros de Status */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+          <div className="relative w-full md:w-96">
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por ID, operador, cliente ou CPF..."
+              className="w-full px-3.5 py-2 pl-9 rounded-xl glass-input text-xs placeholder-slate-400 dark:placeholder-slate-500"
+            />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+          </div>
+
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 w-full md:w-auto overflow-x-auto justify-start md:justify-end">
+            {['TODAS', 'CONCLUIDA', 'CANCELADA'].map((st) => (
+              <button
+                key={st}
+                onClick={() => setFiltroStatus(st)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all btn-interactive ${
+                  filtroStatus === st
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {st === 'TODAS'
+                  ? `Todas (${vendasNoPeriodo.length})`
+                  : st === 'CONCLUIDA'
+                  ? `Concluídas (${vendasConcluidas.length})`
+                  : `Canceladas (${vendasCanceladas.length})`}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -458,7 +905,17 @@ export const VendasPage: React.FC = () => {
               ) : vendasFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="py-16 text-center text-slate-500">
-                    Nenhuma venda encontrada com os filtros aplicados.
+                    <div className="max-w-md mx-auto space-y-2">
+                      <Receipt className="w-8 h-8 text-slate-400 mx-auto opacity-50" />
+                      <p className="font-bold text-slate-700 dark:text-slate-300">
+                        Nenhuma venda encontrada para o período selecionado ({getDescricaoPeriodo()}).
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {isCaixa
+                          ? 'Se você realizou vendas em outros dias, selecione "Este Mês" ou "Histórico Completo" acima.'
+                          : 'Ajuste os filtros de data, vendedor ou busca para localizar registros.'}
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -499,33 +956,30 @@ export const VendasPage: React.FC = () => {
                               className="block text-[9px] text-amber-600 dark:text-amber-400 font-bold"
                               title={`Aprovado por ${v.gerente_aprovador_nome}`}
                             >
-                              ★ Alçada Alçada Gerencial
+                              Alçada: {v.gerente_aprovador_nome}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-slate-400">-</span>
+                        <span className="text-slate-400 font-mono">-</span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-right font-black text-emerald-600 dark:text-emerald-400 text-sm font-mono">
+                    <td className="py-3.5 px-4 text-right font-black font-mono text-emerald-600 dark:text-emerald-400">
                       {formatarMoeda(Number(v.valor_total))}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 uppercase">
                         {v.forma_pagamento}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       {v.status === 'CONCLUIDA' ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Concluída
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80">
+                          <CheckCircle2 className="w-3 h-3" /> Concluída
                         </span>
                       ) : (
-                        <span
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-500 dark:text-rose-400"
-                          title={v.motivo_cancelamento || ''}
-                        >
-                          <XCircle className="w-3.5 h-3.5" /> Cancelada
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800/80">
+                          <XCircle className="w-3 h-3" /> Cancelada
                         </span>
                       )}
                     </td>
@@ -533,37 +987,36 @@ export const VendasPage: React.FC = () => {
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => abrirDetalhes(v)}
-                          title="Visualizar Comprovante & Itens Históricos"
-                          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors btn-interactive"
+                          title="Visualizar Comprovante / Espelho da Venda"
+                          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                         </button>
                         {v.status === 'CONCLUIDA' && (
                           <button
                             onClick={() => abrirNfce(v)}
-                            title="DANFE NFC-e / SAT (Modelo 65 - SEFAZ)"
-                            className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 transition-colors btn-interactive"
+                            title="Gerar / Consultar DANFE NFC-e Fiscal (SAT)"
+                            className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 transition-colors"
                           >
-                            <QrCode className="w-3.5 h-3.5" />
+                            <QrCode className="w-4 h-4" />
                           </button>
                         )}
                         {v.status === 'CONCLUIDA' && (
                           <button
                             onClick={() => abrirCancelar(v)}
-                            title="Cancelar Venda com Alçada (Estorno de Venda)"
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-slate-700/60 hover:border-rose-400 dark:hover:border-rose-500/40 transition-colors btn-interactive"
+                            title="Cancelar Venda (Exige Senha de Gerente - Estorno Auditado)"
+                            className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 transition-colors"
                           >
-                            <AlertOctagon className="w-3.5 h-3.5" />
+                            <AlertOctagon className="w-4 h-4" />
                           </button>
                         )}
                         {v.status === 'CANCELADA' && isGerenteOuAdmin && (
                           <button
                             onClick={() => handleDesfazerCancelamento(v)}
-                            title="Desfazer Cancelamento (Reativar Pedido)"
-                            className="px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1 transition-colors btn-interactive"
+                            title="Desfazer Cancelamento (Reativar Pedido Concluído)"
+                            className="p-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 transition-colors"
                           >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                            <span>Desfazer</span>
+                            <RotateCcw className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -576,21 +1029,22 @@ export const VendasPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Visualização em Cards para Mobile e Tablet (< lg) */}
-      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+      {/* Cards de Vendas Mobile / Tablet (< lg) */}
+      <div className="lg:hidden space-y-3">
         {carregando ? (
-          <div className="col-span-full py-16 text-center text-slate-400">Carregando histórico de vendas...</div>
+          <div className="p-8 text-center text-xs text-slate-500">
+            Carregando histórico de vendas...
+          </div>
         ) : vendasFiltradas.length === 0 ? (
-          <div className="col-span-full py-16 text-center text-slate-500">Nenhuma venda localizada.</div>
+          <div className="glass-card rounded-2xl p-6 text-center text-xs text-slate-500">
+            Nenhuma venda encontrada para o período selecionado ({getDescricaoPeriodo()}).
+          </div>
         ) : (
           vendasFiltradas.map((v) => (
-            <div
-              key={v.id}
-              className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-3"
-            >
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+            <div key={v.id} className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80">
                 <span className="font-mono font-bold text-xs text-slate-800 dark:text-slate-200">
-                  Venda #{String(v.id).padStart(5, '0')}
+                  #{String(v.id).padStart(5, '0')}
                 </span>
                 {v.status === 'CONCLUIDA' ? (
                   <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
@@ -663,7 +1117,7 @@ export const VendasPage: React.FC = () => {
                       className="p-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Desfazer Cancelamento</span>
+                      <span>Reativar</span>
                     </button>
                   )}
                 </div>

@@ -19,6 +19,7 @@ import { formatarMoeda, formatarDataHora } from '../utils/formatters';
 import { formatarCPF } from '../utils/cpf.validator';
 import { exportarParaCSV, exportarParaExcel, exportarRelatorioPDF } from '../utils/exportUtils';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 import { usuariosApi, vendasApi } from '../services/api';
 
 interface RelatorioVendedoresModalProps {
@@ -65,17 +66,39 @@ export const RelatorioVendedoresModal: React.FC<RelatorioVendedoresModalProps> =
     }
   }, [modalAberto, usuariosProp, vendasProp]);
 
-  const [vendedorSelecionadoId, setVendedorSelecionadoId] = useState<number | 'TODOS'>(
-    vendedorIdInicial || 'TODOS'
-  );
+    const { usuario } = useAuth();
+
+  const [vendedorSelecionadoId, setVendedorSelecionadoId] = useState<number | 'TODOS'>(() => {
+    if (vendedorIdInicial !== undefined && vendedorIdInicial !== null) return vendedorIdInicial;
+    try {
+      const stored = localStorage.getItem('usuario');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.cargo === 'CAIXA') return u.id;
+      }
+    } catch {}
+    return 'TODOS';
+  });
+
+  const [filtroPeriodo, setFiltroPeriodo] = useState<'HOJE' | 'SEMANA' | 'MES' | 'TODOS'>(() => {
+    try {
+      const stored = localStorage.getItem('usuario');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.cargo === 'CAIXA') return 'HOJE';
+      }
+    } catch {}
+    return 'TODOS';
+  });
 
   useEffect(() => {
     if (vendedorIdInicial !== undefined && vendedorIdInicial !== null) {
       setVendedorSelecionadoId(vendedorIdInicial);
+    } else if (usuario?.cargo === 'CAIXA') {
+      setVendedorSelecionadoId(usuario.id);
+      setFiltroPeriodo('HOJE');
     }
-  }, [vendedorIdInicial]);
-
-  const [filtroPeriodo, setFiltroPeriodo] = useState<'HOJE' | 'SEMANA' | 'MES' | 'TODOS'>('TODOS');
+  }, [vendedorIdInicial, usuario?.id, usuario?.cargo]);
   const [filtroStatus, setFiltroStatus] = useState<'TODAS' | 'CONCLUIDA' | 'CANCELADA'>('CONCLUIDA');
   const [buscaVenda, setBuscaVenda] = useState<string>('');
   const [vendaExpandidaId, setVendaExpandidaId] = useState<number | null>(null);
